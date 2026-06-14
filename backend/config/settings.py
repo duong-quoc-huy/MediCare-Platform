@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "drf_spectacular",
 
     #local apps
     "apps.users",
@@ -121,6 +122,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+
+    'DEFAULT_SCHEMA_CLASS': (
+        'drf_spectacular.openapi.AutoSchema',
+    ),
 }
 
 # JWT
@@ -136,6 +141,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
 ]
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MediCare API',
+    'DESCRIPTION': 'Family Doctor Booking & Medicine Delivery Platform',
+    'VERSION': '1.0.0',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
