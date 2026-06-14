@@ -2,7 +2,7 @@ from django.db import models
 from apps.users.models import User
 import uuid_utils
 import uuid
-
+from ckeditor.fields import RichTextField
 # Create your models here.
 
 
@@ -20,7 +20,7 @@ class Doctor(models.Model):
 	
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
 	specialty = models.CharField(max_length=100)
-	bio = models.TextField(blank=True)
+	bio = RichTextField(blank=True)
 	experience_years = models.PositiveIntegerField(default=0)
 	consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
 	rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)

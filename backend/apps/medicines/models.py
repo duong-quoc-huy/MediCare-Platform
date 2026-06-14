@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 import uuid_utils
-
+from ckeditor.fields import RichTextField
 # Create your models here.
 
 # Custom UUID field
@@ -36,7 +36,7 @@ class Medicine(models.Model):
 	medicine_name = models.CharField(max_length=255)
 	medicine_category = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True, related_name='medicines')
 	medicine_manufacturer = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True)
-	medicine_description = models.TextField(blank=True, null=True)
+	medicine_description = RichTextField(blank=True, null=True)
 	medicine_stock = models.PositiveIntegerField(default=0)
 	medicine_price = models.DecimalField(max_digits=10, decimal_places=2)
 	medicine_image = models.ImageField(upload_to='medicines/', blank=True, null=True)

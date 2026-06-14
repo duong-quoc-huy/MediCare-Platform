@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "drf_spectacular",
+    "ckeditor",
+    'rest_framework_simplejwt.token_blacklist',
 
     #local apps
     "apps.users",
@@ -123,9 +125,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 
-    'DEFAULT_SCHEMA_CLASS': (
-        'drf_spectacular.openapi.AutoSchema',
-    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # JWT
@@ -134,6 +134,8 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'user_id',
+    'USER_ID_FIELD': 'user_id',
 }
 
 # CORS — allow React frontend
@@ -141,11 +143,30 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
 ]
 
+
+#swagger
 SPECTACULAR_SETTINGS = {
     'TITLE': 'MediCare API',
     'DESCRIPTION': 'Family Doctor Booking & Medicine Delivery Platform',
     'VERSION': '1.0.0',
 }
+
+
+#ckeditor
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source']
+        ],
+        'height': 300,
+        'width': '100%',
+    }
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
