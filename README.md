@@ -1,2 +1,14 @@
-# MediCare-Platform
-A full-stack web platform combining two healthcare services:  Doctor Booking — patients book home-visit family doctors (bác sĩ gia đình) for checkups, minor diagnosis, and health monitoring Medicine Delivery — patients order medicines and medical supplies, paid online and delivered to their door via GHTK
+# Team members:
+1) Dương Quốc Huy - 2200009428
+2) Lê Quý Minh - 220000
+3) Huỳnh Lương Minh Hiếu - 220000
+4) Lê Thánh
+
+
+# Session 1:
+- Created repository on Github 
+- Created 2 folders: backend + frontend
+
+
+# Session 2:
+- Created Homepage with banner, nav-bar, header and footer
