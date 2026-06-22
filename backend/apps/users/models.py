@@ -63,17 +63,17 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	@property
 	def is_patient(self):
-		return self.role == self.role.PATIENT
+		return self.role == self.Role.PATIENT
 
 	@property
 	def is_doctor(self):
-		return self.role == self.role.DOCTOR
+		return self.role == self.Role.DOCTOR
 
 	@property
 	def is_admin(self):
-		return self.role == self.role.ADMIN
+		return self.role == self.Role.ADMIN
 
 	@property
 	def is_shipper(self):
-		return self.role == self.role.SHIPPER
+		return self.role == self.Role.SHIPPER
 		
