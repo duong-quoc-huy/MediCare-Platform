@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "ckeditor",
     'rest_framework_simplejwt.token_blacklist',
+    "django_extensions",
 
     #local apps
     "apps.users",
