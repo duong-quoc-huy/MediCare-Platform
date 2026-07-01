@@ -35,7 +35,7 @@ class Medicine(models.Model):
 	medicine_id = UUIDv7Field(primary_key=True, editable=False)
 	medicine_name = models.CharField(max_length=255)
 	medicine_category = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True, related_name='medicines')
-	medicine_manufacturer = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True)
+	medicine_manufacturer = models.ForeignKey(MedicineManufacturer, on_delete=models.SET_NULL, null=True, related_name='medicines')
 	medicine_description = RichTextField(blank=True, null=True)
 	medicine_stock = models.PositiveIntegerField(default=0)
 	medicine_price = models.DecimalField(max_digits=10, decimal_places=2)

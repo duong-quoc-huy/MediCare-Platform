@@ -4,7 +4,6 @@ __pycache__/
 *.pyo
 .env
 ca.pem
-media/
 staticfiles/
 db.sqlite3
 *.log

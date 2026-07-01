@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
 import styles from './Navbar.module.css'
 
 const NAV_LINKS = [
@@ -11,6 +12,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { totalQuantity } = useCart()
 
   return (
     <nav className={styles.nav}>
@@ -25,6 +27,14 @@ export default function Navbar() {
             {link.label}
           </Link>
         ))}
+
+        <Link to="/cart" className={styles.cartLink}>
+          Cart
+          {totalQuantity > 0 && (
+            <span className={styles.cartBadge}>{totalQuantity}</span>
+          )}
+        </Link>
+
         <Link to="/login" className={styles.btnOutline}>Sign in</Link>
         <Link to="/register" className={styles.btnSolid}>Get started</Link>
       </div>

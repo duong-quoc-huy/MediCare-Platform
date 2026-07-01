@@ -155,6 +155,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'MediCare API',
     'DESCRIPTION': 'Family Doctor Booking & Medicine Delivery Platform',
     'VERSION': '1.0.0',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 
@@ -191,6 +192,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
