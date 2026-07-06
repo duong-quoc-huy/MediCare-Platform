@@ -13,7 +13,6 @@ export default function Register() {
     phone_number_1: '',
     password: '',
     password2: '',
-    role: 'patient',
   })
 
   const [errors, setErrors] = useState({})
@@ -98,7 +97,6 @@ export default function Register() {
         phone_number_1: formData.phone_number_1.trim(),
         password: formData.password,
         password2: formData.password2,
-        role: formData.role,
       })
 
       setSuccess(true)

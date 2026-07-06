@@ -21,6 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		validated_data.pop('password2')
 		password = validated_data.pop('password')
+		validated_data['role'] = 'patient'
 		user = User(**validated_data)
 		user.set_password(password)
 		user.save()
