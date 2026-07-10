@@ -32,7 +32,7 @@ class Payment(models.Model):
 		REFUNDED    = 'refunded',   'Refunded'
 
 	payment_id = UUIDv7Field(primary_key=True, editable=False)
-	reference_id    = models.PositiveIntegerField()
+	reference_id    = models.UUIDField()
 	reference_type  = models.CharField(max_length=20, choices=ReferenceType.choices)
 	method          = models.CharField(max_length=10, choices=Method.choices)
 	amount          = models.DecimalField(max_digits=10, decimal_places=2)

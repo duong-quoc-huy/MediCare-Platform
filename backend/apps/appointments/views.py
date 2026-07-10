@@ -41,7 +41,7 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 			Appointment.objects
 			.select_related('patient', 'doctor', 'doctor__user')
 			.all()
-			.order_by('-created-at')
+			.order_by('-created_at')
 			)
 
 		#admin can read all appointments

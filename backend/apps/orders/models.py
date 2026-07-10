@@ -36,7 +36,7 @@ class MedicineOrder(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f'Order #{self.id} - {self.patient.full_name}'
+		return f'Order #{self.medicine_order_id} - {self.patient.full_name}'
 
 
 class MedicineOrderItem(models.Model):
@@ -47,7 +47,7 @@ class MedicineOrderItem(models.Model):
 	unit_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 	def __str__(self):
-		return f'{self.medicine.name} x {self.quantity}'
+		return f'{self.medicine.medicine_name} x {self.quantity}'
 
 	@property
 	def sub_total(self):
