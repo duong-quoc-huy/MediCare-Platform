@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import MedicineOrder, MedicineOrderItem
 from apps.medicines.models import Medicine
-
+from django.db import transaction
 
 class MedicineOrderItemSerializer(serializers.ModelSerializer):
 	medicine_name = serializers.CharField(
@@ -121,6 +121,7 @@ class MedicineOrderCreateSerializer(serializers.ModelSerializer):
 
 		return value
 
+	@transaction.atomic
 	def create(self, validated_data):
 		request = self.context['request']
 		items_data = validated_data.pop('items')
@@ -137,6 +138,11 @@ class MedicineOrderCreateSerializer(serializers.ModelSerializer):
 			medicine = item_data['medicine']
 			quantity = item_data['quantity']
 			unit_price = medicine.medicine_price
+
+			if quantity > medicine.medicine_stock:
+				raise serializers.ValidationError(
+					f'{medicine.medicine_name} only has {medicine.medicine_stock} items left.'
+				)
 
 			MedicineOrderItem.objects.create(
 				order=order,
