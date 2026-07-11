@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer
+from .serializers import CustomTokenObtainPairSerializer
 from .models import User
 
 
@@ -24,13 +25,13 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(TokenObtainPairView):
+	serializer_class   = CustomTokenObtainPairSerializer
 	permission_classes = [AllowAny]
 
 	def post(self, request, *args, **kwargs):
 		response = super().post(request, *args, **kwargs)
 		if response.status_code == 200:
 			# fetch user and attach profile to response
-			from django.contrib.auth import authenticate
 			user = User.objects.get(email=request.data.get('email'))
 			response.data['user'] = UserSerializer(user).data
 		return response

@@ -1,6 +1,34 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from .models import User
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+	def validate(self, attrs):
+		# check email exist
+		try:
+			user = User.objects.get(email=attrs['email'])
+		except User.DoesNotExist:
+			raise AuthenticationFailed(
+				{'details': 'No account found with this email address.'}
+			)
+
+		# check active account
+		if user.is_active:	
+			raise AuthenticationFailed(
+				{'details': 'Your account has been deactivated. Please contact customer service'}
+			)
+
+
+		# check password
+		if not user.check_password(attrs['password']):
+			raise AuthenticationFailed(
+				{'details': 'Invalid information. Please try again'}
+			)
+
+		return super().validate(attrs)
+
 
 class RegisterSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, validators=[validate_password])

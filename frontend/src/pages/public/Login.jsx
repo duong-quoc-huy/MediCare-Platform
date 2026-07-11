@@ -58,7 +58,7 @@ export default function Login() {
         err.response?.data?.detail ||
         err.response?.data?.message ||
         err.message ||
-        'Invalid email or password.'
+        'Something went wrong. Please try again.'
 
       setError(msg)
     } finally {
