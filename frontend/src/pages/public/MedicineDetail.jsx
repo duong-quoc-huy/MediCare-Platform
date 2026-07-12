@@ -4,10 +4,12 @@ import { useCart } from '../../context/CartContext'
 import { getMedicineById } from '../../api/medicineApi'
 import styles from './MedicineDetail.module.css'
 
+
 export default function MedicineDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToCart } = useCart()
+  const [quantity, setQuantity] = useState(1)
 
   const [medicine, setMedicine] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -125,10 +127,18 @@ export default function MedicineDetail() {
             </div>
           </div>
 
+          <input
+            type="number"
+            min="1"
+            max={medicine.medicine_stock}
+            value={quantity}
+            onChange={e => setQuantity(Number(e.target.value))}
+          />
+
           <button
-            onClick={handleAddToCart}
-            className={styles.cartBtn}
-            disabled={!medicine.medicine_is_active}
+            type="button"
+            onClick={() => addToCart(medicine, quantity)}
+            disabled={medicine.medicine_stock <= 0}
           >
             Add to cart
           </button>

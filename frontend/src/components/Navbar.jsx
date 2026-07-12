@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './Navbar.module.css'
+import { useCart } from '../context/CartContext'
+import { ShoppingCart } from 'lucide-react'
 
 const PUBLIC_LINKS = [
   { label: 'Doctors', to: '/doctors' },
@@ -10,10 +12,15 @@ const PUBLIC_LINKS = [
   { label: 'About', to: '/about' },
 ]
 
+
+
 function getDashboardPath(role) {
-  if (role === 'admin') return '/admin/dashboard'
-  if (role === 'doctor') return '/doctor/dashboard'
-  if (role === 'shipper') return '/shipper/dashboard'
+  const normalizedRole = role?.toLowerCase()
+
+  if (normalizedRole === 'admin') return '/admin/dashboard'
+  if (normalizedRole === 'doctor') return '/doctor/dashboard'
+  if (normalizedRole === 'shipper') return '/shipper/dashboard'
+
   return '/patient/dashboard'
 }
 
@@ -30,6 +37,8 @@ function getInitials(user) {
 
 export default function Navbar() {
   const navigate = useNavigate()
+  const { totalItems } = useCart()
+  
   const { user, isAuthenticated, logout } = useAuth()
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -61,6 +70,18 @@ export default function Navbar() {
           </Link>
         ))}
 
+
+        <Link to="/cart" className={styles.cartLink}>
+          <ShoppingCart size={18} />
+          <span>Cart</span>
+
+          {totalItems > 0 && (
+            <span className={styles.cartBadge}>
+              {totalItems}
+            </span>
+          )}
+        </Link>
+
         {isAuthenticated ? (
           <>
             <Link
@@ -69,14 +90,6 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               Dashboard
-            </Link>
-
-            <Link
-              to="/cart"
-              className={styles.navLink}
-              onClick={() => setMenuOpen(false)}
-            >
-              Cart
             </Link>
 
             <div className={styles.userMenu}>

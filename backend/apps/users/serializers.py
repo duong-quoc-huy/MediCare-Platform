@@ -6,26 +6,26 @@ from .models import User
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 	def validate(self, attrs):
+		auth_error = AuthenticationFailed(
+			{'detail': 'Invalid Information. Please try again'}
+		)
+
 		# check email exist
 		try:
 			user = User.objects.get(email=attrs['email'])
 		except User.DoesNotExist:
-			raise AuthenticationFailed(
-				{'details': 'No account found with this email address.'}
-			)
+			raise auth_error
 
 		# check active account
-		if user.is_active:	
+		if not user.is_active:	
 			raise AuthenticationFailed(
-				{'details': 'Your account has been deactivated. Please contact customer service'}
+				{'detail': 'Your account has been deactivated. Please contact customer service'}
 			)
 
 
 		# check password
 		if not user.check_password(attrs['password']):
-			raise AuthenticationFailed(
-				{'details': 'Invalid information. Please try again'}
-			)
+			raise auth_error
 
 		return super().validate(attrs)
 
