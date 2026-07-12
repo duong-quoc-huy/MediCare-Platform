@@ -35,7 +35,7 @@ export default function MedicineDetail() {
   }, [id])
 
   function handleAddToCart() {
-    addToCart(medicine)
+    addToCart(medicine, quantity)
     navigate('/cart')
   }
 
@@ -132,7 +132,16 @@ export default function MedicineDetail() {
             min="1"
             max={medicine.medicine_stock}
             value={quantity}
-            onChange={e => setQuantity(Number(e.target.value))}
+            onChange={e => {
+              const val = Number(e.target.value)
+              if (val > medicine.medicine_stock) {
+                setQuantity(medicine.medicine_stock)
+              } else if (val < 1) {
+                setQuantity(1)
+              } else {
+                setQuantity(val)
+              }
+            }}
           />
 
           <button

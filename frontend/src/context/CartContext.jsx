@@ -41,12 +41,17 @@ export function CartProvider({ children }) {
   const [serverCart, setServerCart] = useState(null)
   const [loadingCart, setLoadingCart] = useState(false)
   const [cartError, setCartError] = useState('')
-
+  const [refreshing, setRefreshing] = useState(false)
   const isPatient = user?.role?.toLowerCase() === 'patient'
+
+  function setCartErrorWithTimeout(msg){
+    setCartError(msg)
+    setTimeout(() => setCartError(''), 4000)
+  }
 
   useEffect(() => {
     async function loadCart() {
-      setCartError('')
+      setCartErrorWithTimeout('')
 
       if (!isAuthenticated) {
         setCartItems(getLocalCart())
@@ -66,17 +71,22 @@ export function CartProvider({ children }) {
         const localItems = getLocalCart()
 
         if (localItems.length > 0) {
-          const mergeItems = localItems.map(item => ({
-            medicine: item.medicine_id || item.medicine,
-            quantity: item.quantity,
-          }))
-
-          const mergedCart = await mergeCart(mergeItems)
-
-          setServerCart(mergedCart)
-          setCartItems(normalizeServerCart(mergedCart))
-          clearLocalCart()
-          return
+            try {
+                const mergeItems = localItems.map(item => ({
+                    medicine: item.medicine_id || item.medicine,
+                    quantity: item.quantity,
+                }))
+                const mergedCart = await mergeCart(mergeItems)
+                setServerCart(mergedCart)
+                setCartItems(normalizeServerCart(mergedCart))
+                clearLocalCart()  // only clear after successful merge
+            } catch {
+                // merge failed — fall back to just loading server cart
+                const cart = await getCart()
+                setServerCart(cart)
+                setCartItems(normalizeServerCart(cart))
+            }
+            return
         }
 
         const cart = await getCart()
@@ -84,7 +94,7 @@ export function CartProvider({ children }) {
         setServerCart(cart)
         setCartItems(normalizeServerCart(cart))
       } catch (err) {
-        setCartError(
+        setCartErrorWithTimeout(
           err.response?.data?.detail ||
             'Could not load cart.'
         )
@@ -97,19 +107,27 @@ export function CartProvider({ children }) {
   }, [isAuthenticated, isPatient])
 
   async function refreshServerCart() {
-    const cart = await getCart()
-    setServerCart(cart)
-    setCartItems(normalizeServerCart(cart))
-    return cart
+    if (refreshing) return
+    setRefreshing(true)
+
+    try {
+      const cart = await getCart()
+      setServerCart(cart)
+      setCartItems(normalizeServerCart(cart))
+      return cart
+    } finally {
+      setRefreshing(false)
+    }
+
   }
 
   async function addToCart(medicine, quantity = 1) {
-    setCartError('')
+    setCartErrorWithTimeout('')
 
     const medicineId = medicine.medicine_id || medicine.medicine
 
     if (!medicineId) {
-      setCartError('Invalid medicine.')
+      setCartErrorWithTimeout('Invalid medicine.')
       return
     }
 
@@ -157,7 +175,7 @@ export function CartProvider({ children }) {
     }
 
     if (!isPatient) {
-      setCartError('Only patients can add medicines to cart.')
+      setCartErrorWithTimeout('Only patients can add medicines to cart.')
       return
     }
 
@@ -167,7 +185,7 @@ export function CartProvider({ children }) {
       setServerCart(cart)
       setCartItems(normalizeServerCart(cart))
     } catch (err) {
-      setCartError(
+      setCartErrorWithTimeout(
         err.response?.data?.quantity ||
           err.response?.data?.detail ||
           'Could not add item to cart.'
@@ -176,7 +194,8 @@ export function CartProvider({ children }) {
   }
 
   async function updateQuantity(itemId, quantity) {
-    setCartError('')
+    setCartErrorWithTimeout('')
+    if (isAuthenticated && !isPatient) return
 
     const newQuantity = Number(quantity)
 
@@ -185,42 +204,50 @@ export function CartProvider({ children }) {
       return
     }
 
+    const item = cartItems.find(i =>
+      (i.cart_item_id || i.medicine_id || i.medicine) === itemId
+    )
+    if (item) {
+      const stock = item.medicine_stock ?? 9999
+      if (newQuantity > stock) {
+        setCartErrorWithTimeout(`Only ${stock} units available in stock.`)
+        return
+      }
+    }
+
+    
     if (!isAuthenticated) {
       setCartItems(prevItems => {
         const updatedItems = prevItems.map(item => {
           const localItemId = item.medicine_id || item.medicine
-
           if (localItemId !== itemId) return item
-
           const stock = item.medicine_stock ?? 9999
-
           return {
             ...item,
             quantity: Math.min(newQuantity, stock),
           }
         })
-
         saveLocalCart(updatedItems)
         return updatedItems
       })
-
-      return
+      return  // ← critical: stop here, don't hit API
     }
 
     try {
       await updateCartItem(itemId, newQuantity)
       await refreshServerCart()
     } catch (err) {
-      setCartError(
+      setCartErrorWithTimeout(
         err.response?.data?.quantity ||
-          err.response?.data?.detail ||
-          'Could not update cart item.'
+        err.response?.data?.detail ||
+        'Could not update cart item.'
       )
     }
   }
 
   async function removeFromCart(itemId) {
-    setCartError('')
+    setCartErrorWithTimeout('')
+    if (isAuthenticated && !isPatient) return
 
     if (!isAuthenticated) {
       setCartItems(prevItems => {
@@ -240,7 +267,7 @@ export function CartProvider({ children }) {
       await removeCartItem(itemId)
       await refreshServerCart()
     } catch (err) {
-      setCartError(
+      setCartErrorWithTimeout(
         err.response?.data?.detail ||
           'Could not remove cart item.'
       )
@@ -248,7 +275,7 @@ export function CartProvider({ children }) {
   }
 
   async function clearCart() {
-    setCartError('')
+    setCartErrorWithTimeout('')
 
     if (!isAuthenticated) {
       setCartItems([])
@@ -270,7 +297,7 @@ export function CartProvider({ children }) {
           : null
       )
     } catch (err) {
-      setCartError(
+      setCartErrorWithTimeout(
         err.response?.data?.detail ||
           'Could not clear cart.'
       )
