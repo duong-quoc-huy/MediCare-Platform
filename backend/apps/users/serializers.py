@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
-from .models import User
+from .models import User, UserAddress
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 	def validate(self, attrs):
@@ -79,3 +79,29 @@ class ChangePasswordSerializer(serializers.Serializer):
 		user.save()
 		return user
 
+class UserAddressSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = UserAddress
+		fields = [
+			'user_address_id',
+			'label',
+			'address',
+			'is_default',
+			'created_at'
+		]
+		read_only_fields = ['user_address_id', 'created_at']
+
+
+	def create(self, validated_data):
+		user = self.context['request'].user
+		if validated_data.get('is_default'):
+			# unset previous default
+			UserAddress.objects.filter(user=user, is_default=True).update(is_default=False)
+		validated_data['user'] = user
+		return UserAddress.objects.create(**validated_data)
+
+	def update(self, instance, validated_data):
+		user = self.context['request'].user
+		if validated_data.get('is_default'):
+			UserAddress.objects.filter(user=user, is_default=True).exclude(pk=instance.pk).update(is_default=False)
+		return super().update(instance, validated_data)

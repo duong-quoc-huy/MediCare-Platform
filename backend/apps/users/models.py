@@ -3,7 +3,9 @@ from django.db import models
 import uuid_utils
 import uuid
 from django.core.validators import RegexValidator
-
+import random
+from django.utils import timezone
+from datetime import timedelta
 
 # Custom UUID field
 def generate_uuid7():
@@ -77,3 +79,49 @@ class User(AbstractBaseUser, PermissionsMixin):
 	def is_shipper(self):
 		return self.role == self.Role.SHIPPER
 		
+
+
+class UserAddress(models.Model):
+	user_address_id = UUIDv7Field(primary_key=True, editable=False)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+	label = models.CharField(max_length=50)
+	address = models.TextField()
+	is_default = models.BooleanField(default=False)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['-is_default', '-created_at']
+
+	def __str__(self):
+		return f'{self.user.full_name} - {self.label}'
+
+
+class OTP(models.Model):
+	class Purpose(models.TextChoices):
+		REGISTER = 'register', 'Register'
+		CHANGE_EMAIL = 'change_email', 'Change Email'
+		CHANGE_PASSWORD = 'change_password', 'Change Password'
+
+
+	otp_id = UUIDv7Field(primary_key=True, editable=False)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otps")
+	code = models.CharField(max_length=6)
+	purpose = models.CharField(max_length=20, choices=Purpose.choices)
+	new_email = models.EmailField(blank=True)
+	is_used = models.BooleanField(default=False)
+	created_at = models.DateTimeField(auto_now_add=True)
+	expires_at = models.DateTimeField()
+
+	class Meta:
+		ordering = ['-created_at']
+
+	def save(self, *args, **kwargs):
+		if not self.expires_at:
+			self.expires_at = timezone.now() + timedelta(minutes=5)
+		super().save(*args, **kwargs)
+
+	@property
+	def is_expired(self):
+		return timezone.now() > self.expires_at
+
+	

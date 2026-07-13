@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer
+from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer, UserAddressSerializer
 from .serializers import CustomTokenObtainPairSerializer
-from .models import User
+from .models import User, UserAddress
 
 
 class RegisterView(generics.CreateAPIView):
@@ -67,3 +67,22 @@ class ChangePasswordView(generics.UpdateAPIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 		return Response({'message': 'Password changed successfully'})
+
+class UserAddressListCreateView(generics.ListCreateAPIView):
+	serializer_class = UserAddressSerializer
+	permission_classes = [IsAuthenticated]
+	lookup_field = 'user_address_id'
+
+	def get_queryset(self):
+		return UserAddress.objects.filter(user=self.request.user)
+
+	def perform_create(self, serializer):
+		serializer.save()
+
+class UserAddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = UserAddressSerializer
+	permission_classes = [IsAuthenticated]
+	lookup_field = 'user_address_id'
+
+	def get_queryset(self):
+		return UserAddress.objects.filter(user=self.request.user)
