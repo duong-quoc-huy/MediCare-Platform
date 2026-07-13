@@ -7,7 +7,7 @@ import { User, Lock, Loader2, Activity, AlertTriangle, Eye, EyeOff  } from 'luci
 
 export default function Login() {
   const navigate  = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, user } = useAuth()
 
   //  Form state 
   const [formData, setFormData] = useState({
@@ -20,6 +20,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
 
   const [showPassword, setShowPassword] = useState(false)
+  
 
   //  Handlers 
   function handleChange(e) {
@@ -28,42 +29,50 @@ export default function Login() {
   }
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+      e.preventDefault()
+      setLoading(true)
+      setError('')
 
-    try {
-      const data = await loginUser(formData.email, formData.password)
+      try {
+          const data = await loginUser(formData.email, formData.password)
 
-      const access = data.access
-      const refresh = data.refresh
-      const user = data.user
+          const access  = data.access
+          const refresh = data.refresh
+          const user    = data.user
 
-      if (!access || !refresh || !user) {
-        throw new Error('Invalid login response from server.')
+          if (!access || !refresh || !user) {
+              throw new Error('Invalid login response from server.')
+          }
+
+          login(access, refresh, user)
+
+          const role = user.role?.toLowerCase()
+
+          if (role === 'admin')   return navigate('/admin/dashboard',   { replace: true })
+          if (role === 'doctor')  return navigate('/doctor/dashboard',  { replace: true })
+          if (role === 'shipper') return navigate('/shipper/dashboard', { replace: true })
+          return navigate('/patient/dashboard', { replace: true })
+
+      } catch (err) {
+          const data = err.response?.data
+
+          // Unverified email — redirect to OTP page
+          if (data?.code === 'email_not_verified') {
+              localStorage.setItem('pending_verification_email', formData.email)
+              navigate('/verify-otp?purpose=register', { replace: true })
+              return
+          }
+
+          const msg =
+              data?.detail ||
+              data?.message ||
+              err.message ||
+              'Something went wrong. Please try again.'
+
+          setError(msg)
+      } finally {
+          setLoading(false)
       }
-
-      login(access, refresh, user)
-
-      const role = user.role?.toLowerCase()
-
-      if (role === 'admin') return navigate('/admin/dashboard', { replace: true })
-      if (role === 'doctor') return navigate('/doctor/dashboard', { replace: true })
-      if (role === 'shipper') return navigate('/shipper/dashboard', { replace: true })
-      return navigate('/patient/dashboard', { replace: true })
-
-      navigate('/')
-    } catch (err) {
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        err.message ||
-        'Something went wrong. Please try again.'
-
-      setError(msg)
-    } finally {
-      setLoading(false)
-    }
   }
 
   //  Render 

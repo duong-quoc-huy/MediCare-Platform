@@ -52,6 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	role = models.CharField(max_length=10, choices=Role.choices, default=Role.PATIENT)
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
+	email_verified = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	objects = UserManager()
@@ -124,4 +125,5 @@ class OTP(models.Model):
 	def is_expired(self):
 		return timezone.now() > self.expires_at
 
-	
+	def __str__(self):
+		return f'{self.user.email} — {self.purpose} — {self.code}'

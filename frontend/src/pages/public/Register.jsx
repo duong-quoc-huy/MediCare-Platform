@@ -17,7 +17,6 @@ export default function Register() {
 
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -99,11 +98,8 @@ export default function Register() {
         password2: formData.password2,
       })
 
-      setSuccess(true)
-
-      setTimeout(() => {
-        navigate('/login', { replace: true })
-      }, 1800)
+      localStorage.setItem('pending_verification_email', formData.email.trim())
+      navigate('/verify-otp?purpose=register', { replace: true })
     } catch (err) {
       const data = err.response?.data
 
@@ -117,20 +113,6 @@ export default function Register() {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.card} style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: '1rem' }}>✅</div>
-          <h2 className={styles.title}>Account created!</h2>
-          <p className={styles.subtitle}>
-            Your account has been created successfully. Redirecting to login...
-          </p>
-        </div>
-      </div>
-    )
   }
 
   return (

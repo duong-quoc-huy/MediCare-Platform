@@ -15,6 +15,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import ShipperDashboard from './pages/shipper/ShipperDashboard'
 import PublicOnlyRoute from './components/PublicOnlyRoute'
 import './index.css'
+import VerifyOTP from './pages/public/VerifyOTP'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/medicine" element={<MedicineList />} />
           <Route path="/medicine/:id" element={<MedicineDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/login"
             element={
               <PublicOnlyRoute>
