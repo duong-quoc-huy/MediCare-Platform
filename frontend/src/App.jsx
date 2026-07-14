@@ -17,6 +17,10 @@ import PublicOnlyRoute from './components/PublicOnlyRoute'
 import './index.css'
 import VerifyOTP from './pages/public/VerifyOTP'
 import Profile from './pages/shared/Profile'
+import ProfileOverview from './pages/shared/ProfileOverview'
+import ProfilePersonalInfo from './pages/shared/ProfilePersonalInfo'
+import ProfileAddressBook from './pages/shared/ProfileAddressBook'
+import ProfileSecurity from './pages/shared/ProfileSecurity'
 
 export default function App() {
   return (
@@ -76,13 +80,20 @@ export default function App() {
             }
           />
 
-          <Route path="/profile" element={
+          <Route
+            path="/profile"
+            element={
               <ProtectedRoute allowedRoles={['patient', 'doctor', 'admin', 'shipper']}>
                 <Profile />
               </ProtectedRoute>
-            } 
-          />
-          
+            }
+          >
+            <Route index element={<ProfileOverview />} />
+            <Route path="personal-info" element={<ProfilePersonalInfo />} />
+            <Route path="address-book" element={<ProfileAddressBook />} />
+            <Route path="security" element={<ProfileSecurity />} />
+          </Route>
+                
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
           <Route path="/placeholder-1" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 1</div>} />
           <Route path="/placeholder-2" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 2</div>} />

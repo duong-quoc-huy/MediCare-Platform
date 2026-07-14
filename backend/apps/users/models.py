@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator
 import random
 from django.utils import timezone
 from datetime import timedelta
+from .validators import validate_profile_image
 
 # Custom UUID field
 def generate_uuid7():
@@ -43,9 +44,38 @@ class User(AbstractBaseUser, PermissionsMixin):
 		ADMIN = 'admin', 'Admin'
 		SHIPPER = 'shipper', 'Shipper'
 
+	class Gender(models.TextChoices):
+		MALE = 'male', 'Male'
+		FEMALE = 'female', 'Female'
+		OTHER = 'other', 'OTHER'
+
 	user_id = UUIDv7Field(primary_key=True, editable=False)
 	email = models.EmailField(unique=True)
 	full_name = models.CharField(max_length=100)
+	gender = models.CharField(max_length=10, choices=Gender.choices, blank=True)
+	date_of_birth = models.DateField(null=True, blank=True)
+
+	national_id = models.CharField(
+		max_length=12, 
+		unique=True, 
+		blank=True, 
+		null=True,
+		validators=[RegexValidator(
+			regex=r'^\d{12}$',
+			message='National ID must be exactly 12 digits.')]
+		)
+	
+	health_insurance_card = models.CharField(
+			max_length=15,
+			unique=True,
+			blank=True,
+			null=True,
+			validators=[RegexValidator(
+				regex=r'^[A-Z]{2}\d{13}$',
+				message='Health insurance card must start with 2 uppercase letters followed by 13 digits (e.g. HS4030012345678).'
+			)]
+		)
+
 	phone_number_1 = models.CharField(max_length=10, validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be 10 digits and start with 0.')], unique=True)
 	phone_number_2 = models.CharField(max_length=10, validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be 10 digits and start with 0')], unique=True, blank=True, null=True)
 	role = models.CharField(max_length=10, choices=Role.choices, default=Role.PATIENT)
@@ -53,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	is_staff = models.BooleanField(default=False)
 	email_verified = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
-
+	profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, validators=[validate_profile_image])
 	objects = UserManager()
 
 	USERNAME_FIELD = 'email'

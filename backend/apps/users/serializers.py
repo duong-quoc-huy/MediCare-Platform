@@ -72,9 +72,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = User
-		fields = ('user_id', 'email', 'full_name', 'phone_number_1', 'phone_number_2', 'role', 'created_at')
-		read_only_fields = ('user_id', 'email', 'role', 'created_at')
+		model  = User
+		fields = (
+			'user_id',
+			'email',
+			'full_name',
+			'gender',
+			'date_of_birth',
+			'national_id',
+			'health_insurance_card',
+			'phone_number_1',
+			'phone_number_2',
+			'profile_image',
+			'role',
+			'email_verified',
+			'created_at',
+		)
+		read_only_fields = ('user_id', 'email', 'role', 'email_verified', 'created_at')
 
 
 class ChangePasswordSerializer(serializers.Serializer):

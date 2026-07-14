@@ -33,7 +33,9 @@
 }
 
 .navItem {
+  display: block;
   text-align: left;
+  text-decoration: none;
   padding: 10px 14px;
   border-radius: 8px;
   border: none;
@@ -79,11 +81,117 @@
   margin-bottom: 1rem;
 }
 
+/* ---------- Account Overview summary cards ---------- */
+.overviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.manageLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f9d80;
+  text-decoration: none;
+}
+.manageLink:hover {
+  text-decoration: underline;
+}
+
+.overviewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid #eef0ef;
+}
+.overviewRow:first-of-type {
+  border-top: none;
+}
+
 .subTitle {
   font-size: 15px;
   font-weight: 600;
   color: #16211e;
   margin-bottom: 0.75rem;
+}
+
+/* ---------- Avatar ---------- */
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eef0ef;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e6f5f2;
+  cursor: pointer;
+  border: 2px solid #e6e8eb;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 600;
+  color: #0f9d80;
+}
+
+.avatarEditBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #0f9d80;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border: 2px solid #fff;
+}
+
+.avatarMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------- Info grid ---------- */

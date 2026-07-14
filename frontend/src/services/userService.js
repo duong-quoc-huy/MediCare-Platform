@@ -13,6 +13,16 @@ export async function updateProfile(data) {
 }
 
 
+export async function uploadProfileImage(imageFile) {
+  const formData = new FormData()
+  formData.append('profile_image', imageFile)
+
+  const response = await api.patch('/api/auth/profile/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
 export async function requestPasswordOTP() {
   const response = await api.post('/api/auth/request-password-otp/')
   return response.data
