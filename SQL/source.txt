@@ -1,0 +1,1 @@
+https://github.com/thanglequoc/vietnamese-provinces-database/blob/master/postgresql/postgres_ImportData_vn_units.sql

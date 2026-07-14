@@ -1,0 +1,245 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.pageTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #16211e;
+  margin-bottom: 1.75rem;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navItem {
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navItem:hover {
+  background: #f1f5f4;
+}
+
+.navItemActive {
+  background: #e6f5f2;
+  color: #0f9d80;
+}
+
+/* ---------- Content / sections ---------- */
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section {
+  background: #ffffff;
+  border: 1px solid #e6e8eb;
+  border-radius: 14px;
+  padding: 1.75rem;
+  scroll-margin-top: 2rem;
+}
+
+.sectionTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #16211e;
+  margin-bottom: 1rem;
+}
+
+.subTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #16211e;
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- Info grid ---------- */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.infoField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  color: #8a9490;
+}
+
+.value {
+  font-size: 15px;
+  color: #16211e;
+}
+
+/* ---------- Role badge ---------- */
+.roleBadge {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.patient { background: #e6f5f2; color: #0f9d80; }
+.doctor  { background: #e5eefc; color: #2563eb; }
+.admin   { background: #fde8e8; color: #dc2626; }
+.shipper { background: #fef3e2; color: #d97706; }
+
+/* ---------- Inputs / buttons ---------- */
+.input,
+.select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d8dcda;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #16211e;
+  background: #fff;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #0f9d80;
+}
+
+.editBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #0f9d80;
+  background: transparent;
+  color: #0f9d80;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.editBtn:hover { background: #e6f5f2; }
+.editBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.saveBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #0f9d80;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.saveBtn:hover { background: #0c8069; }
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.cancelBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #8a9490;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cancelBtn:hover { color: #4b5563; }
+
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.inlineForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 380px;
+}
+
+.securityBlock {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eef0ef;
+}
+.securityBlock:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.hint {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.successMsg {
+  color: #0f9d80;
+  font-size: 13px;
+  margin-bottom: 0.75rem;
+}
+
+.errorMsg {
+  color: #dc2626;
+  font-size: 13px;
+  margin-bottom: 0.75rem;
+}
+
+.muted {
+  color: #8a9490;
+  font-size: 14px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+  .sidebar nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

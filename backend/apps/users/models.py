@@ -48,7 +48,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 	full_name = models.CharField(max_length=100)
 	phone_number_1 = models.CharField(max_length=10, validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be 10 digits and start with 0.')], unique=True)
 	phone_number_2 = models.CharField(max_length=10, validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be 10 digits and start with 0')], unique=True, blank=True, null=True)
-	address = models.TextField(blank=True)
 	role = models.CharField(max_length=10, choices=Role.choices, default=Role.PATIENT)
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
@@ -85,13 +84,35 @@ class User(AbstractBaseUser, PermissionsMixin):
 class UserAddress(models.Model):
 	user_address_id = UUIDv7Field(primary_key=True, editable=False)
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+
 	label = models.CharField(max_length=50)
-	address = models.TextField()
+
+	street_address = models.CharField(max_length=255)
+
+
+	ward_code = models.CharField(max_length=20)
+	ward_name = models.CharField(max_length=255)
+
+	province_code = models.CharField(max_length=20)
+	province_name = models.CharField(max_length=255)
+
+
+	postal_code = models.CharField(max_length=10, blank=True)
+
 	is_default = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		ordering = ['-is_default', '-created_at']
+
+	@property
+	def full_address(self):
+		parts = [self.street_address, self.ward_name, self.province_name]
+		if self.district:
+			parts.append(self.district)
+		if self.postal_code:
+			parts.append(self.postal_code)
+		return ', '.join(parts)
 
 	def __str__(self):
 		return f'{self.user.full_name} - {self.label}'

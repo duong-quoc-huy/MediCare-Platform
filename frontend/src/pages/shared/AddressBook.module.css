@@ -1,0 +1,204 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addressCard {
+  background: #fafbfa;
+  border: 1px solid #e6e8eb;
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+}
+
+.defaultCard {
+  border-color: #0f9d80;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardLabel {
+  font-weight: 500;
+  font-size: 15px;
+  color: #16211e;
+}
+
+.defaultBadge {
+  background: #e6f5f2;
+  color: #0f9d80;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.cardAddress {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.setDefaultBtn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #0f9d80;
+  background: transparent;
+  color: #0f9d80;
+}
+.setDefaultBtn:hover { background: #e6f5f2; }
+
+.editBtn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #d8dcda;
+  background: transparent;
+  color: #4b5563;
+}
+.editBtn:hover { background: #f1f5f4; }
+
+.deleteBtn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #f4b7b7;
+  background: transparent;
+  color: #dc2626;
+}
+.deleteBtn:hover { background: #fde8e8; }
+
+.addBtn {
+  align-self: flex-start;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #0f9d80;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.addBtn:hover { background: #0c8069; }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: #fafbfa;
+  border: 1px solid #e6e8eb;
+  border-radius: 10px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 12px;
+  color: #8a9490;
+  margin-bottom: 6px;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d8dcda;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #16211e;
+}
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #0f9d80;
+}
+.select:disabled {
+  background: #f1f5f4;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+}
+
+.saveBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #0f9d80;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.saveBtn:hover { background: #0c8069; }
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.cancelBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #8a9490;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cancelBtn:hover { color: #4b5563; }
+
+.errorMsg {
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.muted {
+  color: #8a9490;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

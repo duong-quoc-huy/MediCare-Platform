@@ -16,6 +16,7 @@ import ShipperDashboard from './pages/shipper/ShipperDashboard'
 import PublicOnlyRoute from './components/PublicOnlyRoute'
 import './index.css'
 import VerifyOTP from './pages/public/VerifyOTP'
+import Profile from './pages/shared/Profile'
 
 export default function App() {
   return (
@@ -73,6 +74,13 @@ export default function App() {
                 <ShipperDashboard />
               </ProtectedRoute>
             }
+          />
+
+          <Route path="/profile" element={
+              <ProtectedRoute allowedRoles={['patient', 'doctor', 'admin', 'shipper']}>
+                <Profile />
+              </ProtectedRoute>
+            } 
           />
           
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
