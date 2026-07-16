@@ -311,3 +311,21 @@
     grid-column: auto;
   }
 }
+
+.successBox {
+  padding: 1rem;
+  border-radius: 14px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.errorBox {
+  padding: 1rem;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #be123c;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}

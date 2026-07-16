@@ -1,0 +1,285 @@
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 3rem 6%;
+  background: #f8fafc;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0f766e;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.header h1 {
+  margin: 0.8rem 0 0.35rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #0f172a;
+}
+
+.header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.formCard,
+.summaryCard,
+.emptyCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.formCard {
+  padding: 1.5rem;
+}
+
+.form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.sectionTitle svg {
+  color: #0f766e;
+}
+
+.sectionTitle h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field label {
+  color: #334155;
+  font-weight: 800;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  font-family: inherit;
+  outline: none;
+  background: #ffffff;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.paymentOptions {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.paymentOption:hover {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.paymentOption input {
+  width: 18px;
+  height: 18px;
+}
+
+.paymentOption div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.paymentOption strong {
+  color: #0f172a;
+}
+
+.paymentOption span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.disabledOption {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.disabledOption:hover {
+  border-color: #cbd5e1;
+  background: white;
+}
+
+.submitBtn,
+.primaryLink {
+  height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: #0f766e;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.submitBtn:hover:not(:disabled),
+.primaryLink:hover {
+  background: #115e59;
+}
+
+.submitBtn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.summaryCard {
+  position: sticky;
+  top: 100px;
+  padding: 1.25rem;
+}
+
+.summaryCard h2 {
+  margin: 0 0 1rem;
+  color: #0f172a;
+}
+
+.itemsList {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.summaryItem {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summaryItem img {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #f1f5f9;
+}
+
+.summaryItem h3 {
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.summaryItem p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.summaryItem strong {
+  grid-column: 2;
+  color: #0f766e;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  border-top: 1px solid #e5e7eb;
+  color: #334155;
+}
+
+.summaryRow strong {
+  color: #0f172a;
+}
+
+.errorBox {
+  padding: 1rem;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #be123c;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+}
+
+.emptyCard {
+  max-width: 560px;
+  margin: 5rem auto;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.emptyCard svg {
+  color: #0f766e;
+  margin-bottom: 1rem;
+}
+
+.emptyCard h1 {
+  color: #0f172a;
+}
+
+.emptyCard p {
+  color: #64748b;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 2rem 1rem;
+  }
+}

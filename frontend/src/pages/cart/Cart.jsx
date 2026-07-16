@@ -1,14 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Trash2, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react'
-import { useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
+
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
-import { createMedicineOrder } from '../../services/orderService'
 import styles from './Cart.module.css'
 
 export default function Cart() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
+  const [searchParams] = useSearchParams()
+
+  const paymentStatus = searchParams.get('payment')
+  const orderId = searchParams.get('order_id')
 
   const {
     cartItems,
@@ -20,61 +23,37 @@ export default function Cart() {
     clearCart,
   } = useCart()
 
-  const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [checkoutError, setCheckoutError] = useState('')
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const paymentMessage = (
+    <>
+      {paymentStatus === 'success' && (
+        <div className={styles.successBox}>
+          Payment successful. Your order has been confirmed.
 
-  async function handleCheckout(e) {
-    e.preventDefault()
-    setCheckoutError('')
+          {orderId && (
+            <div>
+              <Link to={`/orders/${orderId}`}>
+                View order detail
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
+      {paymentStatus === 'failed' && (
+        <div className={styles.errorBox}>
+          Payment failed. Please try again.
+        </div>
+      )}
+    </>
+  )
+
+  function handleGoToCheckout() {
     if (!isAuthenticated) {
-      setCheckoutError('Please login before checkout.')
       navigate('/login')
       return
     }
 
-    if (cartItems.length === 0) {
-      setCheckoutError('Your cart is empty.')
-      return
-    }
-
-    if (!deliveryAddress.trim()) {
-      setCheckoutError('Delivery address is required.')
-      return
-    }
-
-    const orderData = {
-      delivery_address: deliveryAddress.trim(),
-      items: cartItems.map(item => ({
-        medicine: item.medicine || item.medicine_id,
-        quantity: item.quantity,
-      })),
-    }
-
-    try {
-      setCheckoutLoading(true)
-
-      const order = await createMedicineOrder(orderData)
-
-      await clearCart()
-
-      navigate(`/orders/${order.medicine_order_id}`, { replace: true })
-    } catch (err) {
-      const data = err.response?.data
-
-      if (data?.detail) {
-        setCheckoutError(data.detail)
-      } else if (data?.items) {
-        setCheckoutError(
-          Array.isArray(data.items) ? data.items.join(' ') : data.items
-        )
-      } else {
-        setCheckoutError('Could not create order. Please try again.')
-      }
-    } finally {
-      setCheckoutLoading(false)
-    }
+    navigate('/checkout')
   }
 
   if (loadingCart) {
@@ -90,10 +69,13 @@ export default function Cart() {
   if (cartItems.length === 0) {
     return (
       <main className={styles.page}>
+        {paymentMessage}
+
         <div className={styles.emptyCard}>
           <ShoppingBag size={56} />
           <h1>Your cart is empty</h1>
           <p>Add medicines to your cart before checkout.</p>
+
           <Link to="/medicine" className={styles.primaryLink}>
             Continue shopping
           </Link>
@@ -104,6 +86,8 @@ export default function Cart() {
 
   return (
     <main className={styles.page}>
+      {paymentMessage}
+
       <div className={styles.header}>
         <div>
           <Link to="/medicine" className={styles.backLink}>
@@ -115,14 +99,18 @@ export default function Cart() {
           <p>Review your medicines before checkout.</p>
         </div>
 
-        <button type="button" className={styles.clearBtn} onClick={clearCart}>
+        <button
+          type="button"
+          className={styles.clearBtn}
+          onClick={clearCart}
+        >
           Clear cart
         </button>
       </div>
 
-      {(cartError || checkoutError) && (
+      {cartError && (
         <div className={styles.errorBox}>
-          {cartError || checkoutError}
+          {cartError}
         </div>
       )}
 
@@ -131,7 +119,8 @@ export default function Cart() {
           {cartItems.map(item => {
             const itemId = item.cart_item_id || item.medicine_id || item.medicine
             const medicineId = item.medicine || item.medicine_id
-            const subtotal = Number(item.medicine_price) * item.quantity
+            const price = Number(item.medicine_price || item.unit_price || 0)
+            const subtotal = price * item.quantity
 
             return (
               <article className={styles.itemCard} key={itemId}>
@@ -143,19 +132,23 @@ export default function Cart() {
 
                 <div className={styles.itemInfo}>
                   <h3>{item.medicine_name}</h3>
-                  <p>{Number(item.medicine_price).toLocaleString()} VND</p>
+                  <p>{price.toLocaleString()} VND</p>
                   <span>Stock: {item.medicine_stock}</span>
                 </div>
 
                 <div className={styles.quantityBox}>
                   <label>Qty</label>
+
                   <input
                     type="number"
                     min="1"
                     max={item.medicine_stock}
                     value={item.quantity}
                     onChange={e =>
-                      updateQuantity(item.cart_item_id || medicineId, e.target.value)
+                      updateQuantity(
+                        item.cart_item_id || medicineId,
+                        Number(e.target.value)
+                      )
                     }
                   />
                 </div>
@@ -188,29 +181,18 @@ export default function Cart() {
 
           <div className={styles.summaryRow}>
             <span>Total</span>
-            <strong>{totalAmount.toLocaleString()} VND</strong>
+            <strong>{Number(totalAmount).toLocaleString()} VND</strong>
           </div>
 
-          <form onSubmit={handleCheckout} className={styles.checkoutForm}>
-            <label htmlFor="deliveryAddress">Delivery address</label>
-            <textarea
-              id="deliveryAddress"
-              value={deliveryAddress}
-              onChange={e => setDeliveryAddress(e.target.value)}
-              placeholder="Enter your delivery address in Vietnam"
-              rows={4}
-              required
-            />
-
+          <div className={styles.checkoutForm}>
             <button
-              type="submit"
+              type="button"
               className={styles.checkoutBtn}
-              disabled={checkoutLoading}
+              onClick={handleGoToCheckout}
             >
-              <CreditCard size={18} />
-              {checkoutLoading ? 'Creating order...' : 'Checkout'}
+              Checkout
             </button>
-          </form>
+          </div>
         </aside>
       </div>
     </main>

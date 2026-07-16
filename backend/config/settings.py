@@ -209,3 +209,19 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER     = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL  = os.getenv('EMAIL_HOST_USER')
+
+VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
+VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
+VNPAY_PAYMENT_URL = os.getenv(
+    'VNPAY_PAYMENT_URL',
+    'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+)
+VNPAY_RETURN_URL = os.getenv(
+    'VNPAY_RETURN_URL',
+    'https://goal-unclog-glider.ngrok-free.dev/api/payments/vnpay/return/'
+)
+
+FRONTEND_CART_URL = os.getenv(
+    'FRONTEND_CART_URL',
+    'http://localhost:5173/cart'
+)

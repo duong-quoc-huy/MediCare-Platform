@@ -1,0 +1,180 @@
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 3rem 6%;
+  background: #f8fafc;
+}
+
+.backLink,
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #0f766e;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin: 1rem 0 1.5rem;
+}
+
+.titleIcon {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.titleIcon svg {
+  color: #0f766e;
+}
+
+.header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.header p {
+  margin: 0.4rem 0 0;
+  color: #64748b;
+  word-break: break-all;
+}
+
+.infoCard,
+.itemsCard,
+.stateCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.infoCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.infoCard div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.infoCard span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.infoCard strong {
+  color: #0f172a;
+}
+
+.fullRow {
+  grid-column: 1 / -1;
+}
+
+.itemsCard {
+  padding: 1.5rem;
+}
+
+.itemsCard h2 {
+  margin: 0 0 1rem;
+  color: #0f172a;
+}
+
+.itemsList {
+  display: grid;
+  gap: 1rem;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+}
+
+.item img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 14px;
+  background: #f1f5f9;
+}
+
+.itemInfo h3 {
+  margin: 0 0 0.35rem;
+  color: #0f172a;
+}
+
+.itemInfo p {
+  margin: 0.2rem 0;
+  color: #64748b;
+}
+
+.item strong {
+  color: #0f766e;
+  white-space: nowrap;
+}
+
+.stateCard {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.confirmed,
+.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dispatched,
+.delivering {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 760px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .infoCard {
+    grid-template-columns: 1fr;
+  }
+
+  .item {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .item strong {
+    grid-column: 2;
+  }
+}

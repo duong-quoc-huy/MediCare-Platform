@@ -39,6 +39,22 @@ class MedicineOrderListCreateView(generics.ListCreateAPIView):
 
 		return queryset.filter(patient=user)
 
+	def create(self, request, *args, **kwargs):
+		create_serializer = self.get_serializer(data=request.data)
+		create_serializer.is_valid(raise_exception=True)
+
+		order = create_serializer.save()
+
+		detail_serializer = MedicineOrderDetailSerializer(
+			order,
+			context={'request': request}
+		)
+
+		return Response(
+			detail_serializer.data,
+			status=status.HTTP_201_CREATED
+		)
+
 
 class MedicineOrderDetailView(generics.RetrieveAPIView):
 	serializer_class = MedicineOrderDetailSerializer

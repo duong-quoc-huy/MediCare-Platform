@@ -122,15 +122,8 @@ export default function Navbar() {
                     Account Management
                   </Link>
 
-                  <Link
-                    to="/placeholder-1"
-                    className={styles.dropdownItem}
-                    onClick={() => {
-                      setDropdownOpen(false)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    Placeholder 1
+                  <Link to="/payments" onClick={() => setDropdownOpen(false)}>
+                    Payment History
                   </Link>
 
                   <Link

@@ -21,6 +21,10 @@ import ProfileOverview from './pages/shared/ProfileOverview'
 import ProfilePersonalInfo from './pages/shared/ProfilePersonalInfo'
 import ProfileAddressBook from './pages/shared/ProfileAddressBook'
 import ProfileSecurity from './pages/shared/ProfileSecurity'
+import Checkout from './pages/checkout/Checkout'
+import PaymentPage from './pages/checkout/PaymentPage'
+import PaymentHistory from './pages/payment/PaymentHistory'
+import OrderDetail from './pages/orders/OrderDetail'
 
 export default function App() {
   return (
@@ -94,6 +98,42 @@ export default function App() {
             <Route path="security" element={<ProfileSecurity />} />
           </Route>
                 
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/checkout/payment/:orderId"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/payments"
+            element={
+              <ProtectedRoute allowedRoles={['patient', 'admin']}>
+                <PaymentHistory />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/orders/:orderId"
+            element={
+              <ProtectedRoute allowedRoles={['patient', 'admin', 'shipper']}>
+                <OrderDetail />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
           <Route path="/placeholder-1" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 1</div>} />
           <Route path="/placeholder-2" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 2</div>} />
