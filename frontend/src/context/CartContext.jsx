@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useAuth } from './AuthContext'
 import {
   getCart,
@@ -274,6 +274,22 @@ export function CartProvider({ children }) {
     }
   }
 
+  const resetLocalCartState = useCallback(() => {
+    setCartItems([])
+    clearLocalCart()
+
+    setServerCart(prev =>
+      prev
+        ? {
+            ...prev,
+            items: [],
+            total_amount: '0.00',
+            total_items: 0,
+          }
+        : null
+    )
+  }, [])
+
   async function clearCart() {
     setCartErrorWithTimeout('')
 
@@ -337,6 +353,7 @@ export function CartProvider({ children }) {
     removeFromCart,
     clearCart,
     refreshServerCart,
+    resetLocalCartState,
   }
 
   return (

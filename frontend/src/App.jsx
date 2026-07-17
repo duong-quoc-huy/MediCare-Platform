@@ -25,6 +25,7 @@ import Checkout from './pages/checkout/Checkout'
 import PaymentPage from './pages/checkout/PaymentPage'
 import PaymentHistory from './pages/payment/PaymentHistory'
 import OrderDetail from './pages/orders/OrderDetail'
+import PayPalReturn from './pages/payment/PayPalReturn'
 
 export default function App() {
   return (
@@ -130,6 +131,15 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['patient', 'admin', 'shipper']}>
                 <OrderDetail />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/paypal/return"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <PayPalReturn />
               </ProtectedRoute>
             }
           />

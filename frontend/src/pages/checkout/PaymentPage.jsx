@@ -2,23 +2,23 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CreditCard } from 'lucide-react'
 
-import { createVNPayPayment } from '../../services/paymentService'
+import {
+  createVNPayPayment,
+  createPayPalPayment,
+} from '../../services/paymentService'
 
 export default function PaymentPage() {
   const { orderId } = useParams()
 
-  const [loading, setLoading] = useState(false)
+  const [loadingMethod, setLoadingMethod] = useState('')
   const [error, setError] = useState('')
 
   async function handlePayWithVNPay() {
     try {
-      setLoading(true)
+      setLoadingMethod('vnpay')
       setError('')
 
       const data = await createVNPayPayment(orderId)
-
-      console.log('VNPay response:', data)
-      console.log('VNPay URL:', data.payment_url)
 
       window.location.href = data.payment_url
     } catch (err) {
@@ -27,7 +27,25 @@ export default function PaymentPage() {
           'Could not create VNPay payment. Please try again.'
       )
     } finally {
-      setLoading(false)
+      setLoadingMethod('')
+    }
+  }
+
+  async function handlePayWithPayPal() {
+    try {
+      setLoadingMethod('paypal')
+      setError('')
+
+      const data = await createPayPalPayment(orderId)
+
+      window.location.href = data.approval_url
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ||
+          'Could not create PayPal payment. Please try again.'
+      )
+    } finally {
+      setLoadingMethod('')
     }
   }
 
@@ -36,7 +54,7 @@ export default function PaymentPage() {
       <CreditCard size={52} />
 
       <h1>Payment</h1>
-      <p>Please complete your order payment using VNPay.</p>
+      <p>Please choose a payment method to complete your order.</p>
 
       {error && (
         <div
@@ -66,27 +84,46 @@ export default function PaymentPage() {
           <strong>Order ID:</strong> {orderId}
         </p>
 
-        <p>
-          <strong>Payment method:</strong> VNPay
-        </p>
-
         <button
           type="button"
           onClick={handlePayWithVNPay}
-          disabled={loading}
+          disabled={Boolean(loadingMethod)}
           style={{
             width: '100%',
             marginTop: '1rem',
             padding: '0.9rem 1rem',
             border: 'none',
             borderRadius: 999,
-            background: loading ? '#94a3b8' : '#0f766e',
+            background: loadingMethod ? '#94a3b8' : '#0f766e',
             color: 'white',
             fontWeight: 900,
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: loadingMethod ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Redirecting to VNPay...' : 'Pay with VNPay'}
+          {loadingMethod === 'vnpay'
+            ? 'Redirecting to VNPay...'
+            : 'Pay with VNPay'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handlePayWithPayPal}
+          disabled={Boolean(loadingMethod)}
+          style={{
+            width: '100%',
+            marginTop: '1rem',
+            padding: '0.9rem 1rem',
+            border: 'none',
+            borderRadius: 999,
+            background: loadingMethod ? '#94a3b8' : '#1d4ed8',
+            color: 'white',
+            fontWeight: 900,
+            cursor: loadingMethod ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {loadingMethod === 'paypal'
+            ? 'Redirecting to PayPal...'
+            : 'Pay with PayPal Sandbox'}
         </button>
 
         <div style={{ marginTop: '1rem' }}>

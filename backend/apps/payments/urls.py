@@ -6,6 +6,8 @@ from .views import (
     PaymentStatusUpdateView,
     VNPayCreatePaymentView,
     VNPayReturnView,
+    PayPalCreatePaymentView,
+    PayPalCapturePaymentView,
 )
 
 urlpatterns = [
@@ -15,4 +17,7 @@ urlpatterns = [
 
     path('vnpay/create/', VNPayCreatePaymentView.as_view(), name='vnpay-create'),
     path('vnpay/return/', VNPayReturnView.as_view(), name='vnpay-return'),
+
+    path('paypal/create/', PayPalCreatePaymentView.as_view(), name='paypal-create'),
+    path('paypal/capture/', PayPalCapturePaymentView.as_view(), name='paypal-capture'),
 ]

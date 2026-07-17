@@ -1,11 +1,40 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, CreditCard, MapPin, ShoppingBag } from 'lucide-react'
+import { ArrowLeft, MapPin, ShoppingBag, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { createMedicineOrder } from '../../services/orderService'
+import {
+  createAddress,
+  getAddresses,
+} from '../../services/addressService'
 import styles from './Checkout.module.css'
+import {
+  getProvinces,
+  getWards,
+} from '../../services/locationService'
+
+function buildAddressString(address) {
+  if (!address) return ''
+
+  const parts = [
+    address.street_address,
+    address.ward_name,
+    address.province_name,
+    address.postal_code,
+  ].filter(Boolean)
+
+  return parts.join(', ')
+}
+
+function buildDeliveryAddress(recipientName, recipientPhone, addressText) {
+  return [
+    `Recipient: ${recipientName}`,
+    `Phone: ${recipientPhone}`,
+    `Address: ${addressText}`,
+  ].join('\n')
+}
 
 export default function Checkout() {
   const navigate = useNavigate()
@@ -15,14 +44,215 @@ export default function Checkout() {
     cartItems,
     totalAmount,
     totalItems,
-    clearCart,
   } = useCart()
 
-  const [deliveryAddress, setDeliveryAddress] = useState(user?.address || '')
-  const [phone, setPhone] = useState(user?.phone_number_1 || '')
-  const [fullName, setFullName] = useState(user?.full_name || '')
-  const [error, setError] = useState('')
+  const [recipientName, setRecipientName] = useState(user?.full_name || '')
+  const [recipientPhone, setRecipientPhone] = useState(user?.phone_number_1 || '')
+
+  const [addresses, setAddresses] = useState([])
+  const [selectedAddressId, setSelectedAddressId] = useState('')
+  const [addressMode, setAddressMode] = useState('saved')
+
+  const [provinces, setProvinces] = useState([])
+  const [wards, setWards] = useState([])
+  const [loadingProvinces, setLoadingProvinces] = useState(false)
+  const [loadingWards, setLoadingWards] = useState(false)
+
+  const [newAddress, setNewAddress] = useState({
+    label: '',
+    street_address: '',
+    ward_code: '',
+    ward_name: '',
+    province_code: '',
+    province_name: '',
+    postal_code: '',
+    is_default: false,
+  })
+
+  const [saveNewAddress, setSaveNewAddress] = useState(true)
+  const [loadingAddresses, setLoadingAddresses] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const selectedAddress = useMemo(() => {
+    return addresses.find(
+      address => address.user_address_id === selectedAddressId
+    )
+  }, [addresses, selectedAddressId])
+
+  useEffect(() => {
+    if (user) {
+      setRecipientName(user.full_name || '')
+      setRecipientPhone(user.phone_number_1 || '')
+    }
+  }, [user])
+
+  useEffect(() => {
+    async function loadAddresses() {
+      try {
+        setLoadingAddresses(true)
+        setError('')
+
+        const data = await getAddresses()
+        const list = Array.isArray(data) ? data : data.results || []
+
+        setAddresses(list)
+
+        if (list.length > 0) {
+          const defaultAddress = list.find(address => address.is_default)
+
+          setSelectedAddressId(
+            defaultAddress?.user_address_id || list[0].user_address_id
+          )
+
+          setAddressMode('saved')
+        } else {
+          setAddressMode('new')
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.detail ||
+            'Could not load your address book.'
+        )
+
+        setAddressMode('new')
+      } finally {
+        setLoadingAddresses(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      loadAddresses()
+    }
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    async function loadProvinces() {
+      try {
+        setLoadingProvinces(true)
+
+        const data = await getProvinces()
+        const list = Array.isArray(data) ? data : data.results || []
+
+        setProvinces(list)
+      } catch (err) {
+        setError(
+          err.response?.data?.detail ||
+            'Could not load provinces.'
+        )
+      } finally {
+        setLoadingProvinces(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      loadProvinces()
+    }
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    async function loadWards() {
+      if (!newAddress.province_code) {
+        setWards([])
+        return
+      }
+
+      try {
+        setLoadingWards(true)
+
+        const data = await getWards(newAddress.province_code)
+        const list = Array.isArray(data) ? data : data.results || []
+
+        setWards(list)
+      } catch (err) {
+        setError(
+          err.response?.data?.detail ||
+            'Could not load wards.'
+        )
+      } finally {
+        setLoadingWards(false)
+      }
+    }
+
+    if (addressMode === 'new') {
+      loadWards()
+    }
+  }, [newAddress.province_code, addressMode])
+
+  function handleNewAddressChange(e) {
+    const { name, value, type, checked } = e.target
+
+    setNewAddress(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+  }
+
+  function handleProvinceChange(e) {
+    const provinceCode = e.target.value
+
+    const selectedProvince = provinces.find(
+      province => String(province.code) === String(provinceCode)
+    )
+
+    setNewAddress(prev => ({
+      ...prev,
+      province_code: provinceCode,
+      province_name: selectedProvince?.full_name || selectedProvince?.name || '',
+      ward_code: '',
+      ward_name: '',
+    }))
+  }
+
+  function handleWardChange(e) {
+    const wardCode = e.target.value
+
+    const selectedWard = wards.find(
+      ward => String(ward.code) === String(wardCode)
+    )
+
+    setNewAddress(prev => ({
+      ...prev,
+      ward_code: wardCode,
+      ward_name: selectedWard?.full_name || selectedWard?.name || '',
+    }))
+  }
+
+  function validateRecipient() {
+    if (!recipientName.trim()) {
+      return 'Recipient name is required.'
+    }
+
+    if (!recipientPhone.trim()) {
+      return 'Recipient phone number is required.'
+    }
+
+    if (!/^0\d{9}$/.test(recipientPhone.trim())) {
+      return 'Phone number must be 10 digits and start with 0.'
+    }
+
+    return ''
+  }
+
+  function validateNewAddress() {
+    if (!newAddress.label.trim()) {
+      return 'Address label is required.'
+    }
+
+    if (!newAddress.street_address.trim()) {
+      return 'Street address is required.'
+    }
+
+    if (!newAddress.province_code) {
+      return 'Please select a province.'
+    }
+
+    if (!newAddress.ward_code) {
+      return 'Please select a ward.'
+    }
+
+    return ''
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -38,38 +268,71 @@ export default function Checkout() {
       return
     }
 
-    if (!fullName.trim()) {
-      setError('Full name is required.')
+    const recipientError = validateRecipient()
+
+    if (recipientError) {
+      setError(recipientError)
       return
     }
 
-    if (!phone.trim()) {
-      setError('Phone number is required.')
-      return
-    }
-
-    if (!deliveryAddress.trim()) {
-      setError('Delivery address is required.')
-      return
-    }
-
-    const orderData = {
-      delivery_address: deliveryAddress.trim(),
-      items: cartItems.map(item => ({
-        medicine: item.medicine || item.medicine_id,
-        quantity: item.quantity,
-      })),
-    }
+    let addressText = ''
 
     try {
       setLoading(true)
 
+      if (addressMode === 'saved') {
+        if (!selectedAddress) {
+          setError('Please select a delivery address.')
+          setLoading(false)
+          return
+        }
+
+        addressText = buildAddressString(selectedAddress)
+      }
+
+      if (addressMode === 'new') {
+        const validationError = validateNewAddress()
+
+        if (validationError) {
+          setError(validationError)
+          setLoading(false)
+          return
+        }
+
+        const addressPayload = {
+          label: newAddress.label.trim(),
+          street_address: newAddress.street_address.trim(),
+          ward_code: newAddress.ward_code,
+          ward_name: newAddress.ward_name,
+          province_code: newAddress.province_code,
+          province_name: newAddress.province_name,
+          postal_code: newAddress.postal_code.trim(),
+          is_default: newAddress.is_default,
+        }
+
+        if (saveNewAddress) {
+          const createdAddress = await createAddress(addressPayload)
+          addressText = buildAddressString(createdAddress)
+        } else {
+          addressText = buildAddressString(addressPayload)
+        }
+      }
+
+      const finalDeliveryAddress = buildDeliveryAddress(
+        recipientName.trim(),
+        recipientPhone.trim(),
+        addressText
+      )
+
+      const orderData = {
+        delivery_address: finalDeliveryAddress,
+        items: cartItems.map(item => ({
+          medicine: item.medicine || item.medicine_id,
+          quantity: item.quantity,
+        })),
+      }
+
       const order = await createMedicineOrder(orderData)
-
-      console.log('Created order response:', order)
-      console.log('Order ID:', order.medicine_order_id)
-
-      await clearCart()
 
       navigate(`/checkout/payment/${order.medicine_order_id}`, {
         replace: true,
@@ -83,9 +346,9 @@ export default function Checkout() {
         setError(Array.isArray(data.items) ? data.items.join(' ') : data.items)
       } else if (typeof data === 'object' && data !== null) {
         const firstError = Object.values(data).flat().join(' ')
-        setError(firstError || 'Could not create order.')
+        setError(firstError || 'Could not continue to payment.')
       } else {
-        setError('Could not create order. Please try again.')
+        setError('Could not continue to payment. Please try again.')
       }
     } finally {
       setLoading(false)
@@ -130,7 +393,7 @@ export default function Checkout() {
         </Link>
 
         <h1>Checkout</h1>
-        <p>Enter your delivery information before payment.</p>
+        <p>Choose a delivery address before continuing to payment.</p>
       </div>
 
       {error && (
@@ -143,55 +406,238 @@ export default function Checkout() {
         <section className={styles.formCard}>
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.sectionTitle}>
-              <MapPin size={20} />
-              <h2>Delivery Information</h2>
+              <UserRound size={20} />
+              <h2>Recipient Information</h2>
             </div>
 
-            <div className={styles.field}>
-              <label>Full name</label>
-              <input
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                placeholder="Nguyen Van A"
-              />
-            </div>
+            <div className={styles.twoColumns}>
+              <div className={styles.field}>
+                <label>Recipient name</label>
+                <input
+                  value={recipientName}
+                  onChange={e => setRecipientName(e.target.value)}
+                  placeholder="Nguyen Van A"
+                />
+              </div>
 
-            <div className={styles.field}>
-              <label>Phone number</label>
-              <input
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder="0901234567"
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label>Delivery address</label>
-              <textarea
-                value={deliveryAddress}
-                onChange={e => setDeliveryAddress(e.target.value)}
-                placeholder="Enter your delivery address"
-                rows={4}
-              />
+              <div className={styles.field}>
+                <label>Phone number</label>
+                <input
+                  value={recipientPhone}
+                  onChange={e => setRecipientPhone(e.target.value)}
+                  placeholder="0901234567"
+                />
+              </div>
             </div>
 
             <div className={styles.sectionTitle}>
-              <CreditCard size={20} />
-              <h2>Payment Method</h2>
+              <MapPin size={20} />
+              <h2>Delivery Address</h2>
             </div>
 
-            <div className={styles.paymentOption}>
-              <input type="radio" checked readOnly />
-              <div>
-                <strong>VNPay</strong>
-                <span>Medicine delivery uses VNPay payment.</span>
+            {loadingAddresses ? (
+              <div className={styles.infoBox}>
+                Loading your saved addresses...
               </div>
-            </div>
+            ) : (
+              <>
+                {addresses.length > 0 && (
+                  <div className={styles.modeTabs}>
+                    <button
+                      type="button"
+                      className={
+                        addressMode === 'saved'
+                          ? styles.activeTab
+                          : styles.modeTab
+                      }
+                      onClick={() => setAddressMode('saved')}
+                    >
+                      Saved addresses
+                    </button>
+
+                    <button
+                      type="button"
+                      className={
+                        addressMode === 'new'
+                          ? styles.activeTab
+                          : styles.modeTab
+                      }
+                      onClick={() => setAddressMode('new')}
+                    >
+                      Use new address
+                    </button>
+                  </div>
+                )}
+
+                {addressMode === 'saved' && addresses.length > 0 && (
+                  <div className={styles.addressGrid}>
+                    {addresses.map(address => (
+                      <label
+                        key={address.user_address_id}
+                        className={
+                          selectedAddressId === address.user_address_id
+                            ? `${styles.addressCard} ${styles.selectedAddressCard}`
+                            : styles.addressCard
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name="selectedAddress"
+                          value={address.user_address_id}
+                          checked={selectedAddressId === address.user_address_id}
+                          onChange={() =>
+                            setSelectedAddressId(address.user_address_id)
+                          }
+                        />
+
+                        <div>
+                          <div className={styles.addressHeader}>
+                            <strong>{address.label}</strong>
+
+                            {address.is_default && (
+                              <span>Default</span>
+                            )}
+                          </div>
+
+                          <p>{address.street_address}</p>
+                          <p>{address.ward_name}</p>
+                          <p>{address.province_name}</p>
+
+                          {address.postal_code && (
+                            <p>Postal code: {address.postal_code}</p>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {addressMode === 'saved' && selectedAddress && (
+                  <div className={styles.selectedPreview}>
+                    <strong>Deliver to:</strong>
+                    <p>
+                      {buildDeliveryAddress(
+                        recipientName || 'Recipient name',
+                        recipientPhone || 'Phone number',
+                        buildAddressString(selectedAddress)
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {addressMode === 'new' && (
+                  <div className={styles.newAddressForm}>
+                    <div className={styles.field}>
+                      <label>Label</label>
+                      <input
+                        name="label"
+                        value={newAddress.label}
+                        onChange={handleNewAddressChange}
+                        placeholder="Home, Workplace, Mom's home..."
+                      />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Street address</label>
+                      <input
+                        name="street_address"
+                        value={newAddress.street_address}
+                        onChange={handleNewAddressChange}
+                        placeholder="House number, street name..."
+                      />
+                    </div>
+
+                    <div className={styles.twoColumns}>
+                      <div className={styles.field}>
+                        <label>Province</label>
+                        <select
+                          value={newAddress.province_code}
+                          onChange={handleProvinceChange}
+                          disabled={loadingProvinces}
+                        >
+                          <option value="">
+                            {loadingProvinces ? 'Loading provinces...' : 'Select province'}
+                          </option>
+
+                          {provinces.map(province => (
+                            <option
+                              key={province.code}
+                              value={province.code}
+                            >
+                              {province.full_name || province.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className={styles.field}>
+                        <label>Ward</label>
+                        <select
+                          value={newAddress.ward_code}
+                          onChange={handleWardChange}
+                          disabled={!newAddress.province_code || loadingWards}
+                        >
+                          <option value="">
+                            {loadingWards ? 'Loading wards...' : 'Select ward'}
+                          </option>
+
+                          {wards.map(ward => (
+                            <option
+                              key={ward.code}
+                              value={ward.code}
+                            >
+                              {ward.full_name || ward.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Postal code</label>
+                      <input
+                        name="postal_code"
+                        value={newAddress.postal_code}
+                        onChange={handleNewAddressChange}
+                        placeholder="Optional"
+                      />
+                    </div>
+
+                    <label className={styles.checkboxRow}>
+                      <input
+                        type="checkbox"
+                        checked={saveNewAddress}
+                        onChange={e => setSaveNewAddress(e.target.checked)}
+                      />
+                      <span>Save this address to my address book</span>
+                    </label>
+
+                    {saveNewAddress && (
+                      <label className={styles.checkboxRow}>
+                        <input
+                          type="checkbox"
+                          name="is_default"
+                          checked={newAddress.is_default}
+                          onChange={handleNewAddressChange}
+                        />
+                        <span>Set as default address</span>
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {addresses.length === 0 && addressMode === 'new' && (
+                  <div className={styles.infoBox}>
+                    You do not have any saved address yet. Add one below to continue.
+                  </div>
+                )}
+              </>
+            )}
 
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={loading}
+              disabled={loading || loadingAddresses}
             >
               {loading ? 'Creating order...' : 'Continue to payment'}
             </button>

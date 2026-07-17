@@ -138,8 +138,6 @@ class UserAddress(models.Model):
 	@property
 	def full_address(self):
 		parts = [self.street_address, self.ward_name, self.province_name]
-		if self.district:
-			parts.append(self.district)
 		if self.postal_code:
 			parts.append(self.postal_code)
 		return ', '.join(parts)

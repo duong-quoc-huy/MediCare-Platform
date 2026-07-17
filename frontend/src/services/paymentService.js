@@ -8,6 +8,19 @@ export async function createVNPayPayment(orderId) {
   return response.data
 }
 
+export async function createPayPalPayment(orderId) {
+  const response = await api.post('/api/payments/paypal/create/', {
+    order_id: orderId,
+  })
+
+  return response.data
+}
+
+export async function capturePayPalPayment(captureData) {
+  const response = await api.post('/api/payments/paypal/capture/', captureData)
+  return response.data
+}
+
 export async function getPayments() {
   const response = await api.get('/api/payments/')
   return response.data

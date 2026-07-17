@@ -153,9 +153,6 @@ class MedicineOrderCreateSerializer(serializers.ModelSerializer):
 
 			total_amount += unit_price * quantity
 
-			medicine.medicine_stock -= quantity
-			medicine.save()
-
 		order.total_amount = total_amount
 		order.save()
 

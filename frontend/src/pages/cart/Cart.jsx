@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
 
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import styles from './Cart.module.css'
+
 
 export default function Cart() {
   const navigate = useNavigate()
@@ -21,7 +23,14 @@ export default function Cart() {
     updateQuantity,
     removeFromCart,
     clearCart,
+    resetLocalCartState,
   } = useCart()
+
+  useEffect(() => {
+    if (paymentStatus === 'success') {
+      resetLocalCartState()
+    }
+  }, [paymentStatus, resetLocalCartState])
 
   const paymentMessage = (
     <>

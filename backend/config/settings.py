@@ -88,7 +88,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
-        'CONN_MAX_AGE': 60,
+        'CONN_MAX_AGE': 0,
         'OPTIONS': {
             'sslmode': 'require',
             'sslrootcert': os.path.join(BASE_DIR, 'ca.pem'),
@@ -210,6 +210,8 @@ EMAIL_HOST_USER     = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL  = os.getenv('EMAIL_HOST_USER')
 
+
+# VNPAY
 VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
 VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
 VNPAY_PAYMENT_URL = os.getenv(
@@ -218,10 +220,32 @@ VNPAY_PAYMENT_URL = os.getenv(
 )
 VNPAY_RETURN_URL = os.getenv(
     'VNPAY_RETURN_URL',
-    'https://goal-unclog-glider.ngrok-free.dev/api/payments/vnpay/return/'
+    'https://localhost:8000/api/payments/vnpay/return/'
 )
 
 FRONTEND_CART_URL = os.getenv(
     'FRONTEND_CART_URL',
     'http://localhost:5173/cart'
 )
+
+
+# PAYPAL
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', '')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
+PAYPAL_BASE_URL = os.getenv(
+    'PAYPAL_BASE_URL',
+    'https://api-m.sandbox.paypal.com'
+)
+
+PAYPAL_RETURN_URL = os.getenv(
+    'PAYPAL_RETURN_URL',
+    'http://localhost:5173/paypal/return'
+)
+
+PAYPAL_CANCEL_URL = os.getenv(
+    'PAYPAL_CANCEL_URL',
+    'http://localhost:5173/cart?payment=failed&reason=paypal_cancelled'
+)
+
+PAYPAL_VND_TO_USD_RATE = os.getenv('PAYPAL_VND_TO_USD_RATE', '25000')
+PAYPAL_MODE = os.getenv("PAYPAL_MODE")
