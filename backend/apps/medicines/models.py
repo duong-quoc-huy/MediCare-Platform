@@ -33,10 +33,39 @@ class MedicineManufacturer(models.Model):
 
 class Medicine(models.Model):
 	medicine_id = UUIDv7Field(primary_key=True, editable=False)
+
 	medicine_name = models.CharField(max_length=255)
-	medicine_category = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True, related_name='medicines')
-	medicine_manufacturer = models.ForeignKey(MedicineManufacturer, on_delete=models.SET_NULL, null=True, related_name='medicines')
-	medicine_description = RichTextField(blank=True, null=True)
+
+	medicine_category = models.ForeignKey(
+		MedicineCategory,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='medicines'
+	)
+
+	medicine_manufacturer = models.ForeignKey(
+		MedicineManufacturer,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='medicines'
+	)
+
+	medicine_description = RichTextField(blank=True)
+
+	generic_name = models.CharField(max_length=150, blank=True)
+	dosage = models.CharField(max_length=100, blank=True)
+	unit_type = models.CharField(max_length=50, blank=True)
+	package_size = models.CharField(max_length=100, blank=True)
+
+	expiry_date = models.DateField(null=True, blank=True)
+
+	storage_instructions = models.TextField(blank=True)
+	usage_instructions = models.TextField(blank=True)
+	side_effects = models.TextField(blank=True)
+	active_ingredients = models.TextField(blank=True)
+
 	medicine_stock = models.PositiveIntegerField(default=0)
 	medicine_price = models.DecimalField(max_digits=10, decimal_places=2)
 	medicine_image = models.ImageField(upload_to='medicines/', blank=True, null=True)

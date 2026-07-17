@@ -27,10 +27,12 @@ class MedicineSerializer(serializers.ModelSerializer):
 		source='medicine_category.category_name',
 		read_only=True
 	)
+
 	manufacturer_name = serializers.CharField(
 		source='medicine_manufacturer.manufacturer_name',
 		read_only=True
 	)
+
 	image_url = serializers.SerializerMethodField()
 
 	class Meta:
@@ -38,11 +40,24 @@ class MedicineSerializer(serializers.ModelSerializer):
 		fields = [
 			'medicine_id',
 			'medicine_name',
+			'generic_name',
+
 			'medicine_category',
 			'category_name',
+
 			'medicine_manufacturer',
 			'manufacturer_name',
+
 			'medicine_description',
+			'dosage',
+			'unit_type',
+			'package_size',
+			'expiry_date',
+			'storage_instructions',
+			'usage_instructions',
+			'side_effects',
+			'active_ingredients',
+
 			'medicine_stock',
 			'medicine_price',
 			'medicine_image',
@@ -51,18 +66,11 @@ class MedicineSerializer(serializers.ModelSerializer):
 			'medicine_is_active',
 			'created_at',
 		]
-		read_only_fields = [
-			'medicine_id',
-			'created_at',
-			'image_url',
-			'category_name',
-			'manufacturer_name',
-		]
 
 	def get_image_url(self, obj):
 		request = self.context.get('request')
 
-		if obj.medicine_image:
+		if obj.medicine_image and hasattr(obj.medicine_image, 'url'):
 			if request:
 				return request.build_absolute_uri(obj.medicine_image.url)
 			return obj.medicine_image.url
