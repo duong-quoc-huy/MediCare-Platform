@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 import uuid_utils
 from ckeditor.fields import RichTextField
+from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 
 # Custom UUID field
@@ -78,3 +79,35 @@ class Medicine(models.Model):
 
 
 
+class MedicineReview(models.Model):
+	medicine_review_id = UUIDv7Field(primary_key=True, editable=False)
+
+	medicine = models.ForeignKey(
+		Medicine,
+		on_delete=models.CASCADE,
+		related_name='reviews'
+	)
+
+	user = models.ForeignKey(
+		'users.User',
+		on_delete=models.CASCADE,
+		related_name='medicine_reviews'
+	)
+
+	rating = models.PositiveSmallIntegerField(
+		validators=[
+			MinValueValidator(1),
+			MaxValueValidator(5),
+		]
+	)
+
+	comment = models.TextField(blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['-created_at']
+		unique_together = ['medicine', 'user']
+
+	def __str__(self):
+		return f'{self.user.full_name} - {self.medicine.medicine_name} - {self.rating} stars'

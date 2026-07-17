@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Medicine, MedicineCategory, MedicineManufacturer
-
+from .models import Medicine, MedicineCategory, MedicineManufacturer, MedicineReview
+from django.db.models import Avg
 
 class MedicineCategorySerializer(serializers.ModelSerializer):
 	class Meta:
@@ -34,6 +34,8 @@ class MedicineSerializer(serializers.ModelSerializer):
 	)
 
 	image_url = serializers.SerializerMethodField()
+	average_rating = serializers.SerializerMethodField()
+	review_count = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Medicine
@@ -64,6 +66,10 @@ class MedicineSerializer(serializers.ModelSerializer):
 			'image_url',
 			'medicine_requires_prescription',
 			'medicine_is_active',
+
+			'average_rating',
+			'review_count',
+
 			'created_at',
 		]
 
@@ -76,3 +82,44 @@ class MedicineSerializer(serializers.ModelSerializer):
 			return obj.medicine_image.url
 
 		return None
+
+	def get_average_rating(self, obj):
+		average = obj.reviews.aggregate(avg=Avg('rating'))['avg']
+
+		if average is None:
+			return 0
+
+		return round(average, 1)
+
+
+	def get_review_count(self, obj):
+		return obj.reviews.count()
+
+class MedicineReviewSerializer(serializers.ModelSerializer):
+	user_name = serializers.CharField(source='user.full_name', read_only=True)
+
+	class Meta:
+		model = MedicineReview
+		fields = [
+			'medicine_review_id',
+			'medicine',
+			'user',
+			'user_name',
+			'rating',
+			'comment',
+			'created_at',
+			'updated_at',
+		]
+		read_only_fields = [
+			'medicine_review_id',
+			'medicine',
+			'user',
+			'user_name',
+			'created_at',
+			'updated_at',
+		]
+
+	def validate_rating(self, value):
+		if value < 1 or value > 5:
+			raise serializers.ValidationError('Rating must be between 1 and 5.')
+		return value

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Medicine, MedicineCategory, MedicineManufacturer
+from .models import Medicine, MedicineCategory, MedicineManufacturer, MedicineReview
 
 
 @admin.register(MedicineCategory)
@@ -105,4 +105,30 @@ class MedicineAdmin(admin.ModelAdmin):
                 )
             },
         ),
+    )
+
+@admin.register(MedicineReview)
+class MedicineReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        'medicine',
+        'user',
+        'rating',
+        'created_at',
+    )
+
+    list_filter = (
+        'rating',
+        'created_at',
+    )
+
+    search_fields = (
+        'medicine__medicine_name',
+        'user__full_name',
+        'user__email',
+        'comment',
+    )
+
+    readonly_fields = (
+        'created_at',
+        'updated_at',
     )

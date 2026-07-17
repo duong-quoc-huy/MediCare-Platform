@@ -12,10 +12,18 @@ import {
   Star,
   Truck,
   AlertTriangle,
+  Send,
+  Trash2,
 } from 'lucide-react'
 
+import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { getMedicineById } from '../../api/medicineApi'
+import {
+  createMedicineReview,
+  deleteMedicineReview,
+  getMedicineReviews,
+} from '../../services/reviewService'
 import styles from './MedicineDetail.module.css'
 
 function stripHtml(html = '') {
@@ -43,25 +51,90 @@ function getStockStatus(stock) {
   }
 }
 
+function formatDate(dateString) {
+  if (!dateString) return ''
+
+  return new Date(dateString).toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function StarRatingInput({ value, onChange }) {
+  return (
+    <div className={styles.starInput}>
+      {[1, 2, 3, 4, 5].map(star => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(star)}
+          className={star <= value ? styles.activeStar : ''}
+        >
+          <Star size={24} fill="currentColor" />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function StarDisplay({ rating }) {
+  const roundedRating = Math.round(Number(rating || 0))
+
+  return (
+    <div className={styles.starDisplay}>
+      {[1, 2, 3, 4, 5].map(star => (
+        <Star
+          key={star}
+          size={16}
+          fill={star <= roundedRating ? 'currentColor' : 'none'}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function MedicineDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
   const { addToCart } = useCart()
 
   const [quantity, setQuantity] = useState(1)
   const [medicine, setMedicine] = useState(null)
+  const [reviews, setReviews] = useState([])
   const [activeTab, setActiveTab] = useState('description')
+
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [reviewError, setReviewError] = useState('')
+  const [reviewSuccess, setReviewSuccess] = useState('')
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  async function loadMedicineDetail() {
+    const data = await getMedicineById(id)
+    setMedicine(data)
+  }
+
+  async function loadReviews() {
+    const data = await getMedicineReviews(id)
+    const list = Array.isArray(data) ? data : data.results || []
+    setReviews(list)
+  }
+
   useEffect(() => {
-    async function fetchMedicineDetail() {
+    async function fetchPageData() {
       try {
         setLoading(true)
         setError('')
 
-        const data = await getMedicineById(id)
-        setMedicine(data)
+        await Promise.all([
+          loadMedicineDetail(),
+          loadReviews(),
+        ])
       } catch (err) {
         console.error(err)
         setError('Medicine not found or server error.')
@@ -70,12 +143,21 @@ export default function MedicineDetail() {
       }
     }
 
-    fetchMedicineDetail()
+    fetchPageData()
   }, [id])
 
   const stockStatus = useMemo(() => {
     return getStockStatus(Number(medicine?.medicine_stock || 0))
   }, [medicine])
+
+  const userReview = useMemo(() => {
+    if (!user?.user_id) return null
+
+    return reviews.find(review => review.user === user.user_id)
+  }, [reviews, user])
+
+  const averageRating = Number(medicine?.average_rating || 0)
+  const reviewCount = Number(medicine?.review_count || reviews.length || 0)
 
   function increaseQuantity() {
     setQuantity(prev => {
@@ -113,6 +195,74 @@ export default function MedicineDetail() {
   async function handleBuyNow() {
     await addToCart(medicine, quantity)
     navigate('/checkout')
+  }
+
+  async function handleSubmitReview(e) {
+    e.preventDefault()
+
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+
+    setReviewError('')
+    setReviewSuccess('')
+
+    if (reviewRating < 1 || reviewRating > 5) {
+      setReviewError('Please choose a rating between 1 and 5 stars.')
+      return
+    }
+
+    try {
+      setReviewLoading(true)
+
+      await createMedicineReview(id, {
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      })
+
+      setReviewComment('')
+      setReviewRating(5)
+      setReviewSuccess('Thank you. Your review has been posted.')
+
+      await Promise.all([
+        loadReviews(),
+        loadMedicineDetail(),
+      ])
+    } catch (err) {
+      setReviewError(
+        err.response?.data?.detail ||
+          err.response?.data?.non_field_errors?.[0] ||
+          'Could not submit your review.'
+      )
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  async function handleDeleteReview(reviewId) {
+    const confirmDelete = window.confirm('Delete your review?')
+
+    if (!confirmDelete) return
+
+    try {
+      setReviewError('')
+      setReviewSuccess('')
+
+      await deleteMedicineReview(reviewId)
+
+      setReviewSuccess('Your review has been deleted.')
+
+      await Promise.all([
+        loadReviews(),
+        loadMedicineDetail(),
+      ])
+    } catch (err) {
+      setReviewError(
+        err.response?.data?.detail ||
+          'Could not delete your review.'
+      )
+    }
   }
 
   if (loading) {
@@ -214,9 +364,11 @@ export default function MedicineDetail() {
           <div className={styles.ratingRow}>
             <span>
               <Star size={18} fill="currentColor" />
-              4.8
+              {averageRating > 0 ? averageRating.toFixed(1) : 'No rating'}
             </span>
-            <small>23 reviews</small>
+            <small>
+              {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+            </small>
           </div>
 
           <div className={styles.priceBox}>
@@ -435,18 +587,117 @@ export default function MedicineDetail() {
 
           {activeTab === 'reviews' && (
             <div>
-              <h2>Customer Reviews</h2>
-
-              <div className={styles.reviewPlaceholder}>
+              <div className={styles.reviewHeader}>
                 <div>
-                  <Star size={24} fill="currentColor" />
-                  <strong>4.8 / 5</strong>
-                  <span>Based on 23 reviews</span>
+                  <h2>Customer Reviews</h2>
+                  <p>
+                    Share your experience with product condition, delivery, or packaging.
+                  </p>
                 </div>
 
-                <p>
-                  Review system will be added later with a MedicineReview table.
-                </p>
+                <div className={styles.reviewScoreCard}>
+                  <Star size={24} fill="currentColor" />
+                  <strong>
+                    {averageRating > 0 ? `${averageRating.toFixed(1)} / 5` : 'No rating'}
+                  </strong>
+                  <span>
+                    Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                  </span>
+                </div>
+              </div>
+
+              {reviewError && (
+                <div className={styles.reviewError}>
+                  {reviewError}
+                </div>
+              )}
+
+              {reviewSuccess && (
+                <div className={styles.reviewSuccess}>
+                  {reviewSuccess}
+                </div>
+              )}
+
+              {!isAuthenticated && (
+                <div className={styles.loginReviewBox}>
+                  <p>Please login to write a review.</p>
+                  <Link to="/login">Login</Link>
+                </div>
+              )}
+
+              {isAuthenticated && userReview && (
+                <div className={styles.ownReviewBox}>
+                  <strong>You already reviewed this medicine.</strong>
+                  <p>You can delete your review and submit a new one if needed.</p>
+                </div>
+              )}
+
+              {isAuthenticated && !userReview && (
+                <form className={styles.reviewForm} onSubmit={handleSubmitReview}>
+                  <label>Your rating</label>
+                  <StarRatingInput
+                    value={reviewRating}
+                    onChange={setReviewRating}
+                  />
+
+                  <label>Your comment</label>
+                  <textarea
+                    value={reviewComment}
+                    onChange={e => setReviewComment(e.target.value)}
+                    placeholder="Example: Product arrived in good condition."
+                    rows="4"
+                  />
+
+                  <button type="submit" disabled={reviewLoading}>
+                    <Send size={17} />
+                    {reviewLoading ? 'Submitting...' : 'Submit review'}
+                  </button>
+                </form>
+              )}
+
+              <div className={styles.reviewList}>
+                {reviews.length === 0 ? (
+                  <div className={styles.emptyReviews}>
+                    No reviews yet. Be the first to review this medicine.
+                  </div>
+                ) : (
+                  reviews.map(review => {
+                    const isOwner = user?.user_id === review.user
+
+                    return (
+                      <article
+                        key={review.medicine_review_id}
+                        className={styles.reviewCard}
+                      >
+                        <div className={styles.reviewTop}>
+                          <div>
+                            <strong>{review.user_name || 'Anonymous user'}</strong>
+                            <span>{formatDate(review.created_at)}</span>
+                          </div>
+
+                          <StarDisplay rating={review.rating} />
+                        </div>
+
+                        <p>
+                          {review.comment || 'No comment provided.'}
+                        </p>
+
+                        {isOwner && (
+                          <button
+                            type="button"
+                            className={styles.deleteReviewBtn}
+                            onClick={() =>
+                              handleDeleteReview(review.medicine_review_id)
+                            }
+                          >
+                            <Trash2 size={15} />
+                            Delete review
+                          </button>
+                        )}
+                      </article>
+                    )
+                  })
+                )}
               </div>
             </div>
           )}

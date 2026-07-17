@@ -5,6 +5,8 @@ from .views import (
     MedicineViewSet,
     MedicineCategoryViewSet,
     MedicineManufacturerViewSet,
+    MedicineReviewListCreateView, 
+    MedicineReviewDetailView,
 )
 
 router = DefaultRouter()
@@ -15,4 +17,10 @@ router.register(r'medicine-manufacturers', MedicineManufacturerViewSet, basename
 
 urlpatterns = [
     path('', include(router.urls)),
+
+path(
+    'medicine-reviews/<uuid:medicine_review_id>/',
+    MedicineReviewDetailView.as_view(),
+    name='medicine-review-detail'
+),
 ]
