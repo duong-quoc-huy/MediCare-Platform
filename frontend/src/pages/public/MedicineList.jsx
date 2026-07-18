@@ -1,16 +1,40 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import MedicineCard from '../../components/ui/MedicineCard'
-import { getMedicines } from '../../api/medicineApi'
+import {
+  getMedicines,
+  getMedicineCategories,
+} from '../../api/medicineApi'
 import styles from './MedicineList.module.css'
 
 export default function MedicineList() {
   const [medicines, setMedicines] = useState([])
+  const [categories, setCategories] = useState([])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const [page, setPage] = useState(1)
+  const [count, setCount] = useState(0)
+  const [next, setNext] = useState(null)
+  const [previous, setPrevious] = useState(null)
 
   const [searchText, setSearchText] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [sortOrder, setSortOrder] = useState('default')
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const data = await getMedicineCategories()
+        const list = Array.isArray(data) ? data : data.results || []
+        setCategories(list)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
     async function fetchMedicines() {
@@ -18,8 +42,26 @@ export default function MedicineList() {
         setLoading(true)
         setError('')
 
-        const data = await getMedicines()
-        setMedicines(data)
+        const orderingMap = {
+          default: '',
+          'price-asc': 'medicine_price',
+          'price-desc': '-medicine_price',
+          'name-asc': 'medicine_name',
+          'name-desc': '-medicine_name',
+          newest: '-created_at',
+        }
+
+        const data = await getMedicines({
+          page,
+          search: searchText.trim(),
+          category: selectedCategory,
+          ordering: orderingMap[sortOrder] || '',
+        })
+
+        setMedicines(data.results || [])
+        setCount(data.count || 0)
+        setNext(data.next)
+        setPrevious(data.previous)
       } catch (err) {
         console.error(err)
         setError('Failed to load medicines from the server.')
@@ -29,45 +71,30 @@ export default function MedicineList() {
     }
 
     fetchMedicines()
-  }, [])
+  }, [page, searchText, selectedCategory, sortOrder])
 
-  const categories = useMemo(() => {
-    const uniqueCategories = medicines
-      .map(medicine => medicine.category_name)
-      .filter(Boolean)
+  function handleSearchChange(event) {
+    setSearchText(event.target.value)
+    setPage(1)
+  }
 
-    return ['All', ...new Set(uniqueCategories)]
-  }, [medicines])
+  function handleCategoryChange(event) {
+    setSelectedCategory(event.target.value)
+    setPage(1)
+  }
 
-  const filteredMedicines = useMemo(() => {
-    let result = medicines.filter(medicine => {
-      const name = medicine.medicine_name || ''
-      const category = medicine.category_name || ''
+  function handleSortChange(event) {
+    setSortOrder(event.target.value)
+    setPage(1)
+  }
 
-      const matchesSearch = name
-        .toLowerCase()
-        .includes(searchText.toLowerCase())
+  function goToPreviousPage() {
+    setPage(prev => Math.max(prev - 1, 1))
+  }
 
-      const matchesCategory =
-        selectedCategory === 'All' || category === selectedCategory
-
-      return matchesSearch && matchesCategory
-    })
-
-    if (sortOrder === 'price-asc') {
-      result = [...result].sort(
-        (a, b) => Number(a.medicine_price) - Number(b.medicine_price)
-      )
-    }
-
-    if (sortOrder === 'price-desc') {
-      result = [...result].sort(
-        (a, b) => Number(b.medicine_price) - Number(a.medicine_price)
-      )
-    }
-
-    return result
-  }, [medicines, searchText, selectedCategory, sortOrder])
+  function goToNextPage() {
+    setPage(prev => prev + 1)
+  }
 
   if (loading) {
     return (
@@ -100,40 +127,48 @@ export default function MedicineList() {
           type="text"
           placeholder="Search medicine..."
           value={searchText}
-          onChange={event => setSearchText(event.target.value)}
+          onChange={handleSearchChange}
           className={styles.searchInput}
         />
 
         <select
           value={selectedCategory}
-          onChange={event => setSelectedCategory(event.target.value)}
+          onChange={handleCategoryChange}
           className={styles.select}
         >
+          <option value="All">All categories</option>
+
           {categories.map(category => (
-            <option key={category} value={category}>
-              {category}
+            <option
+              key={category.category_id}
+              value={category.category_id}
+            >
+              {category.category_name}
             </option>
           ))}
         </select>
 
         <select
           value={sortOrder}
-          onChange={event => setSortOrder(event.target.value)}
+          onChange={handleSortChange}
           className={styles.select}
         >
           <option value="default">Default sorting</option>
+          <option value="newest">Newest</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
           <option value="price-asc">Price: Low to high</option>
           <option value="price-desc">Price: High to low</option>
         </select>
       </section>
 
       <p className={styles.resultText}>
-        Showing {filteredMedicines.length} medicine(s)
+        Showing {medicines.length} medicine(s) on page {page} · {count} total
       </p>
 
-      {filteredMedicines.length > 0 ? (
+      {medicines.length > 0 ? (
         <section className={styles.grid}>
-          {filteredMedicines.map(medicine => (
+          {medicines.map(medicine => (
             <MedicineCard
               key={medicine.medicine_id}
               medicine={medicine}
@@ -145,6 +180,28 @@ export default function MedicineList() {
           No medicines found. Try another keyword or category.
         </p>
       )}
+
+      <div className={styles.pagination}>
+        <button
+          type="button"
+          onClick={goToPreviousPage}
+          disabled={!previous || loading}
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {page}
+        </span>
+
+        <button
+          type="button"
+          onClick={goToNextPage}
+          disabled={!next || loading}
+        >
+          Next
+        </button>
+      </div>
     </main>
   )
 }

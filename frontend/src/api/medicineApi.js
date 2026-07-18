@@ -1,22 +1,38 @@
-import axiosClient from './axiosClient'
+import api from '../services/api'
 
-export async function getMedicines() {
-  const response = await axiosClient.get('/medicines/')
+export async function getMedicines({
+  page = 1,
+  search = '',
+  category = '',
+  ordering = '',
+} = {}) {
+  const params = { page }
 
-  // If Django REST Framework pagination is enabled
-  if (Array.isArray(response.data.results)) {
-    return response.data.results
+  if (search) {
+    params.search = search
   }
 
-  // If API returns normal array
-  if (Array.isArray(response.data)) {
-    return response.data
+  if (category && category !== 'All') {
+    params.medicine_category = category
   }
 
-  return []
+  if (ordering) {
+    params.ordering = ordering
+  }
+
+  const response = await api.get('/api/medicines/', {
+    params,
+  })
+
+  return response.data
 }
 
 export async function getMedicineById(id) {
-  const response = await axiosClient.get(`/medicines/${id}/`)
+  const response = await api.get(`/api/medicines/${id}/`)
+  return response.data
+}
+
+export async function getMedicineCategories() {
+  const response = await api.get('/api/medicine-categories/')
   return response.data
 }
