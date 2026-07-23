@@ -34,6 +34,7 @@ import AppointmentPayPalReturn from './pages/patient/AppointmentPayPalReturn'
 import MyAppointments from './pages/patient/MyAppointments'
 import DoctorList from './pages/patient/DoctorList'
 
+
 export default function App() {
   return (
     <CartProvider>
@@ -64,14 +65,6 @@ export default function App() {
           <Route path="/patient/dashboard" element={
               <ProtectedRoute allowedRoles={['patient']}>
                 <PatientDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path="/doctor/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['doctor']}>
-                <DoctorDashboard />
               </ProtectedRoute>
             }
           />
@@ -195,6 +188,16 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['patient']}>
                 <MyAppointments />
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route
+            path="/doctor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorDashboard />
               </ProtectedRoute>
             }
           />

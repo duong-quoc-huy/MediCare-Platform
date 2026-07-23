@@ -44,14 +44,66 @@ class DoctorSchedule(models.Model):
 		SATURDAY = 5, 'Saturday'
 		SUNDAY = 6, 'Sunday'
 
+	class VisitType(models.TextChoices):
+		CLINIC = 'clinic', 'Clinic'
+		HOME_VISIT = 'home_visit', 'Home Visit'
+
 	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='schedules')
+
 	day_of_week = models.IntegerField(choices=DayOfWeek.choices)
 	start_time = models.TimeField()
 	end_time = models.TimeField()
+
+	visit_type = models.CharField(max_length=15, choices=VisitType.choices, default=VisitType.CLINIC)
+
 	slot_duration_minutes = models.PositiveIntegerField(default=30)
 
 	class Meta:
-		unique_together = ('doctor', 'day_of_week')
+		ordering = ['day_of_week', 'start_time']
+		unique_together = (
+			'doctor',
+			'day_of_week',
+			'visit_type',
+			'start_time',
+			'end_time',
+		)
+
+	def clean(self):
+		from django.core.exceptions import ValidationError
+
+		if self.start_time >= self.end_time:
+			raise ValidationError({
+				'end_time': 'End time must be after start time.'
+			})
+
+		if self.slot_duration_minutes <= 0:
+			raise ValidationError({
+				'slot_duration_minutes': 'Slot duration must be greater than 0.'
+			})
+
+		overlapping_schedules = DoctorSchedule.objects.filter(
+			doctor=self.doctor,
+			day_of_week=self.day_of_week,
+			start_time__lt=self.end_time,
+			end_time__gt=self.start_time,
+		)
+
+		if self.pk:
+			overlapping_schedules = overlapping_schedules.exclude(pk=self.pk)
+
+		if overlapping_schedules.exists():
+			raise ValidationError(
+				'This schedule overlaps with another schedule for the same doctor.'
+			)
+
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super().save(*args, **kwargs)
 
 	def __str__(self):
-		return f'{self.doctor} - {self.get_day_of_week_display()}'
+		return (
+			f'{self.doctor.user.full_name} - '
+			f'{self.get_day_of_week_display()} - '
+			f'{self.get_visit_type_display()} - '
+			f'{self.start_time} to {self.end_time}'
+		)

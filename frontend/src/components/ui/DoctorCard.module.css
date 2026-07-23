@@ -86,3 +86,145 @@
   font-weight: 900;
   cursor: not-allowed;
 }
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 1.2rem;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.top {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 950;
+  flex-shrink: 0;
+}
+
+.mainInfo {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #0f766e;
+  font-size: 0.75rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mainInfo h3 {
+  margin: 0.15rem 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+.specialty {
+  margin: 0;
+  color: #64748b;
+  font-weight: 750;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.clinicTag,
+.homeVisitTag,
+.availableTag,
+.unavailableTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.32rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.clinicTag {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.homeVisitTag {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.availableTag {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.unavailableTag {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+
+.metaGrid div {
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.metaGrid svg {
+  color: #0f766e;
+}
+
+.metaGrid strong {
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.metaGrid span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.detailButton {
+  margin-top: auto;
+  min-height: 44px;
+  border-radius: 16px;
+  background: #0f766e;
+  color: white;
+  text-decoration: none;
+  font-weight: 950;
+  display: grid;
+  place-items: center;
+  transition: 0.2s ease;
+}
+
+.detailButton:hover {
+  background: #115e59;
+  transform: translateY(-1px);
+}

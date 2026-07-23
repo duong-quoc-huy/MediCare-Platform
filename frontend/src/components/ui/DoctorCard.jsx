@@ -1,86 +1,93 @@
 import { Link } from 'react-router-dom'
+import {
+  CheckCircle2,
+  Home,
+  Hospital,
+  Star,
+  UserRound,
+  Wallet,
+} from 'lucide-react'
+
 import styles from './DoctorCard.module.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStar, faUserTie, faMoneyBill } from '@fortawesome/free-solid-svg-icons'
 
-const AVATAR_COLORS = [
-  { bg: '#E1F5EE', color: '#0F6E56' },
-  { bg: '#FAEEDA', color: '#854F0B' },
-  { bg: '#EEEDFE', color: '#3C3489' },
-  { bg: '#FAECE7', color: '#993C1D' },
-]
-
-function getInitials(name = '') {
-  if (!name) return 'DR'
-
-  return name
-    .trim()
-    .split(' ')
-    .slice(-2)
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-}
-
-function getAvatarColor(name = 'Doctor') {
-  const index = name.charCodeAt(0) % AVATAR_COLORS.length
-  return AVATAR_COLORS[index]
+function formatPrice(value) {
+  return Number(value || 0).toLocaleString('vi-VN')
 }
 
 export default function DoctorCard({ doctor }) {
-  const {
-    full_name,
-    slug,
-    specialty,
-    rating,
-    experience_years,
-    consultation_fee,
-    is_available,
-  } = doctor
+  const supportsClinic =
+    doctor.supports_clinic ||
+    doctor.available_visit_types?.includes('clinic')
 
-  const initials = getInitials(full_name)
-  const avatarColor = getAvatarColor(full_name)
+  const supportsHomeVisit =
+    doctor.supports_home_visit ||
+    doctor.available_visit_types?.includes('home_visit')
 
   return (
-    <div className={styles.card}>
+    <article className={styles.card}>
       <div className={styles.top}>
-        <div
-          className={styles.avatar}
-          style={{ background: avatarColor.bg, color: avatarColor.color }}
-        >
-          {initials}
+        <div className={styles.avatar}>
+          {doctor.full_name?.charAt(0) || 'D'}
+        </div>
+
+        <div className={styles.mainInfo}>
+          <p className={styles.eyebrow}>Doctor</p>
+          <h3>Dr. {doctor.full_name}</h3>
+          <p className={styles.specialty}>{doctor.specialty}</p>
+        </div>
+      </div>
+
+      <div className={styles.tags}>
+        {supportsClinic && (
+          <span className={styles.clinicTag}>
+            <Hospital size={14} />
+            Clinic
+          </span>
+        )}
+
+        {supportsHomeVisit && (
+          <span className={styles.homeVisitTag}>
+            <Home size={14} />
+            Home visit
+          </span>
+        )}
+
+        {doctor.is_available ? (
+          <span className={styles.availableTag}>
+            <CheckCircle2 size={14} />
+            Available
+          </span>
+        ) : (
+          <span className={styles.unavailableTag}>Unavailable</span>
+        )}
+      </div>
+
+      <div className={styles.metaGrid}>
+        <div>
+          <Star size={17} />
+          <strong>{doctor.rating || '0.0'}</strong>
+          <span>Rating</span>
         </div>
 
         <div>
-          <p className={styles.name}>Dr. {full_name}</p>
-          <p className={styles.spec}>{specialty}</p>
+          <UserRound size={17} />
+          <strong>{doctor.experience_years || 0}</strong>
+          <span>Years</span>
+        </div>
+
+        <div>
+          <Wallet size={17} />
+          <strong>{formatPrice(doctor.consultation_fee)}</strong>
+          <span>VND</span>
         </div>
       </div>
 
-      <div className={styles.meta}>
-        <span className={styles.metaItem}>
-          <FontAwesomeIcon icon={faStar} /> {rating || '0.0'}
-        </span>
-
-        <span className={styles.metaItem}>
-          <FontAwesomeIcon icon={faUserTie} /> {experience_years || 0} yrs exp.
-        </span>
-
-        <span className={styles.metaItem}>
-          <FontAwesomeIcon icon={faMoneyBill} />{' '}
-          {Number(consultation_fee || 0).toLocaleString('vi-VN')} ₫
-        </span>
-      </div>
-
-      {is_available === false ? (
-        <button type="button" className={styles.disabledBtn} disabled>
-          Not available
-        </button>
-      ) : (
-        <Link to={`/doctors/${slug}`} className={styles.bookBtn}>
-          Book appointment
-        </Link>
-      )}
-    </div>
+      <Link
+        to={`/doctors/${doctor.slug}`}
+        className={styles.detailButton}
+      >
+        View detail & book
+      </Link>
+    </article>
   )
 }

@@ -1,43 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Home, Hospital, Search } from 'lucide-react'
 
 import DoctorCard from '../../components/ui/DoctorCard'
 import { getDoctors } from '../../services/doctorService'
 import styles from './DoctorList.module.css'
 
-const SORT_OPTIONS = [
-  { value: '', label: 'Newest' },
-  { value: '-rating', label: 'Highest rating' },
-  { value: '-experience_years', label: 'Most experienced' },
-  { value: 'consultation_fee', label: 'Lowest fee' },
-  { value: '-consultation_fee', label: 'Highest fee' },
-]
+function normalizeList(data) {
+  if (Array.isArray(data)) return data
+  return data.results || []
+}
 
 export default function DoctorList() {
   const [doctors, setDoctors] = useState([])
-  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
-  const [availability, setAvailability] = useState('all')
-  const [ordering, setOrdering] = useState('')
-  const [page, setPage] = useState(1)
-
-  const [count, setCount] = useState(0)
-  const [next, setNext] = useState(null)
-  const [previous, setPrevious] = useState(null)
+  const [visitType, setVisitType] = useState('')
+  const [ordering, setOrdering] = useState('-rating')
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  const totalPages = useMemo(() => {
-    if (!count) return 1
-
-    /*
-      If your backend page size is 5, use 5 here.
-      If your backend page size is 10, change this to 10.
-    */
-    const pageSize = 5
-    return Math.max(1, Math.ceil(count / pageSize))
-  }, [count])
 
   useEffect(() => {
     async function fetchDoctors() {
@@ -46,202 +26,118 @@ export default function DoctorList() {
         setError('')
 
         const params = {
-          page,
+          is_available: 'true',
+          ordering,
         }
 
-        if (search) {
-          params.search = search
+        if (search.trim()) {
+          params.search = search.trim()
         }
 
-        if (availability === 'available') {
-          params.is_available = 'true'
-        }
-
-        if (availability === 'unavailable') {
-          params.is_available = 'false'
-        }
-
-        if (ordering) {
-          params.ordering = ordering
+        if (visitType) {
+          params.visit_type = visitType
         }
 
         const data = await getDoctors(params)
-
-        const list = Array.isArray(data) ? data : data.results || []
-
-        setDoctors(list)
-        setCount(data.count || list.length)
-        setNext(data.next || null)
-        setPrevious(data.previous || null)
+        setDoctors(normalizeList(data))
       } catch (err) {
         console.error(err)
-        setError('Could not load doctors. Please try again.')
+        setError('Could not load doctors.')
       } finally {
         setLoading(false)
       }
     }
 
     fetchDoctors()
-  }, [page, search, availability, ordering])
-
-  function handleSearchSubmit(event) {
-    event.preventDefault()
-    setPage(1)
-    setSearch(searchInput.trim())
-  }
-
-  function handleClearFilters() {
-    setSearchInput('')
-    setSearch('')
-    setAvailability('all')
-    setOrdering('')
-    setPage(1)
-  }
+  }, [search, visitType, ordering])
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
+      <section className={styles.header}>
         <p className={styles.eyebrow}>Find a doctor</p>
-        <h1>Choose the right doctor for your appointment</h1>
+        <h1>Book a clinic or home-visit appointment</h1>
         <p>
-          Browse available doctors, view their details, check schedules, and
-          book an appointment with online deposit payment.
+          Search by doctor name or specialty, then choose the service type that
+          matches your need.
         </p>
       </section>
 
-      <section className={styles.filterCard}>
-        <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
-          <div className={styles.searchBox}>
-            <Search size={19} />
-            <input
-              type="text"
-              value={searchInput}
-              placeholder="Search by doctor name or specialty..."
-              onChange={event => setSearchInput(event.target.value)}
-            />
-          </div>
+      <section className={styles.filters}>
+        <div className={styles.searchBox}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search doctor or specialty..."
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+          />
+        </div>
 
-          <button type="submit" className={styles.searchButton}>
-            Search
+        <div className={styles.visitFilter}>
+          <button
+            type="button"
+            className={!visitType ? styles.activeVisitFilter : ''}
+            onClick={() => setVisitType('')}
+          >
+            All
           </button>
-        </form>
-
-        <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <label>
-              <SlidersHorizontal size={16} />
-              Availability
-            </label>
-
-            <select
-              value={availability}
-              onChange={event => {
-                setAvailability(event.target.value)
-                setPage(1)
-              }}
-            >
-              <option value="all">All doctors</option>
-              <option value="available">Available only</option>
-              <option value="unavailable">Unavailable only</option>
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <label>Sort by</label>
-
-            <select
-              value={ordering}
-              onChange={event => {
-                setOrdering(event.target.value)
-                setPage(1)
-              }}
-            >
-              {SORT_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <button
             type="button"
-            className={styles.clearButton}
-            onClick={handleClearFilters}
+            className={visitType === 'clinic' ? styles.activeVisitFilter : ''}
+            onClick={() => setVisitType('clinic')}
           >
-            Clear filters
+            <Hospital size={16} />
+            Clinic
+          </button>
+
+          <button
+            type="button"
+            className={visitType === 'home_visit' ? styles.activeVisitFilter : ''}
+            onClick={() => setVisitType('home_visit')}
+          >
+            <Home size={16} />
+            Home visit
           </button>
         </div>
+
+        <select
+          value={ordering}
+          onChange={event => setOrdering(event.target.value)}
+          className={styles.sortSelect}
+        >
+          <option value="-rating">Highest rating</option>
+          <option value="-experience_years">Most experienced</option>
+          <option value="consultation_fee">Lowest fee</option>
+          <option value="-consultation_fee">Highest fee</option>
+          <option value="-created_at">Newest</option>
+        </select>
       </section>
 
-      <section className={styles.resultHeader}>
-        <div>
-          <h2>Doctors</h2>
-          <p>
-            {count > 0
-              ? `${count} doctor${count > 1 ? 's' : ''} found`
-              : 'No doctors found'}
-          </p>
-        </div>
-
-        {search && (
-          <span className={styles.searchTag}>
-            Search: {search}
-          </span>
-        )}
-      </section>
-
-      {loading ? (
-        <section className={styles.grid}>
-          {[1, 2, 3, 4, 5, 6].map(item => (
-            <div key={item} className={styles.skeletonCard} />
-          ))}
-        </section>
-      ) : error ? (
+      {error && (
         <div className={styles.errorBox}>
           {error}
         </div>
-      ) : doctors.length > 0 ? (
-        <>
-          <section className={styles.grid}>
-            {doctors.map(doctor => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
-          </section>
+      )}
 
-          <section className={styles.pagination}>
-            <button
-              type="button"
-              disabled={!previous || page <= 1}
-              onClick={() => setPage(current => Math.max(1, current - 1))}
-            >
-              Previous
-            </button>
+      {loading && (
+        <p className={styles.empty}>Loading doctors...</p>
+      )}
 
-            <span>
-              Page {page} of {totalPages}
-            </span>
-
-            <button
-              type="button"
-              disabled={!next}
-              onClick={() => setPage(current => current + 1)}
-            >
-              Next
-            </button>
-          </section>
-        </>
-      ) : (
-        <section className={styles.emptyBox}>
+      {!loading && !error && doctors.length === 0 && (
+        <div className={styles.emptyBox}>
           <h2>No doctors found</h2>
           <p>
-            Try changing your search keyword, availability filter, or sorting
-            option.
+            Try another keyword or choose a different visit type.
           </p>
+        </div>
+      )}
 
-          <button type="button" onClick={handleClearFilters}>
-            Reset filters
-          </button>
+      {!loading && !error && doctors.length > 0 && (
+        <section className={styles.grid}>
+          {doctors.map(doctor => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
         </section>
       )}
     </main>

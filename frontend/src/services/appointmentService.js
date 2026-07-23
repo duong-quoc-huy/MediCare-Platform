@@ -6,10 +6,7 @@ export async function createAppointment(appointmentData) {
 }
 
 export async function getMyAppointments(params = {}) {
-  const response = await api.get('/api/appointments/', {
-    params,
-  })
-
+  const response = await api.get('/api/appointments/', { params })
   return response.data
 }
 
@@ -20,5 +17,10 @@ export async function getAppointmentById(appointmentId) {
 
 export async function cancelAppointment(appointmentId) {
   const response = await api.patch(`/api/appointments/${appointmentId}/cancel/`)
+  return response.data
+}
+
+export async function startAppointmentCheckup(appointmentId) {
+  const response = await api.post(`/api/appointments/${appointmentId}/start-checkup/`)
   return response.data
 }

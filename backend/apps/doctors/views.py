@@ -1,13 +1,16 @@
 from datetime import datetime
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import DoctorScheduleSerializer, DoctorSerializer
-from .models import Doctor, DoctorSchedule
-from apps.appointments.slot_engine import get_available_slots
-from rest_framework.views import APIView
+
 from django.db.models import Q
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from apps.appointments.slot_engine import get_available_slots
+
+from .models import Doctor
 from .serializers import DoctorSerializer
+
 
 class DoctorListView(generics.ListAPIView):
 	serializer_class = DoctorSerializer
@@ -23,6 +26,7 @@ class DoctorListView(generics.ListAPIView):
 
 		search = self.request.query_params.get('search')
 		is_available = self.request.query_params.get('is_available')
+		visit_type = self.request.query_params.get('visit_type')
 		ordering = self.request.query_params.get('ordering')
 
 		if search:
@@ -37,6 +41,11 @@ class DoctorListView(generics.ListAPIView):
 
 		if is_available == 'false':
 			queryset = queryset.filter(is_available=False)
+
+		if visit_type in ['clinic', 'home_visit']:
+			queryset = queryset.filter(
+				schedules__visit_type=visit_type
+			).distinct()
 
 		allowed_ordering = {
 			'rating',
@@ -56,19 +65,31 @@ class DoctorListView(generics.ListAPIView):
 
 		return queryset
 
+
 class DoctorDetailView(generics.RetrieveAPIView):
-	queryset = Doctor.objects.all()
+	queryset = (
+		Doctor.objects
+		.select_related('user')
+		.prefetch_related('schedules')
+		.all()
+	)
 	serializer_class = DoctorSerializer
 	permission_classes = [AllowAny]
 	lookup_field = 'slug'
 
-		
 
 class DoctorAvailableSlotsView(APIView):
 	permission_classes = []
 
 	def get(self, request, doctor_id):
 		date_str = request.query_params.get('date')
+		visit_type = request.query_params.get('visit_type', 'clinic')
+
+		if visit_type not in ['clinic', 'home_visit']:
+			return Response(
+				{'detail': 'Invalid visit_type. Use clinic or home_visit.'},
+				status=status.HTTP_400_BAD_REQUEST
+			)
 
 		if not date_str:
 			return Response(
@@ -97,7 +118,10 @@ class DoctorAvailableSlotsView(APIView):
 		if not doctor.is_available:
 			return Response([], status=status.HTTP_200_OK)
 
-		slots = get_available_slots(doctor.id, appointment_date)
+		slots = get_available_slots(
+			doctor.id,
+			appointment_date,
+			visit_type=visit_type
+		)
 
 		return Response(slots, status=status.HTTP_200_OK)
-

@@ -1,8 +1,6 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework import status
-
 from .models import Appointment
 from .serializers import (
 	AppointmentListSerializer, 
@@ -10,7 +8,7 @@ from .serializers import (
 	AppointmentCreateSerializer, 
 	AppointmentStatusUpdateSerializer,
 )
-
+from rest_framework.views import APIView
 
 # Create your views here.
 class AppointmentListCreateView(generics.ListCreateAPIView):
@@ -60,14 +58,38 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
 		# Admin can read all appointments
 		if getattr(user, 'role', None) == 'admin' or user.is_staff:
-			return queryset
+			role_queryset = queryset
 
 		# Doctor can see appointments assigned to them
-		if getattr(user, 'role', None) == 'doctor':
-			return queryset.filter(doctor__user=user)
+		elif getattr(user, 'role', None) == 'doctor':
+			role_queryset = queryset.filter(doctor__user=user)
 
 		# Patient can see their own appointments
-		return queryset.filter(patient=user)
+		else:
+			role_queryset = queryset.filter(patient=user)
+
+		date = self.request.query_params.get('date')
+		from_date = self.request.query_params.get('from_date')
+		to_date = self.request.query_params.get('to_date')
+		status_param = self.request.query_params.get('status')
+		visit_type = self.request.query_params.get('visit_type')
+
+		if date:
+			role_queryset = role_queryset.filter(appointment_date=date)
+
+		if from_date:
+			role_queryset = role_queryset.filter(appointment_date__gte=from_date)
+
+		if to_date:
+			role_queryset = role_queryset.filter(appointment_date__lte=to_date)
+
+		if status_param:
+			role_queryset = role_queryset.filter(status=status_param)
+
+		if visit_type:
+			role_queryset = role_queryset.filter(visit_type=visit_type)
+
+		return role_queryset.order_by('appointment_date', 'start_time')
 
 
 class AppointmentDetailView(generics.RetrieveAPIView):
@@ -179,6 +201,52 @@ class AppointmentCancelView(generics.UpdateAPIView):
 		)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
+
+		return Response(serializer.data)
+
+class AppointmentStartCheckupView(APIView):
+	permission_classes = [permissions.IsAuthenticated]
+
+	def post(self, request, appointment_id):
+		try:
+			appointment = (
+				Appointment.objects
+				.select_related('doctor', 'doctor__user')
+				.get(appointment_id=appointment_id)
+			)
+		except Appointment.DoesNotExist:
+			return Response(
+				{'detail': 'Appointment not found.'},
+				status=status.HTTP_404_NOT_FOUND
+			)
+
+		user = request.user
+
+		is_admin_user = getattr(user, 'role', None) == 'admin' or user.is_staff
+		is_appointment_doctor = (
+			getattr(user, 'role', None) == 'doctor'
+			and appointment.doctor.user_id == user.user_id
+		)
+
+		if not is_admin_user and not is_appointment_doctor:
+			return Response(
+				{'detail': 'You do not have permission to start this appointment.'},
+				status=status.HTTP_403_FORBIDDEN
+			)
+
+		if appointment.status != Appointment.Status.CONFIRMED:
+			return Response(
+				{'detail': 'Only confirmed appointments can be started.'},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
+		appointment.status = Appointment.Status.IN_PROGRESS
+		appointment.save(update_fields=['status'])
+
+		serializer = AppointmentDetailSerializer(
+			appointment,
+			context={'request': request}
+		)
 
 		return Response(serializer.data)
 

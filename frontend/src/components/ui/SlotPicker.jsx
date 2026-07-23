@@ -15,16 +15,21 @@ function convertJsDayToModelDay(dateString) {
   return jsDay === 0 ? 6 : jsDay - 1
 }
 
-function isDoctorWorkingOnDate(dateString, schedules = []) {
+function isDoctorWorkingOnDate(dateString, schedules = [], visitType = 'clinic') {
   if (!dateString) return true
 
   const modelDay = convertJsDayToModelDay(dateString)
 
-  return schedules.some(schedule => Number(schedule.day_of_week) === modelDay)
+  return schedules.some(
+    schedule =>
+      Number(schedule.day_of_week) === modelDay &&
+      schedule.visit_type === visitType
+  )
 }
 
 export default function SlotPicker({
   schedules = [],
+  visitType = 'clinic',
   selectedDate,
   selectedSlot,
   slots = [],
@@ -37,7 +42,8 @@ export default function SlotPicker({
 
   const isSelectedDateWorkingDay = isDoctorWorkingOnDate(
     selectedDate,
-    schedules
+    schedules,
+    visitType
   )
 
   function handleDateChange(event) {
@@ -50,7 +56,7 @@ export default function SlotPicker({
       <div className={styles.header}>
         <h2>Select appointment time</h2>
         <p>
-          Choose a date and pick one available time slot for this doctor.
+          Choose visit type, date, and one available time slot for this doctor.
         </p>
       </div>
 
@@ -74,8 +80,8 @@ export default function SlotPicker({
 
       {selectedDate && !isSelectedDateWorkingDay && (
         <div className={styles.warning}>
-          This doctor does not work on the selected date. Please choose another
-          date.
+          This doctor does not work for this visit type on the selected date.
+          Please choose another date or visit type.
         </div>
       )}
 
@@ -89,7 +95,9 @@ export default function SlotPicker({
 
           {!loadingSlots && slots.length === 0 && (
             <p className={styles.empty}>
-              No available slots for this date. Please try another date.
+              {selectedDate === today
+                ? 'No available slots left today. Please choose another date.'
+                : 'No available slots for this date. Please try another date.'}
             </p>
           )}
 

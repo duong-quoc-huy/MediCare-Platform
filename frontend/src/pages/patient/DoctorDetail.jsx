@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -6,6 +6,8 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  Home,
+  Hospital,
   Star,
   UserRound,
 } from 'lucide-react'
@@ -34,12 +36,19 @@ function formatTime(time) {
   return time.slice(0, 5)
 }
 
+function getVisitTypeLabel(value) {
+  if (value === 'home_visit') return 'Home visit'
+  return 'Clinic'
+}
+
 export default function DoctorDetail() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
 
   const [doctor, setDoctor] = useState(null)
+
+  const [visitType, setVisitType] = useState('clinic')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedSlot, setSelectedSlot] = useState('')
   const [slots, setSlots] = useState([])
@@ -57,6 +66,16 @@ export default function DoctorDetail() {
 
         const data = await getDoctorBySlug(slug)
         setDoctor(data)
+
+        if (
+          data.available_visit_types?.includes('clinic')
+        ) {
+          setVisitType('clinic')
+        } else if (
+          data.available_visit_types?.includes('home_visit')
+        ) {
+          setVisitType('home_visit')
+        }
       } catch (err) {
         console.error(err)
         setError('Could not load doctor detail.')
@@ -68,23 +87,47 @@ export default function DoctorDetail() {
     fetchDoctor()
   }, [slug])
 
-  async function handleDateChange(date) {
-    setSelectedDate(date)
+  const supportsClinic = doctor?.available_visit_types?.includes('clinic')
+  const supportsHomeVisit = doctor?.available_visit_types?.includes('home_visit')
+
+  const groupedSchedules = useMemo(() => {
+    if (!doctor?.schedules) return []
+
+    return doctor.schedules
+  }, [doctor])
+
+  async function loadSlots(date, selectedVisitType) {
     setSelectedSlot('')
     setSlots([])
     setSlotError('')
 
-    if (!doctor?.id || !date) return
+    if (!doctor?.id || !date || !selectedVisitType) return
 
     try {
       setLoadingSlots(true)
-      const data = await getAvailableSlots(doctor.id, date)
+      const data = await getAvailableSlots(doctor.id, date, selectedVisitType)
       setSlots(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error(err)
       setSlotError('Could not load available slots.')
     } finally {
       setLoadingSlots(false)
+    }
+  }
+
+  async function handleDateChange(date) {
+    setSelectedDate(date)
+    await loadSlots(date, visitType)
+  }
+
+  async function handleVisitTypeChange(nextVisitType) {
+    setVisitType(nextVisitType)
+    setSelectedSlot('')
+    setSlots([])
+    setSlotError('')
+
+    if (selectedDate) {
+      await loadSlots(selectedDate, nextVisitType)
     }
   }
 
@@ -101,6 +144,11 @@ export default function DoctorDetail() {
       return
     }
 
+    if (!visitType) {
+      setSlotError('Please select visit type first.')
+      return
+    }
+
     if (!selectedDate || !selectedSlot) {
       setSlotError('Please select a date and time slot first.')
       return
@@ -109,6 +157,7 @@ export default function DoctorDetail() {
     navigate(`/booking/${doctor.slug}`, {
       state: {
         doctor,
+        visitType,
         date: selectedDate,
         slot: selectedSlot,
       },
@@ -154,6 +203,20 @@ export default function DoctorDetail() {
 
               <div className={styles.badges}>
                 <span>{doctor.specialty}</span>
+
+                {supportsClinic && (
+                  <span className={styles.clinicBadge}>
+                    <Hospital size={15} />
+                    Clinic
+                  </span>
+                )}
+
+                {supportsHomeVisit && (
+                  <span className={styles.homeVisitBadge}>
+                    <Home size={15} />
+                    Home visit
+                  </span>
+                )}
 
                 {doctor.is_available ? (
                   <span className={styles.available}>
@@ -203,18 +266,24 @@ export default function DoctorDetail() {
           <section className={styles.infoCard}>
             <h2>Weekly schedule</h2>
 
-            {doctor.schedules?.length > 0 ? (
+            {groupedSchedules.length > 0 ? (
               <div className={styles.scheduleList}>
-                {doctor.schedules.map(schedule => (
+                {groupedSchedules.map(schedule => (
                   <div key={schedule.id} className={styles.scheduleItem}>
                     <div>
                       <CalendarDays size={18} />
-                      <strong>{dayNames[schedule.day_of_week]}</strong>
+                      <strong>
+                        {schedule.day_of_week_display || dayNames[schedule.day_of_week]}
+                      </strong>
                     </div>
 
                     <span>
                       <Clock size={16} />
                       {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
+                    </span>
+
+                    <span>
+                      {schedule.visit_type_display || getVisitTypeLabel(schedule.visit_type)}
                     </span>
                   </div>
                 ))}
@@ -226,8 +295,43 @@ export default function DoctorDetail() {
         </div>
 
         <aside className={styles.rightColumn}>
+          <section className={styles.visitTypeCard}>
+            <h2>Visit type</h2>
+
+            <div className={styles.visitTypeOptions}>
+              <button
+                type="button"
+                className={`${styles.visitTypeButton} ${
+                  visitType === 'clinic' ? styles.selectedVisitType : ''
+                }`}
+                disabled={!supportsClinic}
+                onClick={() => handleVisitTypeChange('clinic')}
+              >
+                <Hospital size={18} />
+                Clinic
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.visitTypeButton} ${
+                  visitType === 'home_visit' ? styles.selectedVisitType : ''
+                }`}
+                disabled={!supportsHomeVisit}
+                onClick={() => handleVisitTypeChange('home_visit')}
+              >
+                <Home size={18} />
+                Home visit
+              </button>
+            </div>
+
+            <p className={styles.visitTypeHint}>
+              Available time slots depend on the selected visit type.
+            </p>
+          </section>
+
           <SlotPicker
             schedules={doctor.schedules || []}
+            visitType={visitType}
             selectedDate={selectedDate}
             selectedSlot={selectedSlot}
             slots={slots}
@@ -243,7 +347,7 @@ export default function DoctorDetail() {
           <button
             type="button"
             className={styles.continueButton}
-            disabled={!doctor.is_available || !selectedDate || !selectedSlot}
+            disabled={!doctor.is_available || !visitType || !selectedDate || !selectedSlot}
             onClick={handleContinue}
           >
             Continue to booking

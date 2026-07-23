@@ -4,6 +4,7 @@ from .views import (
 	AppointmentDetailView,
 	AppointmentStatusUpdateView,
 	AppointmentCancelView,
+	AppointmentStartCheckupView,
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
 	path('<uuid:appointment_id>/', AppointmentDetailView.as_view(), name='appointment-detail'),
 	path('<uuid:appointment_id>/status/', AppointmentStatusUpdateView.as_view(), name='appointment-status-update'),
 	path('<uuid:appointment_id>/cancel/', AppointmentCancelView.as_view(), name='appointment-cancel'),
+	path('<uuid:appointment_id>/start-checkup/', AppointmentStartCheckupView.as_view(), name='appointment-start-checkup'),
 ]

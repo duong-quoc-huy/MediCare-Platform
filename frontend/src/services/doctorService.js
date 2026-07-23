@@ -10,9 +10,12 @@ export async function getDoctorBySlug(slug) {
   return response.data
 }
 
-export async function getAvailableSlots(doctorId, date) {
+export async function getAvailableSlots(doctorId, date, visitType = 'clinic') {
   const response = await api.get(`/api/doctor/${doctorId}/slots/`, {
-    params: { date },
+    params: {
+      date,
+      visit_type: visitType,
+    },
   })
 
   return response.data

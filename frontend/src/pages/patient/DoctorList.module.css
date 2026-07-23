@@ -294,3 +294,168 @@
     padding: 1.5rem;
   }
 }
+
+
+
+.header {
+  margin-bottom: 1.4rem;
+}
+
+.eyebrow {
+  color: #0f766e;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.4rem;
+}
+
+.header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.header p {
+  color: #64748b;
+  max-width: 720px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.9rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.searchBox {
+  min-height: 46px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.9rem;
+}
+
+.searchBox svg {
+  color: #64748b;
+}
+
+.searchBox input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  font: inherit;
+  color: #0f172a;
+  background: transparent;
+  font-weight: 750;
+}
+
+.visitFilter {
+  display: flex;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 0.35rem;
+}
+
+.visitFilter button {
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #475569;
+  min-height: 38px;
+  padding: 0 0.8rem;
+  cursor: pointer;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.visitFilter button:hover {
+  background: #f1f5f9;
+}
+
+.activeFilter {
+  background: #0f766e !important;
+  color: #ffffff !important;
+}
+
+.sortSelect {
+  min-height: 46px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 850;
+  padding: 0 0.8rem;
+  outline: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.empty,
+.emptyBox,
+.errorBox {
+  border-radius: 22px;
+  padding: 1.2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.emptyBox h2 {
+  margin: 0 0 0.4rem;
+  color: #0f172a;
+}
+
+.emptyBox p {
+  margin: 0;
+}
+
+.errorBox {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 980px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .visitFilter {
+    overflow-x: auto;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visitFilter {
+    flex-wrap: wrap;
+  }
+}

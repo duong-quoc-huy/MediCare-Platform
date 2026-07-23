@@ -57,12 +57,15 @@ class AppointmentDetailSerializer(serializers.ModelSerializer):
 class AppointmentCreateSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Appointment
-		fields = ['doctor', 'appointment_date',
-				'start_time', 'visit_type',
-				'address', 'notes'
+		fields = [
+			'doctor',
+			'appointment_date',
+			'start_time',
+			'visit_type',
+			'address',
+			'notes',
 		]
 
-	#validate conditions before saving to database
 	def validate(self, attrs):
 		request = self.context.get('request')
 
@@ -74,7 +77,7 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 		doctor = attrs.get('doctor')
 		appointment_date = attrs.get('appointment_date')
 		start_time = attrs.get('start_time')
-		visit_type = attrs.get('visit_type')
+		visit_type = attrs.get('visit_type') or Appointment.VisitType.CLINIC
 		address = attrs.get('address')
 
 		if not doctor.is_available:
@@ -87,12 +90,17 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 				{'appointment_date': 'Cannot book an appointment in the past'}
 			)
 
-		if visit_type == 'home_visit' and not address:
+		if visit_type == Appointment.VisitType.HOME_VISIT and not address:
 			raise serializers.ValidationError(
 				{'address': 'Address is required for home visit appointment'}
 			)
 
-		available_slots = get_available_slots(doctor.id, appointment_date)
+		available_slots = get_available_slots(
+			doctor.id,
+			appointment_date,
+			visit_type=visit_type
+		)
+
 		chosen_slot_str = start_time.strftime('%H:%M')
 
 		if chosen_slot_str not in available_slots:
@@ -104,27 +112,32 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 
 		return attrs
 
-
 	def create(self, validated_data):
 		doctor = validated_data['doctor']
 		appointment_date = validated_data['appointment_date']
 		start_time = validated_data['start_time']
+		visit_type = validated_data.get(
+			'visit_type',
+			Appointment.VisitType.CLINIC
+		)
 
-
-		# get the patient from the logged-in user
 		request = self.context['request']
 		validated_data['patient'] = request.user
 
-		#calculate end_time using the doctor's schedule that day
 		day_of_week = appointment_date.weekday()
-		schedule = DoctorSchedule.objects.get(doctor=doctor, day_of_week=day_of_week)
+
+		schedule = DoctorSchedule.objects.get(
+			doctor=doctor,
+			day_of_week=day_of_week,
+			visit_type=visit_type
+		)
 
 		start_dt = datetime.combine(appointment_date, start_time)
-		end_dt = start_dt + timedelta(minutes=schedule.slot_duration_minutes)
+		end_dt = start_dt + timedelta(
+			minutes=schedule.slot_duration_minutes
+		)
+
 		validated_data['end_time'] = end_dt.time()
-
-
-		#calculate total_fee from doctor's consultation fee
 		validated_data['total_fee'] = doctor.consultation_fee
 
 		return Appointment.objects.create(**validated_data)

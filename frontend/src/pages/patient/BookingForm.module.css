@@ -380,3 +380,17 @@
     max-width: none;
   }
 }
+
+.visitOption:has(input:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.visitOption:has(input:disabled) * {
+  cursor: not-allowed;
+}
+
+.disabledOption {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

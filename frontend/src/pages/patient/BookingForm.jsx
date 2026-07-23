@@ -18,14 +18,19 @@ function formatPrice(value) {
   return Number(value || 0).toLocaleString('vi-VN')
 }
 
-function calculateEndTime(startTime, schedules, date) {
-  if (!startTime || !date) return ''
+function calculateEndTime(startTime, schedules, date, visitType) {
+  if (!startTime || !date || !visitType) return ''
 
-  const jsDay = new Date(date).getDay()
+  const [year, month, day] = date.split('-').map(Number)
+  const localDate = new Date(year, month - 1, day)
+
+  const jsDay = localDate.getDay()
   const modelDay = jsDay === 0 ? 6 : jsDay - 1
 
   const schedule = schedules?.find(
-    item => Number(item.day_of_week) === modelDay
+    item =>
+      Number(item.day_of_week) === modelDay &&
+      item.visit_type === visitType
   )
 
   const duration = schedule?.slot_duration_minutes || 30
@@ -37,6 +42,7 @@ function calculateEndTime(startTime, schedules, date) {
 
   return start.toTimeString().slice(0, 5)
 }
+
 
 function formatAddress(address) {
   if (!address) return ''
@@ -60,9 +66,10 @@ export default function BookingForm() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const { doctor, date, slot } = location.state || {}
+  const { doctor, visitType: initialVisitType, date, slot} = location.state || {}
 
-  const [visitType, setVisitType] = useState('clinic')
+  const [visitType, setVisitType] = useState(initialVisitType || 'clinic')
+  const lockedVisitType = initialVisitType || 'clinic'
 
   const [addresses, setAddresses] = useState([])
   const [loadingAddresses, setLoadingAddresses] = useState(false)
@@ -111,8 +118,8 @@ export default function BookingForm() {
   }, [visitType])
 
   const endTime = useMemo(() => {
-    return calculateEndTime(slot, doctor?.schedules || [], date)
-  }, [slot, doctor, date])
+    return calculateEndTime(slot, doctor?.schedules || [], date, visitType)
+  }, [slot, doctor, date, visitType])
 
   const depositAmount = useMemo(() => {
     return Number(doctor?.consultation_fee || 0) * 0.5
@@ -234,20 +241,24 @@ export default function BookingForm() {
 
           <div className={styles.visitOptions}>
             <label
-              className={`${styles.visitOption} ${
+             className={`${styles.visitOption} ${
                 visitType === 'clinic' ? styles.selectedOption : ''
-              }`}
+              } ${lockedVisitType !== 'clinic' ? styles.disabledOption : ''}`}
             >
               <input
                 type="radio"
                 name="visit_type"
                 value="clinic"
                 checked={visitType === 'clinic'}
+                disabled={lockedVisitType !== 'clinic'}
                 onChange={event => {
+                  if (lockedVisitType !== 'clinic') return
                   setVisitType(event.target.value)
                   setError('')
                 }}
               />
+
+
 
               <div className={styles.optionIcon}>
                 <Stethoscope size={22} />
@@ -262,14 +273,16 @@ export default function BookingForm() {
             <label
               className={`${styles.visitOption} ${
                 visitType === 'home_visit' ? styles.selectedOption : ''
-              }`}
+              } ${lockedVisitType !== 'home_visit' ? styles.disabledOption : ''}`}
             >
               <input
                 type="radio"
                 name="visit_type"
                 value="home_visit"
                 checked={visitType === 'home_visit'}
+                disabled={lockedVisitType !== 'home_visit'}
                 onChange={event => {
+                  if (lockedVisitType !== 'home_visit') return
                   setVisitType(event.target.value)
                   setError('')
                 }}
@@ -285,6 +298,10 @@ export default function BookingForm() {
               </div>
             </label>
           </div>
+
+          <p className={styles.hint}>
+              Visit type was selected from the doctor detail page. Go back to change it.
+            </p>
 
           {visitType === 'home_visit' && (
             <div className={styles.fieldGroup}>
