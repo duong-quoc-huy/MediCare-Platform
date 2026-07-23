@@ -249,3 +249,20 @@ PAYPAL_CANCEL_URL = os.getenv(
 
 PAYPAL_VND_TO_USD_RATE = os.getenv('PAYPAL_VND_TO_USD_RATE', '25000')
 PAYPAL_MODE = os.getenv("PAYPAL_MODE")
+
+
+#APPOINTMENT PAYMENT
+FRONTEND_APPOINTMENT_PAYMENT_URL = os.getenv(
+    'FRONTEND_APPOINTMENT_PAYMENT_URL',
+    'http://localhost:5173/appointment-payment'
+)
+
+FRONTEND_APPOINTMENT_CONFIRMATION_URL = os.getenv(
+    'FRONTEND_APPOINTMENT_CONFIRMATION_URL',
+    'http://localhost:5173/booking/confirmation'
+)
+
+PAYPAL_APPOINTMENT_RETURN_URL = os.getenv(
+    'PAYPAL_APPOINTMENT_RETURN_URL',
+    'http://localhost:5173/appointment-paypal/return'
+)

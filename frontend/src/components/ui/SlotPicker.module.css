@@ -1,0 +1,122 @@
+.wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.35rem;
+}
+
+.header p {
+  margin: 0.35rem 0 0;
+  color: #64748b;
+}
+
+.dateBox {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+}
+
+.dateBox label {
+  color: #334155;
+  font-weight: 900;
+}
+
+.dateInput {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  color: #0f172a;
+  outline: none;
+}
+
+.dateInput:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.warning {
+  padding: 1rem;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #c2410c;
+  font-weight: 800;
+}
+
+.slotSection {
+  display: grid;
+  gap: 1rem;
+}
+
+.slotSection h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.slot {
+  border: 1px solid #99f6e4;
+  border-radius: 14px;
+  padding: 0.8rem 0.6rem;
+  background: #f0fdfa;
+  color: #0f766e;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.slot:hover {
+  background: #ccfbf1;
+  transform: translateY(-1px);
+}
+
+.selected {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+}
+
+.empty {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  .slotsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .slotsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

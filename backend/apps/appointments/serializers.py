@@ -18,13 +18,15 @@ class AppointmentListSerializer(serializers.ModelSerializer):
 	patient_name = serializers.CharField(source='patient.full_name', read_only=True)
 	doctor_name = serializers.CharField(source='doctor.user.full_name', read_only=True)
 	doctor_slug = serializers.CharField(source='doctor.slug', read_only=True)
+	doctor_specialty = serializers.CharField(source='doctor.specialty', read_only=True)
 	class Meta:
 		model = Appointment
 		fields = ['appointment_id',
 				'patient_name', 
-				'doctor_name', 'doctor_slug',
+				'doctor_name', 'doctor_slug', 'doctor_specialty',
 				'appointment_date', 'start_time', 'end_time', 
-				'status', 'visit_type'
+				'status', 'visit_type',
+				'address', 'total_fee', 'created_at',
 		]
 
 
@@ -62,31 +64,42 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 
 	#validate conditions before saving to database
 	def validate(self, attrs):
+		request = self.context.get('request')
+
+		if request and getattr(request.user, 'role', None) != 'patient':
+			raise serializers.ValidationError(
+				{'detail': 'Only patients can book appointments.'}
+			)
+
 		doctor = attrs.get('doctor')
 		appointment_date = attrs.get('appointment_date')
 		start_time = attrs.get('start_time')
 		visit_type = attrs.get('visit_type')
 		address = attrs.get('address')
 
-		#first condition - date cannot be in the past
+		if not doctor.is_available:
+			raise serializers.ValidationError(
+				{'doctor': 'This doctor is currently not accepting appointments.'}
+			)
+
 		if appointment_date < datetime.now().date():
 			raise serializers.ValidationError(
 				{'appointment_date': 'Cannot book an appointment in the past'}
 			)
 
-		# second condition - home visit requires an address
 		if visit_type == 'home_visit' and not address:
 			raise serializers.ValidationError(
 				{'address': 'Address is required for home visit appointment'}
 			)
 
-		#third condition - the chosen slot must actually be available
 		available_slots = get_available_slots(doctor.id, appointment_date)
 		chosen_slot_str = start_time.strftime('%H:%M')
 
 		if chosen_slot_str not in available_slots:
 			raise serializers.ValidationError(
-				{'start_time':'This time slot is no longer available. Please choose another'}
+				{
+					'start_time': 'This time slot is no longer available. Please choose another.'
+				}
 			)
 
 		return attrs

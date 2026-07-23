@@ -39,7 +39,7 @@ class Appointment(models.Model):
 	end_time = models.TimeField()
 	status = models.CharField(max_length=15, choices=Status.choices, default=Status.PENDING)
 	visit_type = models.CharField(max_length=15, choices=VisitType.choices, default=VisitType.CLINIC)
-	address = models.TextField(max_length=200)
+	address = models.TextField(max_length=200, blank=True)
 	notes = models.TextField(max_length=255, blank=True, null=True)
 	total_fee = models.DecimalField(max_digits=10, decimal_places=2)
 	created_at = models.DateTimeField(auto_now_add=True)

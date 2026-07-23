@@ -1,0 +1,160 @@
+.page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0f766e;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+.header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.header p {
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  max-width: 700px;
+}
+
+.newButton {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.75rem 1.1rem;
+  background: #0f766e;
+  color: white;
+  text-decoration: none;
+  font-weight: 950;
+  white-space: nowrap;
+  box-shadow: 0 12px 25px rgba(15, 118, 110, 0.25);
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+  padding: 0.8rem;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.filterButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.activeFilter {
+  background: #0f766e;
+  color: white;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.cardWrap {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.successBox,
+.errorBox,
+.empty {
+  padding: 1rem;
+  border-radius: 18px;
+  font-weight: 850;
+  margin-bottom: 1rem;
+}
+
+.successBox {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+}
+
+.errorBox {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+}
+
+.empty {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.actionLoading {
+  margin: 0;
+  color: #64748b;
+  font-weight: 800;
+  padding-left: 0.5rem;
+}
+
+.emptyBox {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.65rem;
+  padding: 2.5rem;
+  border-radius: 28px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.emptyBox svg {
+  color: #0f766e;
+}
+
+.emptyBox h2 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.emptyBox p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 750;
+}
+
+.emptyBox a {
+  margin-top: 0.5rem;
+  color: #0f766e;
+  font-weight: 950;
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

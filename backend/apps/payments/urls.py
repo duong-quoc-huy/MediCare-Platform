@@ -8,6 +8,10 @@ from .views import (
     VNPayReturnView,
     PayPalCreatePaymentView,
     PayPalCapturePaymentView,
+
+    AppointmentVNPayCreatePaymentView,
+    AppointmentPayPalCreatePaymentView,
+    AppointmentPayPalCapturePaymentView,
 )
 
 urlpatterns = [
@@ -20,4 +24,8 @@ urlpatterns = [
 
     path('paypal/create/', PayPalCreatePaymentView.as_view(), name='paypal-create'),
     path('paypal/capture/', PayPalCapturePaymentView.as_view(), name='paypal-capture'),
+
+    path('appointments/vnpay/create/', AppointmentVNPayCreatePaymentView.as_view(), name='appointment-vnpay-create'),
+    path('appointments/paypal/create/', AppointmentPayPalCreatePaymentView.as_view(), name='appointment-paypal-create'),
+    path('appointments/paypal/capture/', AppointmentPayPalCapturePaymentView.as_view(), name='appointment-paypal-capture'),
 ]

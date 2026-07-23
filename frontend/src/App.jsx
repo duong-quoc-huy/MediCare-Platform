@@ -26,6 +26,13 @@ import PaymentPage from './pages/checkout/PaymentPage'
 import PaymentHistory from './pages/payment/PaymentHistory'
 import OrderDetail from './pages/orders/OrderDetail'
 import PayPalReturn from './pages/payment/PayPalReturn'
+import DoctorDetail from './pages/patient/DoctorDetail'
+import BookingForm from './pages/patient/BookingForm'
+import AppointmentPaymentPage from './pages/patient/AppointmentPaymentPage'
+import BookingConfirmation from './pages/patient/BookingConfirmation'
+import AppointmentPayPalReturn from './pages/patient/AppointmentPayPalReturn'
+import MyAppointments from './pages/patient/MyAppointments'
+import DoctorList from './pages/patient/DoctorList'
 
 export default function App() {
   return (
@@ -143,10 +150,59 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/doctors/:slug" element={<DoctorDetail />} />
+
+          <Route
+            path="/booking/:slug"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <BookingForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/appointment-payment/:appointmentId"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <AppointmentPaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/booking/confirmation/:id"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <BookingConfirmation />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/appointment-paypal/return"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <AppointmentPayPalReturn />
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route
+            path="/patient/appointments"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <MyAppointments />
+              </ProtectedRoute>
+            }
+          />
           
+          <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
-          <Route path="/placeholder-1" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 1</div>} />
-          <Route path="/placeholder-2" element={<div style={{ padding: '4rem 2rem' }}>Placeholder 2</div>} />
+          <Route path="/payments" element={<div style={{ padding: '4rem 2rem' }}>Payment History</div>} />
+          <Route path="/patient/appointments" element={<div style={{ padding: '4rem 2rem' }}>My Appointments</div>} />
         </Routes>
         <Footer />
       </BrowserRouter>

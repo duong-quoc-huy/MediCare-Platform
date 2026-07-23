@@ -1,0 +1,138 @@
+.card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.05);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #0f766e;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.top h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.top span {
+  color: #64748b;
+  font-weight: 800;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 950;
+  text-transform: capitalize;
+}
+
+.pending {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.confirmed {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.inProgress {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.completed {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.cancelled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.infoGrid div {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 800;
+}
+
+.infoGrid svg {
+  color: #0f766e;
+  flex: 0 0 auto;
+  margin-top: 0.1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.viewButton,
+.cancelButton {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  font-weight: 950;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.viewButton {
+  background: #0f766e;
+  color: white;
+  border: none;
+}
+
+.cancelButton {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+@media (max-width: 640px) {
+  .top {
+    flex-direction: column;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

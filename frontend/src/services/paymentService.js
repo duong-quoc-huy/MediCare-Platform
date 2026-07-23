@@ -30,3 +30,28 @@ export async function getPaymentDetail(paymentId) {
   const response = await api.get(`/api/payments/${paymentId}/`)
   return response.data
 }
+
+export async function createAppointmentVNPayPayment(appointmentId) {
+  const response = await api.post('/api/payments/appointments/vnpay/create/', {
+    appointment_id: appointmentId,
+  })
+
+  return response.data
+}
+
+export async function createAppointmentPayPalPayment(appointmentId) {
+  const response = await api.post('/api/payments/appointments/paypal/create/', {
+    appointment_id: appointmentId,
+  })
+
+  return response.data
+}
+
+export async function captureAppointmentPayPalPayment(captureData) {
+  const response = await api.post(
+    '/api/payments/appointments/paypal/capture/',
+    captureData
+  )
+
+  return response.data
+}

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import styles from './Navbar.module.css'
-import { useCart } from '../context/CartContext'
 import { ShoppingCart } from 'lucide-react'
+
+import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
+import styles from './Navbar.module.css'
 
 const PUBLIC_LINKS = [
   { label: 'Doctors', to: '/doctors' },
@@ -11,8 +12,6 @@ const PUBLIC_LINKS = [
   { label: 'Medicine', to: '/medicine' },
   { label: 'About', to: '/about' },
 ]
-
-
 
 function getDashboardPath(role) {
   const normalizedRole = role?.toLowerCase()
@@ -38,8 +37,10 @@ function getInitials(user) {
 export default function Navbar() {
   const navigate = useNavigate()
   const { totalItems } = useCart()
-  
   const { user, isAuthenticated, logout } = useAuth()
+
+  const role = user?.role?.toLowerCase()
+  const isPatient = role === 'patient'
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -70,17 +71,22 @@ export default function Navbar() {
           </Link>
         ))}
 
+        {(!isAuthenticated || isPatient) && (
+          <Link
+            to="/cart"
+            className={styles.cartLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            <ShoppingCart size={18} />
+            <span>Cart</span>
 
-        <Link to="/cart" className={styles.cartLink}>
-          <ShoppingCart size={18} />
-          <span>Cart</span>
-
-          {totalItems > 0 && (
-            <span className={styles.cartBadge}>
-              {totalItems}
-            </span>
-          )}
-        </Link>
+            {totalItems > 0 && (
+              <span className={styles.cartBadge}>
+                {totalItems}
+              </span>
+            )}
+          </Link>
+        )}
 
         {isAuthenticated ? (
           <>
@@ -101,9 +107,11 @@ export default function Navbar() {
                 <span className={styles.avatar}>
                   {getInitials(user)}
                 </span>
+
                 <span className={styles.userName}>
                   {user?.full_name || 'Account'}
                 </span>
+
                 <span className={styles.chevron}>
                   {dropdownOpen ? '▲' : '▼'}
                 </span>
@@ -122,20 +130,31 @@ export default function Navbar() {
                     Account Management
                   </Link>
 
-                  <Link to="/payments" onClick={() => setDropdownOpen(false)}>
-                    Payment History
-                  </Link>
+                  {isPatient && (
+                    <>
+                      <Link
+                        to="/payments"
+                        className={styles.dropdownItem}
+                        onClick={() => {
+                          setDropdownOpen(false)
+                          setMenuOpen(false)
+                        }}
+                      >
+                        Payment History
+                      </Link>
 
-                  <Link
-                    to="/placeholder-2"
-                    className={styles.dropdownItem}
-                    onClick={() => {
-                      setDropdownOpen(false)
-                      setMenuOpen(false)
-                    }}
-                  >
-                    Placeholder 2
-                  </Link>
+                      <Link
+                        to="/patient/appointments"
+                        className={styles.dropdownItem}
+                        onClick={() => {
+                          setDropdownOpen(false)
+                          setMenuOpen(false)
+                        }}
+                      >
+                        My Appointments
+                      </Link>
+                    </>
+                  )}
 
                   <button
                     type="button"
@@ -150,10 +169,19 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" className={styles.btnOutline}>
+            <Link
+              to="/login"
+              className={styles.btnOutline}
+              onClick={() => setMenuOpen(false)}
+            >
               Sign in
             </Link>
-            <Link to="/register" className={styles.btnSolid}>
+
+            <Link
+              to="/register"
+              className={styles.btnSolid}
+              onClick={() => setMenuOpen(false)}
+            >
               Get started
             </Link>
           </>

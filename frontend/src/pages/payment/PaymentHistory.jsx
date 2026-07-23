@@ -10,6 +10,18 @@ export default function PaymentHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  function getPaymentReferencePath(payment) {
+    if (payment.reference_type === 'medicine_order') {
+      return `/orders/${payment.reference_id}`
+    }
+
+    if (payment.reference_type === 'appointment') {
+      return `/booking/confirmation/${payment.reference_id}`
+    }
+
+    return '#'
+  }
+
   async function loadPayments() {
     try {
       setLoading(true)
@@ -91,8 +103,8 @@ export default function PaymentHistory() {
             <thead>
               <tr>
                 <th>Payment ID</th>
-                <th>Order ID</th>
-                <th>Products</th>
+                <th>Reference ID</th>
+                <th>Payment For</th>
                 <th>Method</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -110,7 +122,10 @@ export default function PaymentHistory() {
                   </td>
 
                   <td>
-                    <Link to={`/orders/${payment.reference_id}`}>
+                    <Link to={getPaymentReferencePath(payment)} state={ payment.reference_type === 'appointment' 
+                      ? { fromPaymentHistory: true }
+                      : undefined
+                    } className={styles.idLink}>
                       <span className={styles.idText}>
                         {payment.reference_id}
                       </span>
@@ -126,9 +141,17 @@ export default function PaymentHistory() {
                               {item.medicine_name}
                             </div>
 
-                            <div className={styles.productQuantity}>
-                              Qty: {item.quantity} × {Number(item.unit_price).toLocaleString()} VND
-                            </div>
+                            {item.item_type === 'appointment_deposit' ? (
+                              <div className={styles.productQuantity}>
+                                {item.appointment_date} · {String(item.start_time).slice(0, 5)} ·{' '}
+                                {item.visit_type === 'home_visit' ? 'Home visit' : 'Clinic visit'}
+                              </div>
+                            ) : (
+                              <div className={styles.productQuantity}>
+                                Qty: {item.quantity} ×{' '}
+                                {Number(item.unit_price).toLocaleString()} {item.currency || 'VND'}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

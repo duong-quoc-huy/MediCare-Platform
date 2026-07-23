@@ -14,5 +14,5 @@ class DoctorSerializer(serializers.ModelSerializer):
 	schedules = DoctorScheduleSerializer(many=True, read_only=True)
 	class Meta:
 		model = Doctor
-		fields = ('id', 'full_name', 'email','phone_number_1', 'phone_number_2', 'specialty', 'bio', 'experience_years', 
+		fields = ('id', 'slug', 'full_name', 'email','phone_number_1', 'phone_number_2', 'specialty', 'bio', 'experience_years', 
 			'consultation_fee', 'rating', 'is_available', 'created_at', 'schedules')

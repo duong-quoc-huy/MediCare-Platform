@@ -33,6 +33,20 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 			return AppointmentCreateSerializer
 		return AppointmentListSerializer
 
+	def create(self, request, *args, **kwargs):
+		create_serializer = self.get_serializer(data=request.data)
+		create_serializer.is_valid(raise_exception=True)
+		appointment = create_serializer.save()
+
+		detail_serializer = AppointmentDetailSerializer(
+			appointment,
+			context={'request': request}
+		)
+
+		return Response(
+			detail_serializer.data,
+			status=status.HTTP_201_CREATED
+		)
 
 	def get_queryset(self):
 		user = self.request.user
@@ -42,17 +56,17 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 			.select_related('patient', 'doctor', 'doctor__user')
 			.all()
 			.order_by('-created_at')
-			)
+		)
 
-		#admin can read all appointments
-		if getattr(user,'role', None) == 'admin' or user.is_staff:
+		# Admin can read all appointments
+		if getattr(user, 'role', None) == 'admin' or user.is_staff:
 			return queryset
 
-		#Doctor can see appointments assigned to them
+		# Doctor can see appointments assigned to them
 		if getattr(user, 'role', None) == 'doctor':
 			return queryset.filter(doctor__user=user)
 
-		#patient can see their own appointments
+		# Patient can see their own appointments
 		return queryset.filter(patient=user)
 
 
