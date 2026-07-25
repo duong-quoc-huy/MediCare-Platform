@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Payment
+from .models import Payment, AppointmentFinalPaymentSession
 from apps.appointments.models import Appointment
 from apps.orders.models import MedicineOrder
 
@@ -38,6 +38,7 @@ class PaymentListSerializer(serializers.ModelSerializer):
 			'transaction_id',
 			'created_at',
 			'purchased_items',
+			'payment_stage',
 		]
 
 	def get_reference_label(self, obj):
@@ -45,7 +46,13 @@ class PaymentListSerializer(serializers.ModelSerializer):
 			return 'Medicine order'
 
 		if obj.reference_type == Payment.ReferenceType.APPOINTMENT:
-			return 'Appointment deposit'
+			if obj.payment_stage == Payment.PaymentStage.DEPOSIT:
+				return 'Appointment deposit'
+
+			if obj.payment_stage == Payment.PaymentStage.FINAL:
+				return 'Appointment final payment'
+
+			return 'Appointment payment'
 
 		return obj.reference_type
 
@@ -115,6 +122,7 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
 			'transaction_id',
 			'created_at',
 			'purchased_items',
+			'payment_stage',
 		]
 
 	def get_purchased_items(self, obj):
@@ -185,3 +193,33 @@ class PaymentStatusUpdateSerializer(serializers.ModelSerializer):
 			)
 
 		return value
+
+class AppointmentFinalPaymentSessionSerializer(serializers.ModelSerializer):
+	appointment_id = serializers.UUIDField(source='appointment.appointment_id', read_only=True)
+	doctor_name = serializers.CharField(source='appointment.doctor.user.full_name', read_only=True)
+	patient_name = serializers.CharField(source='appointment.patient.full_name', read_only=True)
+	appointment_date = serializers.DateField(source='appointment.appointment_date', read_only=True)
+	start_time = serializers.TimeField(source='appointment.start_time', read_only=True)
+	end_time = serializers.TimeField(source='appointment.end_time', read_only=True)
+	visit_type = serializers.CharField(source='appointment.visit_type', read_only=True)
+	status = serializers.CharField(source='appointment.status', read_only=True)
+
+	class Meta:
+		model = AppointmentFinalPaymentSession
+		fields = [
+			'session_id',
+			'appointment_id',
+			'token',
+			'amount',
+			'is_used',
+			'expires_at',
+			'created_at',
+			'doctor_name',
+			'patient_name',
+			'appointment_date',
+			'start_time',
+			'end_time',
+			'visit_type',
+			'status',
+		]
+		read_only_fields = fields

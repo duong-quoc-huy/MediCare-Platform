@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
 	MasterComorbidityListView,
 	MasterSymptomListView,
+	HospitalMedicineListView,
 	AppointmentVitalsView,
 	AppointmentComorbidityListCreateView,
 	AppointmentComorbidityDeleteView,
@@ -11,7 +12,6 @@ from .views import (
 	AppointmentPrescriptionView,
 	SendPrescriptionToPharmacyView,
 )
-
 
 urlpatterns = [
 	path(
@@ -66,5 +66,11 @@ urlpatterns = [
 		'appointments/<uuid:appointment_id>/prescription/send/',
 		SendPrescriptionToPharmacyView.as_view(),
 		name='appointment-prescription-send'
+	),
+
+	path(
+		'hospital-medicines/',
+		HospitalMedicineListView.as_view(),
+		name='hospital-medicine-list'
 	),
 ]

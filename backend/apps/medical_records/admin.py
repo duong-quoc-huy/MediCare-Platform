@@ -8,8 +8,8 @@ from .models import (
     AppointmentSymptom,
     Prescription,
     PrescriptionItem,
+    HospitalMedicine,
 )
-
 
 class PrescriptionItemInline(admin.TabularInline):
     model = PrescriptionItem
@@ -103,4 +103,25 @@ class AppointmentSymptomAdmin(admin.ModelAdmin):
         'appointment__patient__full_name',
         'symptom_code',
         'symptom_name',
+    )
+
+
+@admin.register(HospitalMedicine)
+class HospitalMedicineAdmin(admin.ModelAdmin):
+    list_display = (
+        'medicine_code',
+        'medicine_name',
+        'generic_name',
+        'dosage_form',
+        'strength',
+        'is_active',
+    )
+    search_fields = (
+        'medicine_code',
+        'medicine_name',
+        'generic_name',
+    )
+    list_filter = (
+        'is_active',
+        'dosage_form',
     )

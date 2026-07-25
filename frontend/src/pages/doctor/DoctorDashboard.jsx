@@ -41,9 +41,11 @@ function getStatusClass(status) {
 }
 
 function getActionLabel(status) {
+  if (status === 'pending') return 'Waiting deposit'
   if (status === 'confirmed') return 'Start checkup'
   if (status === 'in_progress') return 'Continue checkup'
   if (status === 'completed') return 'View record'
+  if (status === 'cancelled') return 'Cancelled'
   return 'View detail'
 }
 
@@ -57,18 +59,45 @@ function getActionPath(appointment) {
   }
 
   if (appointment.status === 'completed') {
-    return `/doctor/appointments/${appointment.appointment_id}/complete`
+    return `/doctor/appointments/${appointment.appointment_id}/record`
   }
 
-  return `/booking/confirmation/${appointment.appointment_id}`
+  return '#'
 }
+
+function getAppointmentActionLabel(appointment) {
+  if (appointment.status === 'confirmed') {
+    return 'Start checkup'
+  }
+
+  if (appointment.status === 'in_progress') {
+    return 'Continue checkup'
+  }
+
+  if (appointment.status === 'completed') {
+    return 'View record'
+  }
+
+  if (appointment.status === 'pending') {
+    return 'Waiting deposit'
+  }
+
+  return 'Unavailable'
+}
+
 
 function AppointmentRow({ appointment, onStartCheckup, actionLoadingId }) {
   const navigate = useNavigate()
   const actionPath = getActionPath(appointment)
   const isStarting = actionLoadingId === appointment.appointment_id
+  const isPending = appointment.status === 'pending'
+  const isCancelled = appointment.status === 'cancelled'
 
   async function handleAction() {
+    if (isPending || isCancelled) {
+      return
+    }
+
     if (appointment.status === 'confirmed') {
       await onStartCheckup(appointment.appointment_id)
       return
@@ -86,7 +115,15 @@ function AppointmentRow({ appointment, onStartCheckup, actionLoadingId }) {
 
         <div>
           <strong>{appointment.patient_name}</strong>
-          <span>Appointment ID: {appointment.appointment_id}</span>
+          <span title={appointment.appointment_id}>
+            Appointment ID: {appointment.appointment_id.slice(0, 8)}...
+          </span>
+
+          {isPending && (
+            <small className={styles.rowHint}>
+              Waiting for patient deposit payment.
+            </small>
+          )}
         </div>
       </div>
 
@@ -109,7 +146,7 @@ function AppointmentRow({ appointment, onStartCheckup, actionLoadingId }) {
       <button
         type="button"
         className={styles.actionButton}
-        disabled={isStarting || appointment.status === 'cancelled'}
+        disabled={isStarting || isPending || isCancelled}
         onClick={handleAction}
       >
         {isStarting ? 'Starting...' : getActionLabel(appointment.status)}
@@ -117,6 +154,8 @@ function AppointmentRow({ appointment, onStartCheckup, actionLoadingId }) {
     </article>
   )
 }
+
+
 
 export default function DoctorDashboard() {
   const navigate = useNavigate()
@@ -193,10 +232,22 @@ export default function DoctorDashboard() {
           </p>
         </div>
 
-        <Link to="/doctor/appointments/today" className={styles.heroButton}>
-          <ClipboardList size={18} />
-          View today’s appointments
-        </Link>
+        <div className={styles.heroActions}>
+          <Link to="/doctor/appointments/today" className={styles.heroButton}>
+            <ClipboardList size={18} />
+            Today&apos;s appointments
+          </Link>
+
+          <Link to="/doctor/appointments" className={styles.heroButtonSecondary}>
+            <CalendarDays size={18} />
+            All appointments
+          </Link>
+
+          <Link to="/doctor/appointments/history" className={styles.heroButtonSecondary}>
+            <CalendarCheck2 size={18} />
+            Past checkups
+          </Link>
+        </div>
       </section>
 
       <section className={styles.statsGrid}>
@@ -305,7 +356,7 @@ export default function DoctorDashboard() {
               {nextAppointments.map(appointment => (
                 <Link
                   key={appointment.appointment_id}
-                  to={`/booking/confirmation/${appointment.appointment_id}`}
+                  to={getActionPath(appointment)}
                   className={styles.upcomingItem}
                 >
                   <div>

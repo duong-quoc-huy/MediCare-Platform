@@ -1,0 +1,337 @@
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem 3%;
+  background: #f8fafc;
+}
+
+.header,
+.summaryGrid,
+.layout {
+  width: min(1500px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  color: #0f766e;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0f766e;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.titleRow h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2.1rem, 4vw, 3.3rem);
+}
+
+.titleRow p {
+  margin: 0.45rem 0 0;
+  color: #64748b;
+  font-weight: 750;
+}
+
+.downloadButton {
+  min-height: 46px;
+  padding: 0 1.1rem;
+  border: none;
+  border-radius: 999px;
+  background: #0f766e;
+  color: white;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.downloadButton:hover {
+  background: #115e59;
+}
+
+.downloadButton:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.errorBox,
+.warningBox {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  font-weight: 850;
+}
+
+.errorBox {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.warningBox {
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summaryCard,
+.card,
+.stateCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.summaryCard {
+  padding: 1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.summaryCard svg {
+  color: #0f766e;
+}
+
+.summaryCard span {
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.summaryCard strong {
+  color: #0f172a;
+  font-weight: 950;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.mainColumn,
+.sideColumn {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.2rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle svg {
+  color: #0f766e;
+}
+
+.sectionTitle h2 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.infoGrid div,
+.sideInfo div,
+.diagnosisBox,
+.listItem {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 18px;
+}
+
+.infoGrid div,
+.sideInfo div {
+  padding: 0.9rem;
+}
+
+.infoGrid span,
+.sideInfo span,
+.diagnosisBox span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+
+.infoGrid strong,
+.sideInfo strong {
+  color: #0f172a;
+  font-weight: 950;
+  word-break: break-word;
+}
+
+.diagnosisBox {
+  margin-top: 0.8rem;
+  padding: 1rem;
+}
+
+.diagnosisBox p {
+  margin: 0;
+  color: #0f172a;
+  font-weight: 750;
+  line-height: 1.6;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.listItem {
+  padding: 1rem;
+}
+
+.listItem strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.listItem span {
+  color: #64748b;
+  font-weight: 800;
+}
+
+.listItem p {
+  margin: 0.45rem 0 0;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.emptyText {
+  margin: 0;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.tableWrap table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.tableWrap th,
+.tableWrap td {
+  padding: 0.85rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tableWrap th {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.tableWrap td {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.sideInfo {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.addressText {
+  margin: 0;
+  color: #334155;
+  font-weight: 750;
+  line-height: 1.6;
+}
+
+.stateCard {
+  width: min(560px, 100%);
+  margin: 4rem auto 0;
+  padding: 2rem;
+  text-align: center;
+}
+
+.stateCard h1 {
+  color: #0f172a;
+}
+
+.stateCard p {
+  color: #64748b;
+}
+
+.stateCard a {
+  color: #0f766e;
+  font-weight: 950;
+}
+
+@media (max-width: 1100px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .page {
+    padding: 2rem 1rem;
+  }
+
+  .titleRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summaryGrid,
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}

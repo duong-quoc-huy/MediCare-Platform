@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.db import models
 from apps.appointments.models import Appointment
 
 from .models import (
@@ -11,6 +11,7 @@ from .models import (
 	AppointmentComorbidity,
 	AppointmentSymptom,
 	Prescription,
+	HospitalMedicine,
 )
 
 from .serializers import (
@@ -20,8 +21,9 @@ from .serializers import (
 	AppointmentComorbiditySerializer,
 	AppointmentSymptomSerializer,
 	PrescriptionSerializer,
+	HospitalMedicineSerializer,
 )
-
+from rest_framework.exceptions import PermissionDenied
 
 def is_doctor(user):
 	return getattr(user, 'role', None) == 'doctor'
@@ -39,11 +41,42 @@ def is_doctor_or_admin(user):
 	return is_doctor(user) or is_admin(user)
 
 
-def get_doctor_appointment_or_403(user, appointment_id):
+def get_doctor_appointment_or_403(request, appointment_id):
+	try:
+		appointment = Appointment.objects.select_related(
+			'doctor',
+			'doctor__user',
+			'patient',
+		).get(appointment_id=appointment_id)
+	except Appointment.DoesNotExist:
+		return None, Response(
+			{'detail': 'Appointment not found.'},
+			status=status.HTTP_404_NOT_FOUND
+		)
+
+	user = request.user
+	user_role = str(getattr(user, 'role', '')).lower()
+
+	is_admin_user = user_role == 'admin' or user.is_superuser
+
+	is_assigned_doctor = (
+		user_role == 'doctor' and
+		appointment.doctor.user == user
+	)
+
+	if not is_admin_user and not is_assigned_doctor:
+		return None, Response(
+			{'detail': 'You do not have permission to access this appointment.'},
+			status=status.HTTP_403_FORBIDDEN
+		)
+
+	return appointment, None
+
+def get_medical_record_appointment_or_403(request, appointment_id, allow_patient_read=False):
 	try:
 		appointment = (
 			Appointment.objects
-			.select_related('patient', 'doctor', 'doctor__user')
+			.select_related('doctor', 'doctor__user', 'patient')
 			.get(appointment_id=appointment_id)
 		)
 	except Appointment.DoesNotExist:
@@ -52,10 +85,29 @@ def get_doctor_appointment_or_403(user, appointment_id):
 			status=status.HTTP_404_NOT_FOUND
 		)
 
-	if is_admin(user):
+	user = request.user
+	user_role = str(getattr(user, 'role', '')).lower()
+
+	is_admin_user = user_role == 'admin' or user.is_superuser
+	is_assigned_doctor = user_role == 'doctor' and appointment.doctor.user == user
+	is_owner_patient = user_role == 'patient' and appointment.patient == user
+
+	if is_admin_user or is_assigned_doctor:
 		return appointment, None
 
-	if is_doctor(user) and appointment.doctor.user_id == user.user_id:
+	if allow_patient_read and is_owner_patient:
+		if appointment.status != Appointment.Status.COMPLETED:
+			return None, Response(
+				{'detail': 'Prescription is only available after the appointment is completed.'},
+				status=status.HTTP_403_FORBIDDEN
+			)
+
+		if appointment.visit_type == Appointment.VisitType.HOME_VISIT and not appointment.final_paid:
+			return None, Response(
+				{'detail': 'Final payment is required before viewing this prescription.'},
+				status=status.HTTP_403_FORBIDDEN
+			)
+
 		return appointment, None
 
 	return None, Response(
@@ -131,7 +183,7 @@ class AppointmentVitalsView(APIView):
 
 	def get(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -142,7 +194,7 @@ class AppointmentVitalsView(APIView):
 			vitals = appointment.vitals
 		except AppointmentVitals.DoesNotExist:
 			return Response(
-				{'detail': 'Vitals not recorded yet.'},
+				{'detail': 'Vitals not found.'},
 				status=status.HTTP_404_NOT_FOUND
 			)
 
@@ -151,7 +203,7 @@ class AppointmentVitalsView(APIView):
 
 	def post(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -179,7 +231,7 @@ class AppointmentVitalsView(APIView):
 
 	def patch(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -214,7 +266,7 @@ class AppointmentComorbidityListCreateView(APIView):
 
 	def get(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -228,7 +280,7 @@ class AppointmentComorbidityListCreateView(APIView):
 
 	def post(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -251,7 +303,7 @@ class AppointmentComorbidityDeleteView(APIView):
 
 	def delete(self, request, appointment_id, comorbidity_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -283,7 +335,7 @@ class AppointmentSymptomListCreateView(APIView):
 
 	def get(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -297,7 +349,7 @@ class AppointmentSymptomListCreateView(APIView):
 
 	def post(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -320,7 +372,7 @@ class AppointmentSymptomDeleteView(APIView):
 
 	def delete(self, request, appointment_id, symptom_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -351,9 +403,10 @@ class AppointmentPrescriptionView(APIView):
 	permission_classes = [permissions.IsAuthenticated]
 
 	def get(self, request, appointment_id):
-		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
-			appointment_id
+		appointment, error_response = get_medical_record_appointment_or_403(
+			request,
+			appointment_id,
+			allow_patient_read=True
 		)
 
 		if error_response:
@@ -372,7 +425,7 @@ class AppointmentPrescriptionView(APIView):
 
 	def post(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -403,7 +456,7 @@ class AppointmentPrescriptionView(APIView):
 
 	def patch(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -444,7 +497,7 @@ class SendPrescriptionToPharmacyView(APIView):
 
 	def post(self, request, appointment_id):
 		appointment, error_response = get_doctor_appointment_or_403(
-			request.user,
+			request,
 			appointment_id
 		)
 
@@ -485,3 +538,28 @@ class SendPrescriptionToPharmacyView(APIView):
 			'appointment_status': appointment.status,
 			'sent_to_pharmacy': prescription.sent_to_pharmacy,
 		})
+
+class HospitalMedicineListView(generics.ListAPIView):
+	serializer_class = HospitalMedicineSerializer
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get_queryset(self):
+		queryset = HospitalMedicine.objects.all()
+
+		search = self.request.query_params.get('search')
+		is_active = self.request.query_params.get('is_active')
+
+		if search:
+			queryset = queryset.filter(
+				models.Q(medicine_name__icontains=search) |
+				models.Q(generic_name__icontains=search) |
+				models.Q(medicine_code__icontains=search)
+			)
+
+		if is_active == 'true':
+			queryset = queryset.filter(is_active=True)
+
+		if is_active == 'false':
+			queryset = queryset.filter(is_active=False)
+
+		return queryset

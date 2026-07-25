@@ -35,11 +35,13 @@ class AppointmentDetailSerializer(serializers.ModelSerializer):
 	patient_name = serializers.CharField(source='patient.full_name', read_only=True)
 	patient_phone_1 = serializers.CharField(source='patient.phone_number_1', read_only=True)
 	patient_phone_2 = serializers.CharField(source='patient.phone_number_2', read_only=True, allow_null=True)
-	patient_address = serializers.CharField(source='patient.address', read_only=True)
+	patient_address = patient_address = serializers.SerializerMethodField()
 
 	# import doctor patient
 	doctor_name = serializers.CharField(source='doctor.user.full_name', read_only=True)
 	doctor_slug = serializers.CharField(source='doctor.slug', read_only=True)
+
+	medical_pdf_available = serializers.SerializerMethodField()
 
 	doctor = DoctorSerializer(read_only=True)
 
@@ -51,8 +53,24 @@ class AppointmentDetailSerializer(serializers.ModelSerializer):
 			'doctor', 'doctor_name', 'doctor_slug',         
 			'appointment_date', 'start_time', 'end_time',
 			'status', 'visit_type', 'address',
-			'notes', 'total_fee', 'created_at'
+			'notes', 'total_fee', 'created_at',
+			'medical_pdf_available', 'deposit_paid',
+			'deposit_amount', 'final_paid',
+			'final_amount',
 		]
+
+	def get_patient_address(self, obj):
+		return obj.address or ''
+
+	def get_medical_pdf_available(self, obj):
+		return (
+			obj.status == obj.Status.COMPLETED
+			and bool(obj.medical_pdf)
+			and (
+				obj.visit_type != obj.VisitType.HOME_VISIT
+				or obj.final_paid
+			)
+		)
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):
 	class Meta:

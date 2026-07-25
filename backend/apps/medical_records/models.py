@@ -159,6 +159,28 @@ class AppointmentSymptom(models.Model):
 	def __str__(self):
 		return f'{self.appointment} - {self.symptom_name}'
 
+class HospitalMedicine(models.Model):
+	medicine_id = models.BigAutoField(primary_key=True)
+	medicine_code = models.CharField(max_length=50, unique=True)
+	medicine_name = models.CharField(max_length=150)
+	generic_name = models.CharField(max_length=150, blank=True)
+	dosage_form = models.CharField(max_length=100, blank=True)
+	strength = models.CharField(max_length=100, blank=True)
+
+	default_dosage = models.CharField(max_length=100, blank=True)
+	default_frequency = models.CharField(max_length=100, blank=True)
+	default_duration = models.CharField(max_length=100, blank=True)
+	default_instructions = models.TextField(blank=True)
+
+	is_active = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['medicine_name']
+
+	def __str__(self):
+		return self.medicine_name
+		
 
 class Prescription(models.Model):
 	appointment = models.OneToOneField(
@@ -191,6 +213,14 @@ class PrescriptionItem(models.Model):
 		related_name='items'
 	)
 
+	hospital_medicine = models.ForeignKey(
+		HospitalMedicine,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='prescription_items'
+	)
+
 	medicine_name = models.CharField(max_length=150)
 	dosage = models.CharField(max_length=100)
 	frequency = models.CharField(max_length=100)
@@ -198,5 +228,12 @@ class PrescriptionItem(models.Model):
 	instructions = models.TextField(blank=True)
 	quantity = models.PositiveIntegerField(default=1)
 
+	def save(self, *args, **kwargs):
+		if self.hospital_medicine and not self.medicine_name:
+			self.medicine_name = self.hospital_medicine.medicine_name
+
+		super().save(*args, **kwargs)
+
 	def __str__(self):
 		return f'{self.medicine_name} - {self.dosage}'
+

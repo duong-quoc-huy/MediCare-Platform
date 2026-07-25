@@ -55,3 +55,61 @@ export async function captureAppointmentPayPalPayment(captureData) {
 
   return response.data
 }
+
+export async function createAppointmentFinalPaymentSession(appointmentId) {
+  const response = await api.post(
+    `/api/payments/appointments/${appointmentId}/final-session/create/`
+  )
+
+  return response.data
+}
+
+export async function getAppointmentFinalPaymentSession(appointmentId, token, key) {
+  const response = await api.get(
+    `/api/payments/appointments/${appointmentId}/final-session/`,
+    {
+      params: {
+        token,
+        key,
+      },
+    }
+  )
+
+  return response.data
+}
+
+export async function createFinalSessionVNPayPayment(appointmentId, token, key) {
+  const response = await api.post(
+    `/api/payments/appointments/${appointmentId}/final-session/vnpay/create/`,
+    {
+      token,
+      key,
+    }
+  )
+
+  return response.data
+}
+
+export async function createFinalSessionPayPalPayment(appointmentId, token, key) {
+  const response = await api.post(
+    `/api/payments/appointments/${appointmentId}/final-session/paypal/create/`,
+    {
+      token,
+      key,
+    }
+  )
+
+  return response.data
+}
+
+export async function captureFinalSessionPayPalPayment(
+  appointmentId,
+  captureData
+) {
+  const response = await api.post(
+    `/api/payments/appointments/${appointmentId}/final-session/paypal/capture/`,
+    captureData
+  )
+
+  return response.data
+}

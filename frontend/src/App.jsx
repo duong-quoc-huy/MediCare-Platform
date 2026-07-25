@@ -33,6 +33,13 @@ import BookingConfirmation from './pages/patient/BookingConfirmation'
 import AppointmentPayPalReturn from './pages/patient/AppointmentPayPalReturn'
 import MyAppointments from './pages/patient/MyAppointments'
 import DoctorList from './pages/patient/DoctorList'
+import DoctorCheckupPage from './pages/doctor/DoctorCheckupPage'
+import PatientPrescription from './pages/patient/PatientPrescription'
+import AppointmentFinalPaymentPage from './pages/payment/AppointmentFinalPaymentPage'
+import AppointmentFinalPaymentResult from './pages/payment/AppointmentFinalPaymentResult'
+import AppointmentFinalPayPalReturn from './pages/payment/AppointmentFinalPayPalReturn'
+import DoctorAppointmentRecord from './pages/doctor/DoctorAppointmentRecord'
+import DoctorAppointmentsPage from './pages/doctor/DoctorAppointmentsPage'
 
 
 export default function App() {
@@ -201,6 +208,79 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/doctor/appointments"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorAppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/doctor/appointments/today"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorAppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/doctor/appointments/history"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorAppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/doctor/appointments/:appointmentId/checkup"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorCheckupPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/doctor/appointments/:appointmentId/record"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorAppointmentRecord />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/patient/appointments/:id/prescription"
+            element={<PatientPrescription />}
+          />
+          
+
+          <Route
+            path="/appointment-final-payment/:appointmentId"
+            element={<AppointmentFinalPaymentPage />}
+          />
+
+          <Route
+            path="/appointment-final-payment/:appointmentId/success"
+            element={<AppointmentFinalPaymentResult statusType="success" />}
+          />
+
+          <Route
+            path="/appointment-final-payment/:appointmentId/failed"
+            element={<AppointmentFinalPaymentResult statusType="failed" />}
+          />
+
+          <Route
+            path="/appointment-final-paypal/return"
+            element={<AppointmentFinalPayPalReturn />}
+          />
+
+
           
           <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />

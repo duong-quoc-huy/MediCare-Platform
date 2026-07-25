@@ -85,7 +85,7 @@ export default function AppointmentCard({ appointment, onCancel }) {
           to={`/booking/confirmation/${appointment.appointment_id}`}
           className={styles.viewButton}
         >
-          View detail
+          View Booking
         </Link>
 
         {canCancel && (
@@ -97,6 +97,15 @@ export default function AppointmentCard({ appointment, onCancel }) {
             <XCircle size={16} />
             Cancel appointment
           </button>
+        )}
+
+        {appointment.status === 'completed' && (
+          <Link 
+            to={`/patient/appointments/${appointment.appointment_id}/prescription`}
+            className={styles.viewButton}
+          >
+            View Prescription
+          </Link>
         )}
       </div>
     </article>

@@ -1,22 +1,36 @@
 import { getMyAppointments } from './appointmentService'
 
+function formatLocalDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 function getTodayDateString() {
-  return new Date().toISOString().split('T')[0]
+  return formatLocalDate(new Date())
 }
 
 function getDateAfterDays(days) {
   const date = new Date()
   date.setDate(date.getDate() + days)
-  return date.toISOString().split('T')[0]
+
+  return formatLocalDate(date)
 }
 
 function normalizeList(data) {
-  return Array.isArray(data) ? data : data.results || []
+  if (Array.isArray(data)) return data
+  return data.results || []
 }
 
 export async function getTodayDoctorAppointments() {
   const today = getTodayDateString()
-  const data = await getMyAppointments({ date: today })
+
+  const data = await getMyAppointments({
+    date: today,
+  })
+
   return normalizeList(data)
 }
 
@@ -38,24 +52,24 @@ export async function getDoctorDashboardData() {
     getUpcomingDoctorAppointments(),
   ])
 
-  const completedToday = todayAppointments.filter(
-    appointment => appointment.status === 'completed'
-  ).length
-
-  const activeToday = todayAppointments.filter(
-    appointment =>
-      appointment.status === 'confirmed' ||
-      appointment.status === 'in_progress'
-  ).length
+  const stats = {
+    totalToday: todayAppointments.length,
+    completedToday: todayAppointments.filter(
+      appointment => appointment.status === 'completed'
+    ).length,
+    activeToday: todayAppointments.filter(
+      appointment =>
+        appointment.status === 'confirmed' ||
+        appointment.status === 'in_progress'
+    ).length,
+    upcomingCount: upcomingAppointments.filter(
+      appointment => appointment.status !== 'cancelled'
+    ).length,
+  }
 
   return {
     todayAppointments,
     upcomingAppointments,
-    stats: {
-      totalToday: todayAppointments.length,
-      completedToday,
-      activeToday,
-      upcomingCount: upcomingAppointments.length,
-    },
+    stats,
   }
 }

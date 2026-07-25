@@ -42,7 +42,15 @@ class Appointment(models.Model):
 	address = models.TextField(max_length=200, blank=True)
 	notes = models.TextField(max_length=255, blank=True, null=True)
 	total_fee = models.DecimalField(max_digits=10, decimal_places=2)
+	deposit_paid = models.BooleanField(default=False)
+	deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+	final_paid = models.BooleanField(default=False)
+	final_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True, blank=True)
+
+	medical_pdf = models.FileField(upload_to='medical_records/', blank=True,null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 
 	def __str__(self):

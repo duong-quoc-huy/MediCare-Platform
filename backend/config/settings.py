@@ -196,6 +196,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -215,55 +220,40 @@ DEFAULT_FROM_EMAIL  = os.getenv('EMAIL_HOST_USER')
 # VNPAY
 VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
 VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
-VNPAY_PAYMENT_URL = os.getenv(
-    'VNPAY_PAYMENT_URL',
-    'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-)
-VNPAY_RETURN_URL = os.getenv(
-    'VNPAY_RETURN_URL',
-    'https://localhost:8000/api/payments/vnpay/return/'
-)
+VNPAY_PAYMENT_URL = os.getenv('VNPAY_PAYMENT_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html')
+VNPAY_RETURN_URL = os.getenv('VNPAY_RETURN_URL', 'https://localhost:8000/api/payments/vnpay/return/')
 
-FRONTEND_CART_URL = os.getenv(
-    'FRONTEND_CART_URL',
-    'http://localhost:5173/cart'
-)
+
+FRONTEND_BASE_URL = 'http://localhost:5173'
+
+FRONTEND_CART_URL = os.getenv('FRONTEND_CART_URL', 'http://localhost:5173/cart')
 
 
 # PAYPAL
 PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', '')
 PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
-PAYPAL_BASE_URL = os.getenv(
-    'PAYPAL_BASE_URL',
-    'https://api-m.sandbox.paypal.com'
-)
+PAYPAL_BASE_URL = os.getenv('PAYPAL_BASE_URL', 'https://api-m.sandbox.paypal.com')
 
-PAYPAL_RETURN_URL = os.getenv(
-    'PAYPAL_RETURN_URL',
-    'http://localhost:5173/paypal/return'
-)
+PAYPAL_RETURN_URL = os.getenv('PAYPAL_RETURN_URL', 'http://localhost:5173/paypal/return')
 
-PAYPAL_CANCEL_URL = os.getenv(
-    'PAYPAL_CANCEL_URL',
-    'http://localhost:5173/cart?payment=failed&reason=paypal_cancelled'
-)
+PAYPAL_CANCEL_URL = os.getenv('PAYPAL_CANCEL_URL', 'http://localhost:5173/cart?payment=failed&reason=paypal_cancelled')
 
 PAYPAL_VND_TO_USD_RATE = os.getenv('PAYPAL_VND_TO_USD_RATE', '25000')
 PAYPAL_MODE = os.getenv("PAYPAL_MODE")
 
 
 #APPOINTMENT PAYMENT
-FRONTEND_APPOINTMENT_PAYMENT_URL = os.getenv(
-    'FRONTEND_APPOINTMENT_PAYMENT_URL',
-    'http://localhost:5173/appointment-payment'
-)
+FRONTEND_APPOINTMENT_PAYMENT_URL = os.getenv('FRONTEND_APPOINTMENT_PAYMENT_URL', 'http://localhost:5173/appointment-payment')
 
-FRONTEND_APPOINTMENT_CONFIRMATION_URL = os.getenv(
-    'FRONTEND_APPOINTMENT_CONFIRMATION_URL',
-    'http://localhost:5173/booking/confirmation'
-)
+FRONTEND_APPOINTMENT_CONFIRMATION_URL = os.getenv('FRONTEND_APPOINTMENT_CONFIRMATION_URL', 'http://localhost:5173/booking/confirmation')
+PAYPAL_APPOINTMENT_RETURN_URL = os.getenv('PAYPAL_APPOINTMENT_RETURN_URL', 'http://localhost:5173/appointment-paypal/return')
 
-PAYPAL_APPOINTMENT_RETURN_URL = os.getenv(
-    'PAYPAL_APPOINTMENT_RETURN_URL',
-    'http://localhost:5173/appointment-paypal/return'
-)
+HOSPITAL_NAME = 'Firefly Hospital'
+HOSPITAL_NAME_VI = 'Bệnh viện Firefly'
+
+HOSPITAL_HOTLINE = '1900 2026'
+HOSPITAL_EMAIL = 'contact@fireflyhospital.vn'
+HOSPITAL_ADDRESS = '123 Health Street, District 1, Ho Chi Minh City, Vietnam'
+HOSPITAL_WEBSITE = 'https://fireflyhospital.vn'
+
+HOSPITAL_LOGO_PATH = BASE_DIR / 'static' / 'images' / 'hospital-logo.png'   

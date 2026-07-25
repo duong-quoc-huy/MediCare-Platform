@@ -8,6 +8,7 @@ from .models import (
 	AppointmentSymptom,
 	Prescription,
 	PrescriptionItem,
+	HospitalMedicine,
 )
 
 
@@ -68,7 +69,24 @@ class MasterSymptomSerializer(serializers.ModelSerializer):
 			'created_at',
 		]
 
-
+class HospitalMedicineSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = HospitalMedicine
+		fields = [
+			'medicine_id',
+			'medicine_code',
+			'medicine_name',
+			'generic_name',
+			'dosage_form',
+			'strength',
+			'default_dosage',
+			'default_frequency',
+			'default_duration',
+			'default_instructions',
+			'is_active',
+			'created_at',
+		]
+		
 class AppointmentComorbiditySerializer(serializers.ModelSerializer):
 	comorbidity_detail = MasterComorbiditySerializer(
 		source='comorbidity',
@@ -134,10 +152,17 @@ class AppointmentSymptomSerializer(serializers.ModelSerializer):
 
 
 class PrescriptionItemSerializer(serializers.ModelSerializer):
+	hospital_medicine_detail = HospitalMedicineSerializer(
+		source='hospital_medicine',
+		read_only=True
+	)
+
 	class Meta:
 		model = PrescriptionItem
 		fields = [
 			'id',
+			'hospital_medicine',
+			'hospital_medicine_detail',
 			'medicine_name',
 			'dosage',
 			'frequency',
@@ -153,6 +178,17 @@ class PrescriptionItemSerializer(serializers.ModelSerializer):
 			)
 
 		return value
+
+	def validate(self, attrs):
+		hospital_medicine = attrs.get('hospital_medicine')
+		medicine_name = attrs.get('medicine_name', '')
+
+		if not hospital_medicine and not medicine_name:
+			raise serializers.ValidationError(
+				'Medicine name or hospital medicine is required.'
+			)
+
+		return attrs
 
 
 class PrescriptionSerializer(serializers.ModelSerializer):
@@ -194,6 +230,11 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 		prescription = Prescription.objects.create(**validated_data)
 
 		for item_data in items_data:
+			hospital_medicine = item_data.get('hospital_medicine')
+
+			if hospital_medicine and not item_data.get('medicine_name'):
+				item_data['medicine_name'] = hospital_medicine.medicine_name
+
 			PrescriptionItem.objects.create(
 				prescription=prescription,
 				**item_data
@@ -218,9 +259,15 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 			instance.items.all().delete()
 
 			for item_data in items_data:
+				hospital_medicine = item_data.get('hospital_medicine')
+
+				if hospital_medicine and not item_data.get('medicine_name'):
+					item_data['medicine_name'] = hospital_medicine.medicine_name
+
 				PrescriptionItem.objects.create(
 					prescription=instance,
 					**item_data
 				)
 
 		return instance
+

@@ -1,0 +1,320 @@
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem 3%;
+  background: #f8fafc;
+}
+
+.header,
+.filterCard,
+.resultInfo,
+.appointmentGrid,
+.emptyCard,
+.stateCard,
+.errorBox {
+  width: min(1500px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0f766e;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+}
+
+.header p {
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  font-weight: 750;
+}
+
+.dashboardLink,
+.actionButton {
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: #0f766e;
+  color: white;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboardLink:hover,
+.actionButton:hover {
+  background: #115e59;
+}
+
+.errorBox {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  font-weight: 850;
+}
+
+.filterCard,
+.emptyCard,
+.stateCard,
+.appointmentCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.filterCard {
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.searchBox {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 1rem;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.searchBox svg {
+  color: #0f766e;
+}
+
+.searchBox input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.filterGrid {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.filterGrid label {
+  display: grid;
+  gap: 0.35rem;
+  color: #334155;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.filterGrid select {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.resultInfo {
+  margin-bottom: 1rem;
+  color: #64748b;
+  font-weight: 850;
+}
+
+.resultInfo strong {
+  color: #0f766e;
+}
+
+.appointmentGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.appointmentCard {
+  padding: 1rem;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.patientIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: #ecfeff;
+  color: #0f766e;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.cardTop h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.cardTop p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
+.metaGrid {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.metaGrid div {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #475569;
+  font-weight: 800;
+}
+
+.metaGrid svg {
+  color: #0f766e;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.badge,
+.typeBadge {
+  display: inline-flex;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 950;
+  text-transform: capitalize;
+}
+
+.typeBadge {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.confirmed {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.in_progress {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.actionButton,
+.disabledButton {
+  width: 100%;
+}
+
+.disabledButton {
+  min-height: 44px;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 999px;
+  background: #cbd5e1;
+  color: #475569;
+  font-weight: 950;
+  cursor: not-allowed;
+}
+
+.emptyCard,
+.stateCard {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.emptyCard svg {
+  color: #0f766e;
+}
+
+.emptyCard h2,
+.stateCard h1 {
+  color: #0f172a;
+}
+
+.emptyCard p {
+  color: #64748b;
+  font-weight: 750;
+}
+
+@media (max-width: 1100px) {
+  .appointmentGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 2rem 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .appointmentGrid,
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboardLink {
+    width: 100%;
+  }
+}

@@ -1,0 +1,299 @@
+.page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #0f766e;
+  text-decoration: none;
+  font-weight: 900;
+  margin-bottom: 1.2rem;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.4rem;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ecfeff, #f0fdfa);
+  border: 1px solid #ccfbf1;
+  margin-bottom: 1.2rem;
+}
+
+.heroIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: #0f766e;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.hero p {
+  margin: 0.45rem 0 0;
+  color: #475569;
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.card {
+  padding: 1.2rem;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.card h2 {
+  margin: 0 0 1rem;
+  color: #0f172a;
+}
+
+.layout > .card:nth-child(2) {
+  grid-column: 1;
+}
+
+.layout > aside.card {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.infoGrid div,
+.diagnosisBox,
+.noticeBox {
+  padding: 0.9rem;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.infoGrid span,
+.diagnosisBox span,
+.medicineGrid span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 850;
+  margin-bottom: 0.25rem;
+}
+
+.infoGrid strong,
+.medicineGrid strong {
+  color: #0f172a;
+  font-weight: 950;
+}
+
+.statusBadge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #047857;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader h2 {
+  margin-bottom: 0.25rem;
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 750;
+}
+
+.diagnosisBox {
+  margin-bottom: 0.9rem;
+}
+
+.diagnosisBox p {
+  margin: 0;
+  color: #334155;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.medicineList {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.medicineCard {
+  padding: 1rem;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.medicineCard h3 {
+  margin: 0 0 0.8rem;
+  color: #0f766e;
+}
+
+.medicineGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.medicineGrid div {
+  padding: 0.75rem;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.instructions {
+  margin: 0.8rem 0 0;
+  color: #475569;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.noticeBox {
+  color: #64748b;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.muted {
+  margin: 0 0 1rem;
+  color: #64748b;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.downloadButton,
+.secondaryButton {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-decoration: none;
+}
+
+.downloadButton {
+  background: #0f766e;
+  color: #ffffff;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+}
+
+.downloadButton:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.successBox,
+.errorBox,
+.empty,
+.emptyBox {
+  padding: 1rem;
+  border-radius: 18px;
+  margin-bottom: 1rem;
+  font-weight: 850;
+}
+
+.successBox {
+  background: #dcfce7;
+  color: #047857;
+}
+
+.errorBox {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.empty,
+.emptyBox {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.emptyBox a {
+  color: #0f766e;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .layout > .card:nth-child(2),
+  .layout > aside.card {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .medicineGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    align-items: flex-start;
+  }
+
+  .infoGrid,
+  .medicineGrid {
+    grid-template-columns: 1fr;
+  }
+}

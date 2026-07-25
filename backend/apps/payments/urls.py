@@ -12,6 +12,13 @@ from .views import (
     AppointmentVNPayCreatePaymentView,
     AppointmentPayPalCreatePaymentView,
     AppointmentPayPalCapturePaymentView,
+
+    AppointmentFinalPaymentSessionCreateView,
+    AppointmentFinalPaymentSessionDetailView,
+    AppointmentFinalSessionVNPayCreateView,
+
+    AppointmentFinalSessionPayPalCreateView,
+    AppointmentFinalSessionPayPalCaptureView,
 )
 
 urlpatterns = [
@@ -28,4 +35,20 @@ urlpatterns = [
     path('appointments/vnpay/create/', AppointmentVNPayCreatePaymentView.as_view(), name='appointment-vnpay-create'),
     path('appointments/paypal/create/', AppointmentPayPalCreatePaymentView.as_view(), name='appointment-paypal-create'),
     path('appointments/paypal/capture/', AppointmentPayPalCapturePaymentView.as_view(), name='appointment-paypal-capture'),
+
+    path('appointments/<uuid:appointment_id>/final-session/create/', AppointmentFinalPaymentSessionCreateView.as_view(), name='appointment-final-session-create'),
+    path('appointments/<uuid:appointment_id>/final-session/', AppointmentFinalPaymentSessionDetailView.as_view(), name='appointment-final-session-detail'),
+    path('appointments/<uuid:appointment_id>/final-session/vnpay/create/', AppointmentFinalSessionVNPayCreateView.as_view(), name='appointment-final-session-vnpay-create'),
+    
+    path(
+        'appointments/<uuid:appointment_id>/final-session/paypal/create/',
+        AppointmentFinalSessionPayPalCreateView.as_view(),
+        name='appointment-final-session-paypal-create'
+    ),
+
+    path(
+        'appointments/<uuid:appointment_id>/final-session/paypal/capture/',
+        AppointmentFinalSessionPayPalCaptureView.as_view(),
+        name='appointment-final-session-paypal-capture'
+    ),
 ]

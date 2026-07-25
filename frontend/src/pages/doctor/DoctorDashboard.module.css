@@ -170,13 +170,19 @@
 
 .appointmentRow {
   display: grid;
-  grid-template-columns: minmax(220px, 1.2fr) 150px 130px 120px 150px;
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(115px, 0.7fr)
+    minmax(120px, 0.7fr)
+    auto
+    minmax(120px, auto);
   gap: 0.75rem;
   align-items: center;
   padding: 0.95rem;
   border-radius: 20px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+  overflow: hidden;
 }
 
 .patientCell {
@@ -198,13 +204,21 @@
   flex: 0 0 auto;
 }
 
+.patientCell > div:last-child {
+  min-width: 0;
+}
+
 .patientCell strong {
   display: block;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .patientCell span {
   display: block;
+  max-width: 260px;
   color: #64748b;
   font-size: 0.78rem;
   font-weight: 750;
@@ -218,8 +232,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0;
   color: #334155;
   font-weight: 850;
+  white-space: nowrap;
 }
 
 .timeCell svg,
@@ -238,47 +254,30 @@
   font-size: 0.8rem;
   font-weight: 950;
   text-transform: capitalize;
-}
-
-.pending {
-  background: #fffbeb;
-  color: #b45309;
-}
-
-.confirmed {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.inProgress {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-.completed {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.cancelled {
-  background: #f1f5f9;
-  color: #64748b;
+  white-space: nowrap;
 }
 
 .actionButton {
   min-height: 40px;
   border: none;
   border-radius: 999px;
+  padding: 0.55rem 0.85rem;
   background: #0f766e;
   color: #ffffff;
   font-weight: 950;
   cursor: pointer;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  justify-self: end;
 }
 
 .actionButton:disabled {
   background: #cbd5e1;
   color: #64748b;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .emptyBox {
@@ -379,15 +378,35 @@
   }
 
   .appointmentRow {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .timeCell,
+  .visitCell,
+  .statusBadge {
+    justify-self: start;
   }
 
   .actionButton {
-    grid-column: span 2;
+    justify-self: end;
+    max-width: 180px;
   }
 }
 
+
+
 @media (max-width: 720px) {
+
+  .heroActions {
+    width: 100%;
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .heroActions a {
+    width: 100%;
+  }
+  
   .hero {
     flex-direction: column;
     align-items: flex-start;
@@ -405,7 +424,46 @@
     grid-template-columns: 1fr;
   }
 
+  .timeCell,
+  .visitCell,
+  .statusBadge,
   .actionButton {
-    grid-column: auto;
+    justify-self: stretch;
   }
+
+  .actionButton {
+    width: 100%;
+    max-width: none;
+  }
+
+  .patientCell span {
+    max-width: 100%;
+  }
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.heroButtonSecondary {
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.heroButtonSecondary:hover {
+  background: #cbd5e1;
 }
