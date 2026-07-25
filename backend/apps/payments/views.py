@@ -736,6 +736,7 @@ class AppointmentVNPayCreatePaymentView(APIView):
 			reference_id=appointment.appointment_id,
 			reference_type=Payment.ReferenceType.APPOINTMENT,
 			method=Payment.Method.VNPAY,
+			payment_stage=Payment.PaymentStage.DEPOSIT,
 			status=Payment.Status.PENDING,
 		).first()
 
@@ -744,14 +745,16 @@ class AppointmentVNPayCreatePaymentView(APIView):
 				reference_id=appointment.appointment_id,
 				reference_type=Payment.ReferenceType.APPOINTMENT,
 				method=Payment.Method.VNPAY,
+				payment_stage=Payment.PaymentStage.DEPOSIT,
 				amount=deposit_amount,
 				currency='VND',
 				status=Payment.Status.PENDING,
 			)
-		elif payment.amount != deposit_amount:
+		elif payment.amount != deposit_amount or payment.payment_stage != Payment.PaymentStage.DEPOSIT:
 			payment.amount = deposit_amount
 			payment.currency = 'VND'
-			payment.save(update_fields=['amount', 'currency'])
+			payment.payment_stage = Payment.PaymentStage.DEPOSIT
+			payment.save(update_fields=['amount', 'currency', 'payment_stage'])
 
 		vnpay = VNPay()
 
@@ -810,12 +813,15 @@ class AppointmentPayPalCreatePaymentView(APIView):
 		deposit_vnd = get_appointment_deposit_amount(appointment)
 
 		vnd_to_usd_rate = Decimal(str(settings.PAYPAL_VND_TO_USD_RATE))
-		amount_usd = (deposit_vnd / vnd_to_usd_rate).quantize(Decimal('0.01'))
+		amount_usd = (deposit_vnd / vnd_to_usd_rate).quantize(
+			Decimal('0.01')
+		)
 
 		payment = Payment.objects.filter(
 			reference_id=appointment.appointment_id,
 			reference_type=Payment.ReferenceType.APPOINTMENT,
 			method=Payment.Method.PAYPAL,
+			payment_stage=Payment.PaymentStage.DEPOSIT,
 			status=Payment.Status.PENDING,
 		).first()
 
@@ -824,14 +830,16 @@ class AppointmentPayPalCreatePaymentView(APIView):
 				reference_id=appointment.appointment_id,
 				reference_type=Payment.ReferenceType.APPOINTMENT,
 				method=Payment.Method.PAYPAL,
+				payment_stage=Payment.PaymentStage.DEPOSIT,
 				amount=amount_usd,
 				currency='USD',
 				status=Payment.Status.PENDING,
 			)
-		elif payment.amount != amount_usd:
+		elif payment.amount != amount_usd or payment.payment_stage != Payment.PaymentStage.DEPOSIT:
 			payment.amount = amount_usd
 			payment.currency = 'USD'
-			payment.save(update_fields=['amount', 'currency'])
+			payment.payment_stage = Payment.PaymentStage.DEPOSIT
+			payment.save(update_fields=['amount', 'currency', 'payment_stage'])
 
 		return_url = (
 			f'{settings.PAYPAL_APPOINTMENT_RETURN_URL}'
@@ -887,7 +895,6 @@ class AppointmentPayPalCreatePaymentView(APIView):
 			},
 			status=status.HTTP_201_CREATED
 		)
-
 
 class AppointmentPayPalCapturePaymentView(APIView):
 	permission_classes = [permissions.IsAuthenticated]
