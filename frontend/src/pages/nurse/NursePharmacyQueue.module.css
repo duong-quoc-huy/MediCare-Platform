@@ -1,0 +1,387 @@
+/* ==========================================================================
+   NursePharmacyQueue.module.css
+   Shares the same design language as NurseDashboard.module.css.
+   ========================================================================== */
+
+.page {
+  min-height: calc(100vh - 80px);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 3%);
+  background: var(--bg, #f8fafa);
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.35s ease;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  width: min(1500px, 100%);
+  margin: 0 auto 1rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  color: var(--teal-mid, #0f6e56);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.header h1 {
+  margin: 0 0 0.35rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: var(--text-dark, #1a2332);
+}
+
+.header p {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+}
+
+.backButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 1.2rem;
+  border-radius: var(--radius-full, 999px);
+  background: var(--teal, #0b6e6e);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.backButton:hover {
+  background: var(--teal-mid, #0f6e56);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(11, 110, 110, 0.25);
+}
+
+.backButton:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+}
+
+/* ---------- Alerts ---------- */
+
+.errorBox {
+  width: min(1500px, 100%);
+  margin: 0 auto 1rem;
+  padding: 1rem 1.1rem;
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  border-radius: var(--radius-md, 10px);
+  font-weight: 600;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ---------- Filter bar ---------- */
+
+.filterCard {
+  width: min(1500px, 100%);
+  margin: 0 auto 1.25rem;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.searchBox {
+  flex: 1 1 260px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg, #f8fafa);
+  color: var(--text-muted, #6b7280);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.searchBox:focus-within {
+  border-color: var(--teal, #0b6e6e);
+  box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.12);
+}
+
+.searchBox input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  min-height: 40px;
+  font-weight: 500;
+  color: var(--text-dark, #1a2332);
+  font-family: inherit;
+}
+
+.searchBox input:focus {
+  outline: none;
+}
+
+.selectLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.selectLabel select {
+  min-height: 42px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg, #f8fafa);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-dark, #1a2332);
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.selectLabel select:focus-visible {
+  outline: none;
+  border-color: var(--teal, #0b6e6e);
+  box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.12);
+}
+
+/* ---------- Empty / loading state ---------- */
+
+.stateCard {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  animation: fadeIn 0.3s ease;
+}
+
+.stateCard h2 {
+  margin: 0 0 0.4rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  color: var(--text-dark, #1a2332);
+}
+
+.stateCard p {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+}
+
+/* ---------- Prescription grid ---------- */
+
+.grid {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.1);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cardTop h2 {
+  margin: 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.cardTop p {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full, 999px);
+  background: var(--teal-light, #e1f5ee);
+  color: var(--teal-mid, #0f6e56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.metaList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+}
+
+.metaList span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text-muted, #6b7280);
+}
+
+.metaList svg {
+  color: var(--teal, #0b6e6e);
+  flex-shrink: 0;
+}
+
+.amountBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg, #f8fafa);
+  border-radius: var(--radius-md, 10px);
+}
+
+.amountBox span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+}
+
+.amountBox strong {
+  font-size: 0.95rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.diagnosis {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.actionButton {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--teal, #0b6e6e);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.actionButton:hover {
+  background: var(--teal-mid, #0f6e56);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(11, 110, 110, 0.25);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .filterCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .selectLabel select {
+    width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .card,
+  .stateCard,
+  .errorBox,
+  .actionButton,
+  .backButton {
+    animation: none;
+    transition: none;
+  }
+}

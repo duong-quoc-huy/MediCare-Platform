@@ -1,0 +1,251 @@
+/* ==========================================================================
+   NurseDashboard.module.css
+   Design tokens are read from the global :root (see index.css). Local
+   fallbacks are provided via var(--token, fallback) so this file is safe
+   to preview in isolation too.
+   ========================================================================== */
+
+.page {
+  min-height: calc(100vh - 80px);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 3%);
+  background: var(--bg, #f8fafa);
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.35s ease;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  width: min(1500px, 100%);
+  margin: 0 auto 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.25s ease;
+}
+
+.hero:hover {
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.09);
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--teal-mid, #0f6e56);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero h1 {
+  margin: 0 0 0.4rem;
+  color: var(--text-dark, #1a2332);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.65rem, 3.2vw, 2.6rem);
+  line-height: 1.15;
+}
+
+.hero p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.heroButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0 1.4rem;
+  border: none;
+  border-radius: var(--radius-full, 999px);
+  background: var(--teal, #0b6e6e);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.heroButton:hover {
+  background: var(--teal-mid, #0f6e56);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(11, 110, 110, 0.28);
+}
+
+.heroButton:active {
+  transform: translateY(0);
+}
+
+.heroButton:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+}
+
+/* ---------- Card grid ---------- */
+
+.grid {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.card {
+  padding: 1.35rem;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card svg {
+  color: var(--teal, #0b6e6e);
+  transition: transform 0.2s ease;
+}
+
+.card h2 {
+  margin: 0.25rem 0 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.1);
+  border-color: var(--teal, #0b6e6e);
+}
+
+.card:hover svg {
+  transform: scale(1.08);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+}
+
+.cardMuted {
+  padding: 1.35rem;
+  background: var(--teal-light, #e1f5ee);
+  border: 1px dashed rgba(11, 110, 110, 0.35);
+  border-radius: var(--radius-lg, 14px);
+  color: var(--text-muted, #6b7280);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cardMuted::after {
+  content: 'Coming soon';
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--teal-mid, #0f6e56);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full, 999px);
+}
+
+.cardMuted svg {
+  color: var(--teal-mid, #0f6e56);
+  opacity: 0.8;
+}
+
+.cardMuted h2 {
+  margin: 0.25rem 0 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.cardMuted p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .heroButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .card,
+  .heroButton,
+  .hero {
+    animation: none;
+    transition: none;
+  }
+}

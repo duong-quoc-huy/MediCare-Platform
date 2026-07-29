@@ -1,0 +1,393 @@
+/* ==========================================================================
+   NursePharmacyDetail.module.css
+   Shares the same design language as NurseDashboard.module.css and
+   NursePharmacyQueue.module.css.
+   ========================================================================== */
+
+.page {
+  min-height: calc(100vh - 80px);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 3%);
+  background: var(--bg, #f8fafa);
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.35s ease;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  width: min(1500px, 100%);
+  margin: 0 auto 1rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  color: var(--teal-mid, #0f6e56);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: gap 0.18s ease, color 0.18s ease;
+}
+
+.backLink:hover {
+  gap: 0.6rem;
+  color: var(--teal, #0b6e6e);
+}
+
+.backLink:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.header h1 {
+  margin: 0 0 0.35rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: var(--text-dark, #1a2332);
+}
+
+.header p {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+}
+
+/* ---------- Alerts ---------- */
+
+.errorBox,
+.successBox {
+  width: min(1500px, 100%);
+  margin: 0 auto 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md, 10px);
+  font-weight: 600;
+  animation: fadeIn 0.25s ease;
+}
+
+.errorBox {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.successBox {
+  background: var(--teal-light, #e1f5ee);
+  color: var(--teal-mid, #0f6e56);
+  border: 1px solid rgba(11, 110, 110, 0.25);
+}
+
+/* ---------- Loading / not found ---------- */
+
+.stateCard {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  animation: fadeIn 0.3s ease;
+}
+
+.stateCard h1 {
+  margin: 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  color: var(--text-dark, #1a2332);
+  font-size: 1.4rem;
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.card {
+  padding: 1.35rem;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.card h2 {
+  margin: 1.25rem 0 0.75rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.card h2:first-child {
+  margin-top: 0;
+}
+
+/* ---------- Patient / appointment info ---------- */
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.25rem;
+}
+
+.infoGrid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.infoGrid span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #6b7280);
+}
+
+.infoGrid strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark, #1a2332);
+}
+
+.textBox {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: var(--bg, #f8fafa);
+  border-radius: var(--radius-md, 10px);
+  color: var(--text-dark, #1a2332);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+/* ---------- Prescription items table ---------- */
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.tableWrap table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+
+.tableWrap th {
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  background: var(--bg, #f8fafa);
+  color: var(--text-muted, #6b7280);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.tableWrap td {
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  color: var(--text-dark, #1a2332);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.tableWrap tr:last-child td {
+  border-bottom: none;
+}
+
+.tableWrap tr:hover td {
+  background: var(--teal-light, #e1f5ee);
+}
+
+/* ---------- Payment sidebar ---------- */
+
+.paymentSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  background: var(--bg, #f8fafa);
+  border-radius: var(--radius-md, 10px);
+}
+
+.paymentSummary div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.paymentSummary span {
+  font-size: 0.85rem;
+  color: var(--text-muted, #6b7280);
+  font-weight: 500;
+}
+
+.paymentSummary strong {
+  font-size: 0.95rem;
+  color: var(--text-dark, #1a2332);
+}
+
+.paymentSummary div:last-child {
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--border, rgba(0, 0, 0, 0.15));
+}
+
+.paymentSummary div:last-child strong {
+  color: var(--teal, #0b6e6e);
+  font-size: 1.05rem;
+}
+
+.completedBox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: var(--teal-light, #e1f5ee);
+  color: var(--teal-mid, #0f6e56);
+  border-radius: var(--radius-md, 10px);
+  font-weight: 600;
+}
+
+/* ---------- Form ---------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-md, 10px);
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--text-dark, #1a2332);
+  background: var(--bg, #f8fafa);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.form textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--teal, #0b6e6e);
+  box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.12);
+  background: var(--bg-white, #fff);
+}
+
+.form button {
+  min-height: 46px;
+  margin-top: 0.35rem;
+  border: none;
+  border-radius: var(--radius-full, 999px);
+  background: var(--teal, #0b6e6e);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.form button:hover:not(:disabled) {
+  background: var(--teal-mid, #0f6e56);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(11, 110, 110, 0.25);
+}
+
+.form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.form button:focus-visible {
+  outline: 2px solid var(--teal, #0b6e6e);
+  outline-offset: 3px;
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentSummary div {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .errorBox,
+  .successBox,
+  .stateCard,
+  .form button,
+  .backLink {
+    animation: none;
+    transition: none;
+  }
+}

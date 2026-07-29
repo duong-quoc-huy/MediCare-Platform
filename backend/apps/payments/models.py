@@ -21,12 +21,14 @@ class UUIDv7Field(models.UUIDField):
 
 class Payment(models.Model):
 	class ReferenceType(models.TextChoices):
-		APPOINTMENT     = 'appointment',     'Appointment'
+		APPOINTMENT = 'appointment',     'Appointment'
 		MEDICINE_ORDER  = 'medicine_order',  'Medicine Order'
 
 	class Method(models.TextChoices):
-		VNPAY   = 'vnpay',  'VNPAY'
-		PAYPAL  = 'paypal', 'PayPal'
+		VNPAY = 'vnpay',  'VNPAY'
+		PAYPAL = 'paypal', 'PayPal'
+		CASH = 'cash', 'Cash'
+		OTHER = 'other', 'Other'
 
 	class Status(models.TextChoices):
 		PENDING     = 'pending',    'Pending'

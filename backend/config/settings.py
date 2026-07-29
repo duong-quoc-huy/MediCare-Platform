@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.carts",
     "apps.locations",
     "apps.medical_records",
+    "apps.nurse",
 ]
 
 MIDDLEWARE = [

@@ -41,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	class Role(models.TextChoices):
 		PATIENT = 'patient', 'Patient'
 		DOCTOR = 'doctor', 'Doctor'
+		NURSE = 'nurse', 'Nurse'
 		ADMIN = 'admin', 'Admin'
 		SHIPPER = 'shipper', 'Shipper'
 

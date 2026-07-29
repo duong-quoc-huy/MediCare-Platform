@@ -40,6 +40,9 @@ import AppointmentFinalPaymentResult from './pages/payment/AppointmentFinalPayme
 import AppointmentFinalPayPalReturn from './pages/payment/AppointmentFinalPayPalReturn'
 import DoctorAppointmentRecord from './pages/doctor/DoctorAppointmentRecord'
 import DoctorAppointmentsPage from './pages/doctor/DoctorAppointmentsPage'
+import NurseDashboard from './pages/nurse/NurseDashboard' 
+import NursePharmacyQueue from './pages/nurse/NursePharmacyQueue' 
+import NursePharmacyDetail from './pages/nurse/NursePharmacyDetail'
 
 
 export default function App() {
@@ -280,8 +283,33 @@ export default function App() {
             element={<AppointmentFinalPayPalReturn />}
           />
 
+          <Route 
+            path="/nurse/dashboard" 
+            element={ 
+              <ProtectedRoute allowedRoles={['nurse']}> 
+                <NurseDashboard /> 
+              </ProtectedRoute> 
+            } 
+          /> 
+           
+          <Route 
+            path="/nurse/pharmacy" 
+            element={ 
+              <ProtectedRoute allowedRoles={['nurse']}> 
+                <NursePharmacyQueue /> 
+              </ProtectedRoute> 
+            } 
+          /> 
+           
+          <Route 
+            path="/nurse/pharmacy/:prescriptionId" 
+            element={ 
+              <ProtectedRoute allowedRoles={['nurse']}> 
+                <NursePharmacyDetail /> 
+              </ProtectedRoute> 
+            } 
+          />
 
-          
           <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
           <Route path="/payments" element={<div style={{ padding: '4rem 2rem' }}>Payment History</div>} />
