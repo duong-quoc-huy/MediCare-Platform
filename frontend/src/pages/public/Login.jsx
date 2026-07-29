@@ -51,6 +51,7 @@ export default function Login() {
           if (role === 'admin')   return navigate('/admin/dashboard',   { replace: true })
           if (role === 'doctor')  return navigate('/doctor/dashboard',  { replace: true })
           if (role === 'shipper') return navigate('/shipper/dashboard', { replace: true })
+          if (role === 'nurse') return navigate('/nurse/dashboard',  { replace: true })
           return navigate('/patient/dashboard', { replace: true })
 
       } catch (err) {

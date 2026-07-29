@@ -5,6 +5,7 @@ function getDashboardPath(role) {
   if (role === 'admin') return '/admin/dashboard'
   if (role === 'doctor') return '/doctor/dashboard'
   if (role === 'shipper') return '/shipper/dashboard'
+  if (role === 'nurse') return '/nurse/dashboard'
   return '/patient/dashboard'
 }
 

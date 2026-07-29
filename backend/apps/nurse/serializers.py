@@ -52,7 +52,7 @@ class NursePharmacyQueueSerializer(serializers.ModelSerializer):
 
 	def get_amount_due(self, obj):
 		appointment = obj.appointment
-		if appointment.final_pad:
+		if appointment.final_paid:
 			return Decimal('0.00')
 
 		total_fee = Decimal(appointment.total_fee or 0)
@@ -116,7 +116,7 @@ class NursePharmacyDetailSerializer(serializers.ModelSerializer):
 
 	def get_amount_due(self, obj):
 		appointment = obj.appointment
-		if appointment.final_pad:
+		if appointment.final_paid:
 			return Decimal('0.00')
 
 		total_fee = Decimal(appointment.total_fee or 0)

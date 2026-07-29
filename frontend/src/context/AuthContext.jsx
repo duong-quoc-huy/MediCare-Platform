@@ -57,6 +57,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!token,
     isPatient: user?.role === 'patient',
     isDoctor: user?.role === 'doctor',
+    isNurse: user?.role === 'nurse',
     isAdmin: user?.role === 'admin',
     isShipper: user?.role === 'shipper',
   }
