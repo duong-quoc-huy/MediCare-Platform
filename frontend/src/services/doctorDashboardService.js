@@ -63,7 +63,9 @@ export async function getDoctorDashboardData() {
         appointment.status === 'in_progress'
     ).length,
     upcomingCount: upcomingAppointments.filter(
-      appointment => appointment.status !== 'cancelled'
+      appointment => 
+      appointment.status !== 'cancelled' &&
+      appointment.status !== 'missed'
     ).length,
   }
 

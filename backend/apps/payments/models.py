@@ -34,6 +34,8 @@ class Payment(models.Model):
 		PENDING     = 'pending',    'Pending'
 		SUCCESS     = 'success',    'Success'
 		FAILED      = 'failed',     'Failed'
+		CANCELLED   = 'cancelled',  'Cancelled'
+		EXPIRED     = 'expired',    'Expired'
 		REFUNDED    = 'refunded',   'Refunded'
 
 	class PaymentStage(models.TextChoices):
@@ -46,6 +48,8 @@ class Payment(models.Model):
 	reference_type  = models.CharField(max_length=20, choices=ReferenceType.choices)
 	method          = models.CharField(max_length=10, choices=Method.choices)
 	amount          = models.DecimalField(max_digits=10, decimal_places=2)
+	original_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+	exchange_rate   = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
 	currency        = models.CharField(max_length=10, default='VND')
 	status          = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
 	payment_stage = models.CharField(max_length=20, choices=PaymentStage.choices, default=PaymentStage.FULL)

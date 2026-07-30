@@ -4,13 +4,16 @@ from apps.doctors.serializers import DoctorSerializer
 from .slot_engine import get_available_slots
 from datetime import datetime, timedelta
 from apps.doctors.models import DoctorSchedule
+from django.utils import timezone
+from .time_rules import get_checkup_start_availability
 
 ALLOWED_TRANSITIONS = {
 	'pending': ['confirmed', 'cancelled'],
-	'confirmed': ['in_progress', 'cancelled'],
+	'confirmed': ['in_progress', 'cancelled', 'missed'],
 	'in_progress': ['completed'],
 	'completed': [],
 	'cancelled': [],
+	'missed': [],
 }
 
 
@@ -19,15 +22,97 @@ class AppointmentListSerializer(serializers.ModelSerializer):
 	doctor_name = serializers.CharField(source='doctor.user.full_name', read_only=True)
 	doctor_slug = serializers.CharField(source='doctor.slug', read_only=True)
 	doctor_specialty = serializers.CharField(source='doctor.specialty', read_only=True)
+
+	can_start_checkup = serializers.SerializerMethodField()
+	start_block_reason = serializers.SerializerMethodField()
+	start_block_message = serializers.SerializerMethodField()
+	earliest_start_at = serializers.SerializerMethodField()
+	latest_start_at = serializers.SerializerMethodField()
+	server_time = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Appointment
-		fields = ['appointment_id',
-				'patient_name', 
-				'doctor_name', 'doctor_slug', 'doctor_specialty',
-				'appointment_date', 'start_time', 'end_time', 
-				'status', 'visit_type',
-				'address', 'total_fee', 'created_at',
+		fields = [
+			'appointment_id',
+			'patient_name',
+			'doctor_name',
+			'doctor_slug',
+			'doctor_specialty',
+			'appointment_date',
+			'start_time',
+			'end_time',
+			'status',
+			'visit_type',
+			'address',
+			'total_fee',
+			'created_at',
+			'can_start_checkup',
+			'start_block_reason',
+			'start_block_message',
+			'earliest_start_at',
+			'latest_start_at',
+			'server_time',
 		]
+
+	def get_start_availability(self, obj):
+		cache_name = '_start_availability_cache'
+
+		if not hasattr(obj, cache_name):
+			if (
+				obj.status
+				!= Appointment.Status.CONFIRMED
+			):
+				availability = {
+					'can_start': False,
+					'reason': None,
+					'message': '',
+					'earliest_start': None,
+					'latest_start': None,
+				}
+			else:
+				availability = (
+					get_checkup_start_availability(obj)
+				)
+
+			setattr(
+				obj,
+				cache_name,
+				availability,
+			)
+
+		return getattr(obj, cache_name)
+
+	def get_can_start_checkup(self, obj):
+		return self.get_start_availability(obj)[
+			'can_start'
+		]
+
+	def get_start_block_reason(self, obj):
+		return self.get_start_availability(obj)[
+			'reason'
+		]
+
+	def get_start_block_message(self, obj):
+		return self.get_start_availability(obj)[
+			'message'
+		]
+
+	def get_earliest_start_at(self, obj):
+		value = self.get_start_availability(obj).get(
+			'earliest_start'
+		)
+
+		return value.isoformat() if value else None
+
+	def get_latest_start_at(self, obj):
+		value = self.get_start_availability(obj).get(
+			'latest_start'
+		)
+
+		return value.isoformat() if value else None
+
+	def get_server_time(self, obj):
+		return timezone.localtime().isoformat()
 
 
 class AppointmentDetailSerializer(serializers.ModelSerializer):
@@ -103,7 +188,7 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 				{'doctor': 'This doctor is currently not accepting appointments.'}
 			)
 
-		if appointment_date < datetime.now().date():
+		if appointment_date < timezone.localdate():
 			raise serializers.ValidationError(
 				{'appointment_date': 'Cannot book an appointment in the past'}
 			)

@@ -394,3 +394,29 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.policyWarning {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #fff1f2;
+  border: 1px solid #fda4af;
+  color: #9f1239;
+  line-height: 1.5;
+  box-shadow: 0 8px 20px rgba(190, 18, 60, 0.08);
+}
+
+.policyWarning strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #be123c;
+  font-weight: 950;
+}
+
+.policyWarning p {
+  margin: 0;
+}
+
+.policyWarning p + p {
+  margin-top: 0.5rem;
+}

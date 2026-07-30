@@ -467,3 +467,17 @@
 .heroButtonSecondary:hover {
   background: #cbd5e1;
 }
+
+.missed {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.missedHint {
+  display: block;
+  margin-top: 0.3rem;
+  color: #991b1b;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}

@@ -26,6 +26,7 @@ class Appointment(models.Model):
 		IN_PROGRESS = 'in_progress', 'In Progress'
 		COMPLETED = 'completed', 'Completed'
 		CANCELLED = 'cancelled', 'Cancelled'
+		MISSED = 'missed', 'Missed Appointment'
 
 	class VisitType(models.TextChoices):
 		HOME_VISIT = 'home_visit', "Home Visit"

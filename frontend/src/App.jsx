@@ -43,7 +43,12 @@ import DoctorAppointmentsPage from './pages/doctor/DoctorAppointmentsPage'
 import NurseDashboard from './pages/nurse/NurseDashboard' 
 import NursePharmacyQueue from './pages/nurse/NursePharmacyQueue' 
 import NursePharmacyDetail from './pages/nurse/NursePharmacyDetail'
-
+import NursePharmacyPayPalReturn from './pages/nurse/NursePharmacyPayPalReturn'
+import TermsOfService from './pages/public/TermsOfService'
+import PrivacyPolicy from './pages/public/PrivacyPolicy'
+import ContactUs from './pages/public/ContactUs'
+import Services from './pages/public/Services'
+import About from './pages/public/About'
 
 export default function App() {
   return (
@@ -310,10 +315,20 @@ export default function App() {
             } 
           />
 
+          <Route
+            path="/nurse-payment/paypal-return"
+            element={<NursePharmacyPayPalReturn />}
+          />
+
           <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
           <Route path="/payments" element={<div style={{ padding: '4rem 2rem' }}>Payment History</div>} />
           <Route path="/patient/appointments" element={<div style={{ padding: '4rem 2rem' }}>My Appointments</div>} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/about" element={<About />} />
         </Routes>
         <Footer />
       </BrowserRouter>

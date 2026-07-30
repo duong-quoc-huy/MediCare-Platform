@@ -8,6 +8,7 @@ import {
   Home,
   MapPin,
   Stethoscope,
+  TriangleAlert,
 } from 'lucide-react'
 
 import { createAppointment } from '../../services/appointmentService'
@@ -496,10 +497,23 @@ export default function BookingForm() {
             </div>
           </div>
 
-          <p className={styles.summaryNote}>
-            After confirming, you will pay a 50% deposit to secure this
-            appointment.
-          </p>
+          <div className={styles.policyWarning}>
+            <div className={styles.policyWarningTitle}>
+              <TriangleAlert size={20} />
+              <strong>Deposit policy</strong>
+            </div>
+
+            <p>
+              After confirming, you will pay a 50% deposit to secure this
+              appointment.
+            </p>
+
+            <p>
+              If you do not attend within the allowed appointment start window,
+              the appointment will be marked as missed and the deposit will be
+              non-refundable.
+            </p>
+          </div>
         </aside>
       </section>
     </main>

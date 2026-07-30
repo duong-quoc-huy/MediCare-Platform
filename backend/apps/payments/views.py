@@ -440,7 +440,7 @@ class VNPayReturnView(APIView):
 				if not appointment.final_paid:
 					mark_appointment_final_paid_and_complete(
 						appointment,
-						final_amount=payment.amount
+						final_amount=payment.original_amount or payment.amount
 					)
 
 				return redirect(
@@ -464,7 +464,7 @@ class VNPayReturnView(APIView):
 				if not appointment.final_paid:
 					mark_appointment_final_paid_and_complete(
 						appointment,
-						final_amount=payment.amount
+						final_amount=payment.original_amount or payment.amount
 					)
 
 				payment.status = Payment.Status.SUCCESS

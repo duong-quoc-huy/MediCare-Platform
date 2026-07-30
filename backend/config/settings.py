@@ -255,6 +255,6 @@ HOSPITAL_NAME_VI = 'Bệnh viện Firefly'
 HOSPITAL_HOTLINE = '1900 2026'
 HOSPITAL_EMAIL = 'contact@fireflyhospital.vn'
 HOSPITAL_ADDRESS = '123 Health Street, District 1, Ho Chi Minh City, Vietnam'
-HOSPITAL_WEBSITE = 'https://fireflyhospital.vn'
+HOSPITAL_WEBSITE = 'https://medicare-firefly.duckdns.org'
 
 HOSPITAL_LOGO_PATH = BASE_DIR / 'static' / 'images' / 'hospital-logo.png'   

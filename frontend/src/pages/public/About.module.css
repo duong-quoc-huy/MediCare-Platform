@@ -1,0 +1,383 @@
+.page {
+  background: var(--bg);
+}
+
+/* Hero */
+.hero {
+  background: var(--teal-light);
+  padding: 72px 24px 56px;
+  text-align: center;
+}
+
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal-mid);
+  margin: 0 0 14px;
+}
+
+.title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(28px, 4.5vw, 44px);
+  color: var(--text-dark);
+  max-width: 720px;
+  margin: 0 auto 16px;
+  line-height: 1.15;
+}
+
+.subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Stats */
+.statsSection {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: -56px;
+}
+
+.statCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px 20px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.statValue {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--teal-mid);
+  margin: 0 0 6px;
+}
+
+.statLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Generic section */
+.section {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.sectionTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 3vw, 28px);
+  color: var(--text-dark);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.sectionTitleLeft {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 3vw, 28px);
+  color: var(--text-dark);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14.5px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+/* Mission */
+.missionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.missionText {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--text-dark);
+  line-height: 1.75;
+  margin: 0 0 16px;
+}
+
+.missionText:last-child {
+  margin-bottom: 0;
+}
+
+/* Values */
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.valueCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+}
+
+.valueIcon {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.valueTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--text-dark);
+  margin: 0 0 8px;
+}
+
+.valueText {
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Timeline */
+.timeline {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.timelineItem {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 20px;
+}
+
+.timelineMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timelineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--teal);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.timelineLine {
+  width: 2px;
+  flex-grow: 1;
+  background: var(--border);
+  margin-top: 4px;
+}
+
+.timelineContent {
+  padding-bottom: 32px;
+}
+
+.timelineYear {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--teal-mid);
+  margin: 0 0 4px;
+}
+
+.timelineTitle {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--text-dark);
+  margin: 0 0 8px;
+}
+
+.timelineText {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Team */
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.teamCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 26px 20px;
+  text-align: center;
+}
+
+.teamAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--teal-light);
+  color: var(--teal-mid);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.teamName {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text-dark);
+  margin: 0 0 4px;
+}
+
+.teamRole {
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* CTA banner */
+.ctaBanner {
+  background: var(--text-dark);
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.ctaBanner h2 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, 3.5vw, 30px);
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.ctaBanner p {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 28px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButtonInverse,
+.secondaryButtonInverse {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14.5px;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.primaryButtonInverse {
+  background: var(--teal);
+  color: #fff;
+}
+
+.primaryButtonInverse:hover {
+  background: var(--teal-mid);
+}
+
+.secondaryButtonInverse {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.secondaryButtonInverse:hover {
+  border-color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: -40px;
+  }
+
+  .missionGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .teamGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .hero {
+    padding: 56px 16px 72px;
+  }
+
+  .statsSection {
+    padding: 0 16px 0;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .section {
+    padding: 48px 16px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .teamGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -13,6 +13,8 @@ from .serializers import (
 from apps.medical_records.models import AppointmentVitals, Prescription
 from .pdf_service import generate_medical_pdf
 from django.http import FileResponse
+from django.utils import timezone
+from .time_rules import get_checkup_start_availability, synchronize_missed_appointment
 
 #code goes here
 def get_user_role(user):
@@ -115,6 +117,38 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 			role_queryset = role_queryset.filter(visit_type=visit_type)
 
 		return role_queryset.order_by('appointment_date', 'start_time')
+
+	def list(self, request, *args, **kwargs):
+		queryset = self.filter_queryset(
+			self.get_queryset()
+		)
+
+		current_time = timezone.localtime()
+
+		for appointment in queryset:
+			synchronize_missed_appointment(
+				appointment,
+				current_time=current_time,
+			)
+
+		page = self.paginate_queryset(queryset)
+
+		if page is not None:
+			serializer = self.get_serializer(
+				page,
+				many=True,
+			)
+
+			return self.get_paginated_response(
+				serializer.data
+			)
+
+		serializer = self.get_serializer(
+			queryset,
+			many=True,
+		)
+
+		return Response(serializer.data)
 
 
 class AppointmentDetailView(generics.RetrieveAPIView):
@@ -242,7 +276,11 @@ class AppointmentStartCheckupView(APIView):
 		try:
 			appointment = (
 				Appointment.objects
-				.select_related('doctor', 'doctor__user', 'patient')
+				.select_related(
+					'doctor',
+					'doctor__user',
+					'patient',
+				)
 				.get(appointment_id=appointment_id)
 			)
 		except Appointment.DoesNotExist:
@@ -253,27 +291,91 @@ class AppointmentStartCheckupView(APIView):
 
 		user = request.user
 
-		if not is_admin_user(user) and not is_assigned_doctor(user, appointment):
+		if (
+			not is_admin_user(user)
+			and not is_assigned_doctor(user, appointment)
+		):
 			return Response(
-				{'detail': 'You do not have permission to start this appointment.'},
+				{
+					'detail': (
+						'You do not have permission to start '
+						'this appointment.'
+					)
+				},
 				status=status.HTTP_403_FORBIDDEN
 			)
 
+		synchronize_missed_appointment(appointment)
+		if appointment.status == Appointment.Status.MISSED:
+			return Response(
+				{
+					'detail': (
+						'This appointment was missed because '
+						'its allowed start window expired. '
+						'The deposit is non-refundable.'
+					),
+					'reason': 'appointment_missed',
+				},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+		
+
 		if appointment.status != Appointment.Status.CONFIRMED:
 			return Response(
-				{'detail': 'Only confirmed appointments can be started.'},
+				{
+					'detail': (
+						'Only confirmed appointments can be started.'
+					)
+				},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
+		availability = get_checkup_start_availability(
+			appointment
+		)
+
+		if not availability['can_start']:
+			return Response(
+				{
+					'detail': availability['message'],
+					'reason': availability['reason'],
+					'current_time': (
+						timezone.localtime().isoformat()
+					),
+					'scheduled_start': (
+						availability['scheduled_start'].isoformat()
+					),
+					'scheduled_end': (
+						availability['scheduled_end'].isoformat()
+					),
+					'earliest_start': (
+						availability['earliest_start'].isoformat()
+					),
+					'latest_start': (
+						availability['latest_start'].isoformat()
+					),
+				},
 				status=status.HTTP_400_BAD_REQUEST
 			)
 
 		appointment.status = Appointment.Status.IN_PROGRESS
-		appointment.save(update_fields=['status', 'updated_at'])
+
+		appointment.save(
+			update_fields=[
+				'status',
+				'updated_at',
+			]
+		)
 
 		serializer = AppointmentDetailSerializer(
 			appointment,
 			context={'request': request}
 		)
 
-		return Response(serializer.data)
+		return Response(
+			serializer.data,
+			status=status.HTTP_200_OK
+		)
 
 
 class AppointmentCompleteCheckupView(APIView):

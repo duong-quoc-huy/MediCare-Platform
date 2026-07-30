@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 from apps.appointments.models import Appointment
 from apps.users.models import User
 
@@ -166,6 +166,7 @@ class HospitalMedicine(models.Model):
 	generic_name = models.CharField(max_length=150, blank=True)
 	dosage_form = models.CharField(max_length=100, blank=True)
 	strength = models.CharField(max_length=100, blank=True)
+	unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 	default_dosage = models.CharField(max_length=100, blank=True)
 	default_frequency = models.CharField(max_length=100, blank=True)
@@ -183,21 +184,40 @@ class HospitalMedicine(models.Model):
 		
 
 class Prescription(models.Model):
-	appointment = models.OneToOneField(
-		Appointment,
-		on_delete=models.CASCADE,
-		related_name='prescription'
-	)
+	class PharmacyStatus(models.TextChoices):
+		WAITING = 'waiting', 'Waiting'
+		ASSIGNED = 'assigned', 'Assigned'
+		PREPARING = 'preparing', 'Preparing'
+		READY = 'ready', 'Ready'
+		COMPLETED = 'completed', 'Completed'
+
+	class PharmacyCounter(models.TextChoices):
+		COUNTER_1 = 'counter_1', 'Counter 1'
+		COUNTER_2 = 'counter_2', 'Counter 2'
+		COUNTER_3 = 'counter_3', 'Counter 3'
+
+	appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='prescription')
 
 	diagnosis = models.TextField(blank=True)
 	notes = models.TextField(blank=True)
 	sent_to_pharmacy = models.BooleanField(default=False)
 
-	pdf_file = models.FileField(
-		upload_to='prescriptions/',
+	assigned_nurse = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL,
+		null=True,
 		blank=True,
-		null=True
+		related_name='assigned_prescriptions',
+		limit_choices_to={'role': 'nurse'},
 	)
+
+	assigned_at = models.DateTimeField(null=True, blank=True)
+
+	pharmacy_counter = models.CharField(max_length=20, choices=PharmacyCounter.choices,blank=True,)
+
+	pharmacy_status = models.CharField(max_length=20, choices=PharmacyStatus.choices, default=PharmacyStatus.WAITING,)
+
+	pdf_file = models.FileField(upload_to='prescriptions/', blank=True,null=True)
 
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -227,10 +247,21 @@ class PrescriptionItem(models.Model):
 	duration = models.CharField(max_length=100)
 	instructions = models.TextField(blank=True)
 	quantity = models.PositiveIntegerField(default=1)
+	unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	line_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 	def save(self, *args, **kwargs):
-		if self.hospital_medicine and not self.medicine_name:
-			self.medicine_name = self.hospital_medicine.medicine_name
+		from decimal import Decimal
+
+		if self.hospital_medicine:
+			if not self.medicine_name:
+				self.medicine_name = self.hospital_medicine.medicine_name
+			if not self.pk and not self.unit_price:
+				self.unit_price = self.hospital_medicine.unit_price
+
+		self.line_total = (
+			Decimal(self.unit_price or 0) * Decimal(self.quantity or 0)
+		).quantize(Decimal('0.01'))
 
 		super().save(*args, **kwargs)
 
