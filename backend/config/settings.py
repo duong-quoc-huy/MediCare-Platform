@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.medical_records",
     "apps.nurse",
     "apps.notifications",
+    "apps.admin_portal",
 ]
 
 MIDDLEWARE = [

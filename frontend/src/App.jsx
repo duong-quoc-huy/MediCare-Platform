@@ -59,6 +59,14 @@ import NurseMedicineOrderDetail from './pages/nurse/NurseMedicineOrderDetail'
 import PatientMedicineOrders from './pages/patient/PatientMedicineOrders'
 import NotificationsPage from './pages/shared/NotificationsPage'
 import ForegroundNotification from './components/ForegroundNotification'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminDoctors from './pages/admin/AdminDoctors'
+import AdminMedicines from './pages/admin/AdminMedicines'
+import AdminAppointments from './pages/admin/AdminAppointments'
+import AdminPrescriptions from './pages/admin/AdminPrescriptions'
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminPayments from './pages/admin/AdminPayments'
+import AdminNotifications from './pages/admin/AdminNotifications'
 
 export default function App() {
   const [
@@ -412,6 +420,32 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/admin/users" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>
+          } />
+          <Route path="/admin/doctors" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminDoctors /></ProtectedRoute>
+          } />
+          <Route path="/admin/medicines" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminMedicines /></ProtectedRoute>
+          } />
+          <Route path="/admin/appointments" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminAppointments /></ProtectedRoute>
+          } />
+          <Route path="/admin/prescriptions" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminPrescriptions /></ProtectedRoute>
+          } />
+          <Route path="/admin/orders" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminOrders /></ProtectedRoute>
+          } />
+          <Route path="/admin/payments" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminPayments /></ProtectedRoute>
+          } />
+          <Route path="/admin/notifications" element={
+            <ProtectedRoute allowedRoles={['admin']}><AdminNotifications /></ProtectedRoute>
+          } />
+
 
           <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />

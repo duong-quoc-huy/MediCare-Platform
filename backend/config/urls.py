@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/medical-records/', include('apps.medical_records.urls')),
     path('api/nurse/', include('apps.nurse.urls')),
     path('api/notifications/', include('apps.notifications.urls')),
+    path('api/admin-portal/', include('apps.admin_portal.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

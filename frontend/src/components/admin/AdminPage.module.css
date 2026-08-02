@@ -1,0 +1,19 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 18px;
+  width: min(1440px, calc(100% - 28px));
+  margin: 18px auto 70px;
+}
+
+.content {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    display: block;
+    width: min(100% - 20px, 760px);
+    margin-top: 0;
+  }
+}

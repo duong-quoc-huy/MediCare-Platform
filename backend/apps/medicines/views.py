@@ -12,16 +12,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from django.db.models import Q
-	
+from .permissions import PublicReadAdminWrite
+
 class MedicineCategoryViewSet(viewsets.ModelViewSet):
 	queryset = MedicineCategory.objects.all().order_by('category_name')
 	serializer_class = MedicineCategorySerializer
-	permission_classes = [AllowAny]
+	permission_classes = [PublicReadAdminWrite]
 
 class MedicineManufacturerViewSet(viewsets.ModelViewSet):
 	queryset = MedicineManufacturer.objects.all().order_by('manufacturer_name')
 	serializer_class = MedicineManufacturerSerializer
-	permission_classes = [AllowAny]
+	permission_classes = [PublicReadAdminWrite]
 
 class MedicineViewSet(viewsets.ModelViewSet):
 	queryset = (
@@ -32,7 +33,7 @@ class MedicineViewSet(viewsets.ModelViewSet):
 	)
 	serializer_class = MedicineSerializer
 	parser_classes = [MultiPartParser, FormParser, JSONParser]
-	permission_classes = [AllowAny]
+	permission_classes = [PublicReadAdminWrite]
 
 	@extend_schema(
 		request=MedicineReviewSerializer,
