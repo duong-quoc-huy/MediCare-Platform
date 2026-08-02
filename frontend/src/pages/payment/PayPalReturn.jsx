@@ -25,7 +25,7 @@ export default function PayPalReturn() {
           paypal_order_id: token,
         })
 
-        navigate(`/cart?payment=success&order_id=${payment.reference_id}`, {
+        navigate(`/orders/${payment.reference_id}?payment=success`, {
           replace: true,
         })
       } catch (err) {

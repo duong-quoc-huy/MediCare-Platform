@@ -8,6 +8,7 @@ from .views import (
 	VNPayReturnView,
 	PayPalCreatePaymentView,
 	PayPalCapturePaymentView,
+	CashOnDeliveryCreateView,
 
 	AppointmentVNPayCreatePaymentView,
 	AppointmentPayPalCreatePaymentView,
@@ -40,15 +41,7 @@ urlpatterns = [
 	path('appointments/<uuid:appointment_id>/final-session/', AppointmentFinalPaymentSessionDetailView.as_view(), name='appointment-final-session-detail'),
 	path('appointments/<uuid:appointment_id>/final-session/vnpay/create/', AppointmentFinalSessionVNPayCreateView.as_view(), name='appointment-final-session-vnpay-create'),
 	
-	path(
-		'appointments/<uuid:appointment_id>/final-session/paypal/create/',
-		AppointmentFinalSessionPayPalCreateView.as_view(),
-		name='appointment-final-session-paypal-create'
-	),
-
-	path(
-		'appointments/<uuid:appointment_id>/final-session/paypal/capture/',
-		AppointmentFinalSessionPayPalCaptureView.as_view(),
-		name='appointment-final-session-paypal-capture'
-	),
+	path('appointments/<uuid:appointment_id>/final-session/paypal/create/', AppointmentFinalSessionPayPalCreateView.as_view(), name='appointment-final-session-paypal-create'),
+	path('appointments/<uuid:appointment_id>/final-session/paypal/capture/', AppointmentFinalSessionPayPalCaptureView.as_view(), name='appointment-final-session-paypal-capture'),
+	path('cash/create/', CashOnDeliveryCreateView.as_view(), name='cash-on-delivery-create',),
 ]

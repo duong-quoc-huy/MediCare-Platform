@@ -1,0 +1,147 @@
+.card {
+  width: min(1500px, 100%);
+  margin: 0 auto 1.6rem;
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid
+    var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: 18px;
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.enabledCard {
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf5,
+      #f0fdfa
+    );
+  border-color: #a7f3d0;
+}
+
+.warningCard {
+  background: #fffaf0;
+  border-color: #fde68a;
+}
+
+.icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: var(--teal-mid, #0f6e56);
+  background: var(--teal-light, #e1f5ee);
+  border-radius: 16px;
+}
+
+.content {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--teal-mid, #0f6e56);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.content h2 {
+  margin: 0;
+  color: var(--text-dark, #1a2332);
+  font-family:
+    'Bricolage Grotesque',
+    sans-serif;
+  font-size: 1.12rem;
+}
+
+.content p {
+  margin: 0.35rem 0 0;
+  max-width: 760px;
+  color: var(--text-muted, #6b7280);
+  font-size: 0.89rem;
+  line-height: 1.55;
+}
+
+.message,
+.errorMessage {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.message {
+  color: #047857;
+}
+
+.errorMessage {
+  color: #be123c;
+}
+
+.enableButton {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: #fff;
+  background: var(--teal, #0b6e6e);
+  border: none;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.enableButton:hover:not(:disabled) {
+  background: var(--teal-mid, #0f6e56);
+}
+
+.enableButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.statusBadge {
+  padding: 0.45rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #047857;
+  background: #d1fae5;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.spinner {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .enableButton,
+  .statusBadge {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

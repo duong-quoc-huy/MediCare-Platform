@@ -37,21 +37,9 @@ class Medicine(models.Model):
 
 	medicine_name = models.CharField(max_length=255)
 
-	medicine_category = models.ForeignKey(
-		MedicineCategory,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name='medicines'
-	)
+	medicine_category = models.ForeignKey(MedicineCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='medicines')
 
-	medicine_manufacturer = models.ForeignKey(
-		MedicineManufacturer,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name='medicines'
-	)
+	medicine_manufacturer = models.ForeignKey(MedicineManufacturer, on_delete=models.SET_NULL, null=True, blank=True, related_name='medicines')
 
 	medicine_description = RichTextField(blank=True)
 
@@ -67,7 +55,16 @@ class Medicine(models.Model):
 	side_effects = models.TextField(blank=True)
 	active_ingredients = models.TextField(blank=True)
 
+
 	medicine_stock = models.PositiveIntegerField(default=0)
+
+	shipping_weight_grams = models.PositiveIntegerField(null=True, blank=True,
+		help_text=(
+			'Estimated shipping weight in grams for one sellable unit, '
+			'including its medicine packaging.'
+		),
+	)
+	
 	medicine_price = models.DecimalField(max_digits=10, decimal_places=2)
 	medicine_image = models.ImageField(upload_to='medicines/', blank=True, null=True)
 	medicine_requires_prescription = models.BooleanField(default=False)

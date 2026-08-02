@@ -1,5 +1,16 @@
 import api from './api'
 
+export async function createCashOnDeliveryPayment(orderId) {
+  const response = await api.post(
+    '/api/payments/cash/create/',
+    {
+      order_id: orderId,
+    }
+  )
+
+  return response.data
+}
+
 export async function createVNPayPayment(orderId) {
   const response = await api.post('/api/payments/vnpay/create/', {
     order_id: orderId,
@@ -102,10 +113,7 @@ export async function createFinalSessionPayPalPayment(appointmentId, token, key)
   return response.data
 }
 
-export async function captureFinalSessionPayPalPayment(
-  appointmentId,
-  captureData
-) {
+export async function captureFinalSessionPayPalPayment(appointmentId, captureData) {
   const response = await api.post(
     `/api/payments/appointments/${appointmentId}/final-session/paypal/capture/`,
     captureData
@@ -113,3 +121,4 @@ export async function captureFinalSessionPayPalPayment(
 
   return response.data
 }
+

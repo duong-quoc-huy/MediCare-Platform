@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { logoutUser } from '../services/authService'
-
+import { unregisterFirebaseDevice } from '../services/notificationService'
+import { removeFirebaseToken} from '../firebase'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -30,23 +31,68 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    const refreshToken = localStorage.getItem('refresh_token')
+  const refreshToken =
+    localStorage.getItem(
+      'refresh_token'
+    )
 
-    try {
-      if (refreshToken) {
-        await logoutUser(refreshToken)
+  const firebaseToken =
+    localStorage.getItem(
+      'firebase_registration_token'
+    )
+
+  try {
+    if (firebaseToken) {
+      try {
+        await unregisterFirebaseDevice(
+          firebaseToken
+        )
+      } catch (error) {
+        console.error(
+          'Firebase device unregister failed:',
+          error
+        )
       }
-    } catch (err) {
-      console.error('Logout API failed:', err)
-    } finally {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('user')
 
-      setToken(null)
-      setUser(null)
+      try {
+        await removeFirebaseToken()
+      } catch (error) {
+        console.error(
+          'Firebase token deletion failed:',
+          error
+        )
+      }
     }
+
+    if (refreshToken) {
+      await logoutUser(refreshToken)
+    }
+  } catch (error) {
+    console.error(
+      'Logout API failed:',
+      error
+    )
+  } finally {
+    localStorage.removeItem(
+      'firebase_registration_token'
+    )
+
+    localStorage.removeItem(
+      'access_token'
+    )
+
+    localStorage.removeItem(
+      'refresh_token'
+    )
+
+    localStorage.removeItem(
+      'user'
+    )
+
+    setToken(null)
+    setUser(null)
   }
+}
 
   const value = {
     user,

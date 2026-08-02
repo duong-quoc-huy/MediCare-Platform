@@ -19,7 +19,7 @@ function getDashboardPath(role) {
   if (normalizedRole === 'admin') return '/admin/dashboard'
   if (normalizedRole === 'doctor') return '/doctor/dashboard'
   if (normalizedRole === 'shipper') return '/shipper/dashboard'
-  if (normalizedRole === 'nurse') return 'nurse/dashboard'
+  if (normalizedRole === 'nurse') return '/nurse/dashboard'
 
   return '/patient/dashboard'
 }
@@ -153,6 +153,17 @@ export default function Navbar() {
                         }}
                       >
                         My Appointments
+                      </Link>
+
+                      <Link
+                        to="/patient/medicine-orders"
+                        className={styles.dropdownItem}
+                        onClick={() => {
+                          setDropdownOpen(false)
+                          setMenuOpen(false)
+                        }}
+                      >
+                        Medicine Orders
                       </Link>
                     </>
                   )}

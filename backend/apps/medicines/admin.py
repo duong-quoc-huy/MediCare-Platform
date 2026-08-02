@@ -21,6 +21,7 @@ class MedicineAdmin(admin.ModelAdmin):
         'generic_name',
         'medicine_category',
         'medicine_manufacturer',
+        'shipping_weight_grams',
         'dosage',
         'unit_type',
         'package_size',
@@ -61,6 +62,7 @@ class MedicineAdmin(admin.ModelAdmin):
                     'medicine_manufacturer',
                     'medicine_description',
                     'medicine_image',
+                    'shipping_weight_grams',
                 )
             },
         ),

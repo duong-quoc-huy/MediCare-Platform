@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.locations",
     "apps.medical_records",
     "apps.nurse",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [
@@ -249,6 +250,33 @@ FRONTEND_APPOINTMENT_PAYMENT_URL = os.getenv('FRONTEND_APPOINTMENT_PAYMENT_URL',
 FRONTEND_APPOINTMENT_CONFIRMATION_URL = os.getenv('FRONTEND_APPOINTMENT_CONFIRMATION_URL', 'http://localhost:5173/booking/confirmation')
 PAYPAL_APPOINTMENT_RETURN_URL = os.getenv('PAYPAL_APPOINTMENT_RETURN_URL', 'http://localhost:5173/appointment-paypal/return')
 
+
+
+# GHTK shipping integration
+GHTK_API_BASE_URL = os.getenv('GHTK_API_BASE_URL', 'https://services.giaohangtietkiem.vn')
+GHTK_API_TOKEN = os.getenv('GHTK_API_TOKEN', '')
+GHTK_PARTNER_CODE = os.getenv('GHTK_PARTNER_CODE','')
+GHTK_REQUEST_TIMEOUT = int(os.getenv('GHTK_REQUEST_TIMEOUT', '15'))
+
+# Set this to True while no real GHTK token is available.
+GHTK_MOCK_MODE = (os.getenv('GHTK_MOCK_MODE', 'True').lower() == 'true')
+
+# Pharmacy pickup information
+GHTK_PICK_NAME = os.getenv('GHTK_PICK_NAME', 'MediCare Pharmacy')
+GHTK_PICK_PHONE = os.getenv('GHTK_PICK_PHONE', '')
+GHTK_PICK_ADDRESS = os.getenv('GHTK_PICK_ADDRESS','')
+GHTK_PICK_WARD = os.getenv('GHTK_PICK_WARD','')
+GHTK_PICK_DISTRICT = os.getenv('GHTK_PICK_DISTRICT','')
+GHTK_PICK_PROVINCE = os.getenv('GHTK_PICK_PROVINCE','')
+GHTK_WEBHOOK_SECRET = os.getenv('GHTK_WEBHOOK_SECRET','')
+
+#SMS
+PUSH_NOTIFICATION_BACKEND = os.getenv('PUSH_NOTIFICATION_BACKEND', 'firebase')
+
+FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
+
+
+#Information to import to PDF
 HOSPITAL_NAME = 'Firefly Hospital'
 HOSPITAL_NAME_VI = 'Bệnh viện Firefly'
 

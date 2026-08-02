@@ -19,6 +19,8 @@ from apps.appointments.models import Appointment
 from apps.carts.models import Cart
 from apps.medicines.models import Medicine
 from apps.orders.models import MedicineOrder
+from apps.notifications.models import Notification
+from apps.notifications.services import notify_order_event
 
 from .models import Payment, AppointmentFinalPaymentSession
 from .serializers import (
@@ -257,6 +259,322 @@ class PaymentStatusUpdateView(generics.UpdateAPIView):
 	http_method_names = ['patch']
 	queryset = Payment.objects.all()
 
+class CashOnDeliveryCreateView(APIView):
+	permission_classes = [
+		permissions.IsAuthenticated,
+	]
+
+	@extend_schema(
+		request={
+			'type': 'object',
+			'properties': {
+				'order_id': {
+					'type': 'string',
+					'format': 'uuid',
+				},
+			},
+			'required': [
+				'order_id',
+			],
+		},
+		responses={
+			201: {
+				'type': 'object',
+				'properties': {
+					'detail': {
+						'type': 'string',
+					},
+					'medicine_order_id': {
+						'type': 'string',
+						'format': 'uuid',
+					},
+					'payment_id': {
+						'type': 'string',
+						'format': 'uuid',
+					},
+					'payment_method': {
+						'type': 'string',
+					},
+					'payment_status': {
+						'type': 'string',
+					},
+					'order_status': {
+						'type': 'string',
+					},
+					'amount': {
+						'type': 'string',
+					},
+					'currency': {
+						'type': 'string',
+					},
+				},
+			},
+		},
+		summary='Select cash on delivery',
+		description=(
+			'Confirm a pending medicine order using '
+			'cash on delivery.'
+		),
+		tags=[
+			'Payments',
+		],
+	)
+	def post(self, request):
+		order_id = request.data.get(
+			'order_id'
+		)
+
+		if not order_id:
+			return Response(
+				{
+					'detail': (
+						'order_id is required.'
+					)
+				},
+				status=(
+					status.HTTP_400_BAD_REQUEST
+				),
+			)
+
+		try:
+			order = (
+				MedicineOrder.objects
+				.get(
+					medicine_order_id=order_id,
+					patient=request.user,
+				)
+			)
+		except MedicineOrder.DoesNotExist:
+			return Response(
+				{
+					'detail': (
+						'Order not found.'
+					)
+				},
+				status=(
+					status.HTTP_404_NOT_FOUND
+				),
+			)
+
+		if (
+			order.status
+			!= MedicineOrder.Status.PENDING
+		):
+			return Response(
+				{
+					'detail': (
+						'Only pending orders can use '
+						'cash on delivery.'
+					),
+					'current_status': order.status,
+				},
+				status=(
+					status.HTTP_400_BAD_REQUEST
+				),
+			)
+
+		try:
+			with transaction.atomic():
+				locked_order = (
+					MedicineOrder.objects
+						.select_for_update()
+						.get(
+							medicine_order_id=(
+								order.medicine_order_id
+							),
+							patient=request.user,
+						)
+				)
+
+				if (
+					locked_order.status
+					!= MedicineOrder.Status.PENDING
+				):
+					return Response(
+						{
+							'detail': (
+								'The order is no longer '
+								'pending.'
+							),
+							'current_status': (
+								locked_order.status
+							),
+						},
+						status=(
+							status.HTTP_409_CONFLICT
+						),
+					)
+
+				# Lock and deduct medicine stock before
+				# confirming the COD order.
+				deduct_order_stock(
+					locked_order
+				)
+
+				# Cancel unfinished online-payment attempts.
+				Payment.objects.filter(
+					reference_id=(
+						locked_order
+						.medicine_order_id
+					),
+					reference_type=(
+						Payment.ReferenceType
+						.MEDICINE_ORDER
+					),
+					status=(
+						Payment.Status.PENDING
+					),
+				).exclude(
+					method=Payment.Method.CASH,
+				).update(
+					status=Payment.Status.CANCELLED,
+				)
+
+				payment = (
+					Payment.objects
+						.select_for_update()
+						.filter(
+							reference_id=(
+								locked_order
+								.medicine_order_id
+							),
+							reference_type=(
+								Payment.ReferenceType
+								.MEDICINE_ORDER
+							),
+							method=(
+								Payment.Method.CASH
+							),
+						)
+						.first()
+				)
+
+				if payment is None:
+					payment = (
+						Payment.objects.create(
+							reference_id=(
+								locked_order
+								.medicine_order_id
+							),
+							reference_type=(
+								Payment.ReferenceType
+								.MEDICINE_ORDER
+							),
+							method=(
+								Payment.Method.CASH
+							),
+							amount=(
+								locked_order
+								.total_amount
+							),
+							currency='VND',
+							status=(
+								Payment.Status.PENDING
+							),
+							payment_stage=(
+								Payment.PaymentStage
+								.FULL
+							),
+						)
+					)
+				else:
+					payment.amount = (
+						locked_order.total_amount
+					)
+					payment.currency = 'VND'
+					payment.status = (
+						Payment.Status.PENDING
+					)
+					payment.payment_stage = (
+						Payment.PaymentStage.FULL
+					)
+
+					payment.save(
+						update_fields=[
+							'amount',
+							'currency',
+							'status',
+							'payment_stage',
+						]
+					)
+
+				locked_order.status = (
+					MedicineOrder.Status.CONFIRMED
+				)
+				locked_order.confirmed_at = (
+					timezone.now()
+				)
+
+				locked_order.save(
+					update_fields=[
+						'status',
+						'confirmed_at',
+						'updated_at',
+					]
+				)
+
+				transaction.on_commit(
+					lambda order=locked_order:
+					notify_order_event(
+						order=order,
+						event=(
+							Notification.Event
+							.ORDER_CONFIRMED
+						),
+					)
+				)
+
+				transaction.on_commit(
+					lambda patient=(
+						locked_order.patient
+					):
+					clear_patient_cart(
+						patient
+					)
+				)
+
+		except ValueError as exc:
+			return Response(
+				{
+					'detail': str(exc),
+				},
+				status=(
+					status.HTTP_400_BAD_REQUEST
+				),
+			)
+
+		return Response(
+			{
+				'detail': (
+					'Cash on delivery selected '
+					'successfully.'
+				),
+				'medicine_order_id': (
+					locked_order
+					.medicine_order_id
+				),
+				'payment_id': (
+					payment.payment_id
+				),
+				'payment_method': (
+					payment.method
+				),
+				'payment_status': (
+					payment.status
+				),
+				'order_status': (
+					locked_order.status
+				),
+				'amount': str(
+					payment.amount
+				),
+				'currency': (
+					payment.currency
+				),
+			},
+			status=status.HTTP_201_CREATED,
+		)
+
 
 class VNPayCreatePaymentView(APIView):
 	permission_classes = [permissions.IsAuthenticated]
@@ -383,27 +701,62 @@ class VNPayReturnView(APIView):
 				f'{settings.FRONTEND_CART_URL}?payment=success&order_id={order.medicine_order_id}'
 			)
 
+		if payment.status != Payment.Status.PENDING:
+			return redirect(
+				f'{settings.FRONTEND_CART_URL}'
+				'?payment=failed'
+				'&reason=payment_not_pending'
+			)
+
 		if response_code == '00':
+			order_was_confirmed = False
+
 			if order.status == MedicineOrder.Status.PENDING:
 				try:
 					deduct_order_stock(order)
+
 				except ValueError:
 					payment.status = Payment.Status.FAILED
 					payment.transaction_id = transaction_no
-					payment.save(update_fields=['status', 'transaction_id'])
+
+					payment.save(
+						update_fields=['status', 'transaction_id'])
 
 					return redirect(
-						f'{settings.FRONTEND_CART_URL}?payment=failed&reason=out_of_stock'
+						f'{settings.FRONTEND_CART_URL}'
+						'?payment=failed&reason=out_of_stock'
 					)
 
 				order.status = MedicineOrder.Status.CONFIRMED
+
 				order.save(update_fields=['status'])
+
+				order_was_confirmed = True
 
 			payment.status = Payment.Status.SUCCESS
 			payment.transaction_id = transaction_no
+
 			payment.save(update_fields=['status', 'transaction_id'])
 
+			if order_was_confirmed:
+				transaction.on_commit(
+					lambda order=order:
+					notify_order_event(
+						order=order,
+						event=(
+							Notification.Event
+							.ORDER_CONFIRMED
+						),
+					)
+				)
+
 			clear_patient_cart(order.patient)
+
+			return redirect(
+				f'{settings.FRONTEND_CART_URL}'
+				f'?payment=success'
+				f'&order_id={order.medicine_order_id}'
+			)
 
 			return redirect(
 				f'{settings.FRONTEND_CART_URL}?payment=success&order_id={order.medicine_order_id}'
@@ -675,20 +1028,38 @@ class PayPalCapturePaymentView(APIView):
 			payment.transaction_id = capture_id
 			payment.save(update_fields=['status', 'transaction_id'])
 
+			order_was_confirmed = False
+
 			if order.status == MedicineOrder.Status.PENDING:
 				try:
 					deduct_order_stock(order)
-				except ValueError as e:
-					payment.status = Payment.Status.FAILED
-					payment.save(update_fields=['status'])
 
-					return Response(
-						{'detail': str(e)},
-						status=status.HTTP_400_BAD_REQUEST
-					)
+				except ValueError as exc:
+					payment.status = Payment.Status.FAILED
+
+					payment.save(
+						update_fields=['status'])
+
+					return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST,)
 
 				order.status = MedicineOrder.Status.CONFIRMED
-				order.save(update_fields=['status'])
+
+				order.save(
+					update_fields=['status'])
+
+				order_was_confirmed = True
+
+			if order_was_confirmed:
+				transaction.on_commit(
+					lambda order=order:
+					notify_order_event(
+						order=order,
+						event=(
+							Notification.Event
+							.ORDER_CONFIRMED
+						),
+					)
+				)
 
 			clear_patient_cart(order.patient)
 

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useEffect, useState } from 'react';
 import { CartProvider } from './context/CartContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -49,12 +50,56 @@ import PrivacyPolicy from './pages/public/PrivacyPolicy'
 import ContactUs from './pages/public/ContactUs'
 import Services from './pages/public/Services'
 import About from './pages/public/About'
+import {
+  listenForForegroundMessages,
+} from './firebase';
+import NurseMedicineOrders from './pages/nurse/NurseMedicineOrders'
+import NurseMedicineOrderDetail from './pages/nurse/NurseMedicineOrderDetail'
+import PatientMedicineOrders from './pages/patient/PatientMedicineOrders'
+import NotificationsPage from './pages/shared/NotificationsPage'
+import ForegroundNotification from './components/ForegroundNotification'
 
 export default function App() {
+  const [
+      foregroundNotification,
+      setForegroundNotification,
+    ] = useState(null)
+
+    useEffect(() => {
+      let unsubscribe = () => {}
+
+      async function startListener() {
+        unsubscribe =
+          await listenForForegroundMessages(
+            payload => {
+              setForegroundNotification(
+                payload
+              )
+
+              window.dispatchEvent(
+                new CustomEvent(
+                  'medicare:notification-received',
+                  {
+                    detail: payload,
+                  }
+                )
+              )
+            }
+          )
+      }
+
+      startListener()
+
+      return () => {
+        unsubscribe()
+      }
+    }, [])
+
   return (
     <CartProvider>
       <BrowserRouter>
         <Navbar />
+        <ForegroundNotification payload={foregroundNotification} onClose={() => setForegroundNotification(null)}/>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/medicine" element={<MedicineList />} />
@@ -103,7 +148,7 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute allowedRoles={['patient', 'doctor', 'admin', 'shipper']}>
+              <ProtectedRoute allowedRoles={['patient', 'doctor', 'nurse', 'admin', 'shipper']}>
                 <Profile />
               </ProtectedRoute>
             }
@@ -320,10 +365,46 @@ export default function App() {
             element={<NursePharmacyPayPalReturn />}
           />
 
+          <Route
+            path="/nurse/medicine-orders"
+            element={
+              <ProtectedRoute allowedRoles={['nurse']}>
+                <NurseMedicineOrders />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/nurse/medicine-orders/:orderId"
+            element={
+              <ProtectedRoute allowedRoles={['nurse']}>
+                <NurseMedicineOrderDetail />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/patient/medicine-orders"
+            element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <PatientMedicineOrders />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute
+                allowedRoles={['patient']}
+              >
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/doctors" element={<DoctorList />} />
           <Route path="/account" element={<div style={{ padding: '4rem 2rem' }}>Account Management</div>} />
-          <Route path="/payments" element={<div style={{ padding: '4rem 2rem' }}>Payment History</div>} />
-          <Route path="/patient/appointments" element={<div style={{ padding: '4rem 2rem' }}>My Appointments</div>} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/contact" element={<ContactUs />} />

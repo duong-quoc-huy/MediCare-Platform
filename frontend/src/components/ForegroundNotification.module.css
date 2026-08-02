@@ -1,0 +1,86 @@
+.banner {
+  position: fixed;
+  top: 78px;
+  right: 1.2rem;
+  width: min(420px, calc(100vw - 2rem));
+  padding: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid #99f6e4;
+  border-radius: 16px;
+  box-shadow:
+    0 22px 55px rgba(15, 23, 42, 0.2);
+  z-index: 1000;
+  animation: slideIn 0.25s ease;
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: var(--teal-mid);
+  background: var(--teal-light);
+  border-radius: 12px;
+}
+
+.text {
+  min-width: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.text strong {
+  color: var(--text-dark);
+  font-size: 0.9rem;
+}
+
+.text span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.closeButton {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background: #f1f5f9;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

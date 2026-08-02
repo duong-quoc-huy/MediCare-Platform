@@ -1,17 +1,41 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CreditCard } from 'lucide-react'
 
-import {
-  createVNPayPayment,
-  createPayPalPayment,
-} from '../../services/paymentService'
+import { createCashOnDeliveryPayment, createVNPayPayment, createPayPalPayment } from '../../services/paymentService'
 
 export default function PaymentPage() {
   const { orderId } = useParams()
+  const navigate = useNavigate()
 
   const [loadingMethod, setLoadingMethod] = useState('')
   const [error, setError] = useState('')
+
+  async function handleCashOnDelivery() {
+    try {
+      setLoadingMethod('cash')
+      setError('')
+
+      await createCashOnDeliveryPayment(
+        orderId
+      )
+
+      navigate(
+        `/orders/${orderId}`,
+        {
+          replace: true,
+        }
+      )
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ||
+        'Could not select cash on delivery. ' +
+        'Please try again.'
+      )
+    } finally {
+      setLoadingMethod('')
+    }
+  }
 
   async function handlePayWithVNPay() {
     try {
@@ -82,6 +106,45 @@ export default function PaymentPage() {
       >
         <p>
           <strong>Order ID:</strong> {orderId}
+        </p>
+
+        <button
+          type="button"
+          onClick={handleCashOnDelivery}
+          disabled={Boolean(loadingMethod)}
+          style={{
+            width: '100%',
+            marginTop: '1rem',
+            padding: '0.9rem 1rem',
+            border: 'none',
+            borderRadius: 999,
+            background:
+              loadingMethod
+                ? '#94a3b8'
+                : '#15803d',
+            color: 'white',
+            fontWeight: 900,
+            cursor:
+              loadingMethod
+                ? 'not-allowed'
+                : 'pointer',
+          }}
+        >
+          {loadingMethod === 'cash'
+            ? 'Confirming order...'
+            : 'Cash on Delivery'}
+        </button>
+
+        <p
+          style={{
+            marginTop: '0.65rem',
+            color: '#475569',
+            lineHeight: 1.6,
+          }}
+        >
+          Pay the medicine and shipping total
+          when the GHTK courier delivers your
+          order.
         </p>
 
         <button
