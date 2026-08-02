@@ -38,10 +38,10 @@ def get_order_notification_content(
 		},
 
 		Notification.Event.READY_FOR_PICKUP: {
-			'title': 'Package ready for GHTK',
+			'title': 'Package ready for pickup',
 			'message': (
 				f'Your medicine order #{order_code} '
-				'is ready for GHTK pickup.'
+				'is ready for pickup by the delivery operator.'
 			),
 			'send_push': True,
 		},
@@ -49,7 +49,7 @@ def get_order_notification_content(
 		Notification.Event.DISPATCHED: {
 			'title': 'Package picked up',
 			'message': (
-				f'GHTK has picked up medicine order '
+				f'The delivery operator has picked up medicine order '
 				f'#{order_code}.'
 			),
 			'send_push': True,

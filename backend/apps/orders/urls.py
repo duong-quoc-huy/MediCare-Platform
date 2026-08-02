@@ -1,5 +1,11 @@
 from django.urls import path
 
+from .shipper_views import (
+	ShipperAvailableOrderListView, ShipperMyOrderListView,
+	ShipperOrderDetailView, ShipperClaimOrderView, ShipperStatusUpdateView,
+)
+
+
 from .views import (
 	CreateGHTKShipmentView,
 	MedicineOrderCancelView,
@@ -24,4 +30,9 @@ urlpatterns = [
 	path('<uuid:medicine_order_id>/create-shipment/', CreateGHTKShipmentView.as_view(), name='medicine-order-create-shipment',),
 	path('ghtk/webhook/', GHTKWebhookView.as_view(), name='ghtk-webhook',),
 	path('ghtk/mock-status/', MockGHTKStatusUpdateView.as_view(), name='ghtk-mock-status',),
+	path('shipper/available/', ShipperAvailableOrderListView.as_view(), name='shipper-available-orders'),
+	path('shipper/mine/', ShipperMyOrderListView.as_view(), name='shipper-my-orders'),
+	path('shipper/<uuid:medicine_order_id>/', ShipperOrderDetailView.as_view(), name='shipper-order-detail'),
+	path('shipper/<uuid:medicine_order_id>/claim/', ShipperClaimOrderView.as_view(), name='shipper-claim-order'),
+	path('shipper/<uuid:medicine_order_id>/status/', ShipperStatusUpdateView.as_view(), name='shipper-order-status'),
 ]

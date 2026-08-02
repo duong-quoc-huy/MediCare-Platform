@@ -42,6 +42,7 @@ export default function Navbar() {
 
   const role = user?.role?.toLowerCase()
   const isPatient = role === 'patient'
+  const isShipper = role === 'shipper'
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -130,6 +131,19 @@ export default function Navbar() {
                   >
                     Account Management
                   </Link>
+
+                  {isShipper && (
+                    <Link
+                      to="/shipper/dashboard"
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        setDropdownOpen(false)
+                        setMenuOpen(false)
+                      }}
+                    >
+                      Delivery Workspace
+                    </Link>
+                  )}
 
                   {isPatient && (
                     <>

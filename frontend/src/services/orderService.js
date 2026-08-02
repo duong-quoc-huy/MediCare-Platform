@@ -84,3 +84,25 @@ export async function createMedicineOrderShipment(orderId) {
   return response.data
 }
 
+
+/* Shipper medicine-delivery workflow */
+export async function getAvailableShipperOrders() {
+  const response = await api.get('/api/orders/shipper/available/')
+  return response.data
+}
+export async function getMyShipperOrders(scope = 'active') {
+  const response = await api.get('/api/orders/shipper/mine/', { params: { scope } })
+  return response.data
+}
+export async function getShipperOrderDetail(orderId) {
+  const response = await api.get(`/api/orders/shipper/${orderId}/`)
+  return response.data
+}
+export async function claimShipperOrder(orderId) {
+  const response = await api.post(`/api/orders/shipper/${orderId}/claim/`)
+  return response.data
+}
+export async function updateShipperOrderStatus(orderId, status, failureReason = '') {
+  const response = await api.patch(`/api/orders/shipper/${orderId}/status/`, { status, failure_reason: failureReason })
+  return response.data
+}

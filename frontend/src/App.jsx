@@ -14,6 +14,7 @@ import PatientDashboard from './pages/patient/PatientDashboard'
 import DoctorDashboard from './pages/doctor/DoctorDashboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ShipperDashboard from './pages/shipper/ShipperDashboard'
+import ShipperOrderDetail from './pages/shipper/ShipperOrderDetail'
 import PublicOnlyRoute from './components/PublicOnlyRoute'
 import './index.css'
 import VerifyOTP from './pages/public/VerifyOTP'
@@ -141,6 +142,15 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['shipper']}>
                 <ShipperDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/shipper/orders/:orderId"
+            element={
+              <ProtectedRoute allowedRoles={['shipper']}>
+                <ShipperOrderDetail />
               </ProtectedRoute>
             }
           />

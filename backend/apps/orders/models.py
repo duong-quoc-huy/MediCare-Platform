@@ -72,6 +72,17 @@ class MedicineOrder(models.Model):
 	ghtk_status_text = models.CharField(max_length=255, blank=True)
 	ghtk_last_synced_at = models.DateTimeField(null=True, blank=True)
 
+	assigned_shipper = models.ForeignKey(
+		User,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='assigned_medicine_orders',
+		limit_choices_to={'role': 'shipper'},
+	)
+	shipper_assigned_at = models.DateTimeField(null=True, blank=True)
+	delivery_failure_reason = models.TextField(blank=True)
+
 	confirmed_at = models.DateTimeField(null=True, blank=True)
 	preparing_at = models.DateTimeField(null=True, blank=True)
 	ready_at = models.DateTimeField(null=True, blank=True)
