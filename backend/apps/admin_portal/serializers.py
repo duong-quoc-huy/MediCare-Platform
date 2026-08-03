@@ -150,6 +150,7 @@ class AdminMedicineManufacturerSerializer(serializers.ModelSerializer):
 class AdminMedicineSerializer(serializers.ModelSerializer):
 	category_name = serializers.CharField(source='medicine_category.category_name', read_only=True)
 	manufacturer_name = serializers.CharField(source='medicine_manufacturer.manufacturer_name', read_only=True)
+	remove_medicine_image = serializers.BooleanField(write_only=True, required=False, default=False)
 
 	class Meta:
 		model = Medicine
@@ -163,10 +164,28 @@ class AdminMedicineSerializer(serializers.ModelSerializer):
 			'side_effects', 'active_ingredients',
 			'medicine_stock', 'shipping_weight_grams',
 			'medicine_price', 'medicine_image',
+			'remove_medicine_image',
 			'medicine_requires_prescription',
 			'medicine_is_active', 'created_at',
 		]
 		read_only_fields = ['medicine_id', 'created_at']
+
+	def create(self, validated_data):
+		validated_data.pop('remove_medicine_image', None)
+		return super().create(validated_data)
+
+	def update(self, instance, validated_data):
+		remove_image = validated_data.pop(
+			'remove_medicine_image',
+			False,
+		)
+
+		if remove_image and instance.medicine_image:
+			instance.medicine_image.delete(save=False)
+			instance.medicine_image = None
+
+		return super().update(instance, validated_data)
+
 
 
 class AdminAppointmentSerializer(serializers.ModelSerializer):

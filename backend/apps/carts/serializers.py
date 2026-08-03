@@ -4,29 +4,11 @@ from .models import Medicine
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-	medicine_name = serializers.CharField(
-		source='medicine.medicine_name',
-		read_only=True
-	)
-	medicine_price = serializers.DecimalField(
-		source='medicine.medicine_price',
-		max_digits=10,
-		decimal_places=2,
-		read_only=True
-	)
-	medicine_image = serializers.ImageField(
-		source='medicine.medicine_image',
-		read_only=True
-	)
-	medicine_stock = serializers.IntegerField(
-		source='medicine.medicine_stock',
-		read_only=True
-	)
-	sub_total = serializers.DecimalField(
-		max_digits=10,
-		decimal_places=2,
-		read_only=True
-	)
+	medicine_name = serializers.CharField(source='medicine.medicine_name', read_only=True)
+	medicine_price = serializers.DecimalField(source='medicine.medicine_price', max_digits=10, decimal_places=2, read_only=True)
+	medicine_image = serializers.ImageField( source='medicine.medicine_image', read_only=True)
+	medicine_stock = serializers.IntegerField( source='medicine.medicine_stock', read_only=True)
+	sub_total = serializers.DecimalField( max_digits=10, decimal_places=2, read_only=True)
 
 	class Meta:
 		model = CartItem
@@ -44,11 +26,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
 	items = CartItemSerializer(many=True, read_only=True)
-	total_amount = serializers.DecimalField(
-		max_digits=10,
-		decimal_places=2,
-		read_only=True
-	)
+	total_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 	total_items = serializers.IntegerField(read_only=True)
 
 	class Meta:
@@ -64,9 +42,7 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class CartItemAddSerializer(serializers.Serializer):
-	medicine = serializers.PrimaryKeyRelatedField(
-		queryset=Medicine.objects.all()
-	)
+	medicine = serializers.PrimaryKeyRelatedField(queryset=Medicine.objects.all())
 	quantity = serializers.IntegerField(min_value=1, default=1)
 
 	def validate(self, attrs):

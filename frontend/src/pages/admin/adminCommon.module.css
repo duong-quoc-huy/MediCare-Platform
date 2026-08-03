@@ -406,3 +406,36 @@
     max-width: 220px;
   }
 }
+
+.medicineCardImage,
+.medicineCardImageFallback {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.medicineCardImage {
+  display: block;
+  object-fit: cover;
+  background: #f8fafc;
+}
+
+.medicineCardImageFallback {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  background: var(--teal-light);
+  color: var(--teal-mid);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  cursor: not-allowed;
+  opacity: .62;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { ImagePlus, Plus, Trash2, X } from 'lucide-react'
 import AdminPage from '../../components/admin/AdminPage'
 import {
   createAdminMedicine,
@@ -32,6 +32,10 @@ export default function AdminMedicines() {
   const [editing, setEditing] = useState(null)
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [removeImage, setRemoveImage] = useState(false)
 
   async function load() {
     try {
@@ -56,7 +60,58 @@ export default function AdminMedicines() {
     return () => window.clearTimeout(timeout)
   }, [search, lowStock])
 
+  function resetImageEditor() {
+    if (imagePreview.startsWith('blob:')) URL.revokeObjectURL(imagePreview)
+    setImageFile(null)
+    setImagePreview('')
+    setRemoveImage(false)
+  }
+
+  function openCreate() {
+    resetImageEditor()
+    setEditing(null)
+    setForm(EMPTY)
+    setError('')
+    setOpen(true)
+  }
+
+  function closeEditor() {
+    setOpen(false)
+    resetImageEditor()
+  }
+
+  function handleImageChange(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Medicine image must be JPG, PNG, or WebP.')
+      event.target.value = ''
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Medicine image must be 5 MB or smaller.')
+      event.target.value = ''
+      return
+    }
+
+    if (imagePreview.startsWith('blob:')) URL.revokeObjectURL(imagePreview)
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setRemoveImage(false)
+    setError('')
+  }
+
+  function handleRemoveImage() {
+    if (imagePreview.startsWith('blob:')) URL.revokeObjectURL(imagePreview)
+    setImageFile(null)
+    setImagePreview('')
+    setRemoveImage(true)
+  }
+
   function edit(row) {
+    resetImageEditor()
     setEditing(row)
     setForm({
       ...EMPTY,
@@ -65,17 +120,27 @@ export default function AdminMedicines() {
       medicine_manufacturer: row.medicine_manufacturer || '',
       expiry_date: row.expiry_date || '',
     })
+    setImagePreview(row.medicine_image || '')
     setOpen(true)
   }
 
   async function submit(event) {
     event.preventDefault()
+
     try {
-      const payload = {
-        ...form,
-        medicine_category: form.medicine_category || null,
-        medicine_manufacturer: form.medicine_manufacturer || null,
-      }
+      setSaving(true)
+      setError('')
+
+      const payload = new FormData()
+
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          payload.append(key, String(value))
+        }
+      })
+
+      if (imageFile) payload.append('medicine_image', imageFile)
+      payload.append('remove_medicine_image', String(removeImage))
 
       if (editing) {
         await updateAdminMedicine(editing.medicine_id, payload)
@@ -83,7 +148,7 @@ export default function AdminMedicines() {
         await createAdminMedicine(payload)
       }
 
-      setOpen(false)
+      closeEditor()
       setEditing(null)
       setForm(EMPTY)
       await load()
@@ -94,6 +159,8 @@ export default function AdminMedicines() {
         Object.values(data || {}).flat().join(' ') ||
         'Could not save medicine.'
       )
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -106,7 +173,7 @@ export default function AdminMedicines() {
           <p>Manage sellable medicines, prices, stock, expiry dates, and shipping weight.</p>
         </div>
         <button className={common.primary} onClick={() => {
-          setEditing(null); setForm(EMPTY); setOpen(true)
+          openCreate()
         }}><Plus size={18} />Add medicine</button>
       </header>
 
@@ -124,6 +191,11 @@ export default function AdminMedicines() {
       <section className={common.grid}>
         {rows.map(row => (
           <article className={common.card} key={row.medicine_id}>
+            {row.medicine_image ? (
+              <img src={row.medicine_image} alt={row.medicine_name} className={common.medicineCardImage} />
+            ) : (
+              <div className={common.medicineCardImageFallback}><ImagePlus size={28} /><span>No image</span></div>
+            )}
             <span className={common.badge}>{row.medicine_is_active ? 'active' : 'inactive'}</span>
             <h2>{row.medicine_name}</h2>
             <p>{row.generic_name || row.category_name || 'Medicine'}</p>
@@ -141,13 +213,28 @@ export default function AdminMedicines() {
       </section>
 
       {open && (
-        <div className={common.modalBackdrop} onMouseDown={() => setOpen(false)}>
+        <div className={common.modalBackdrop} onMouseDown={closeEditor}>
           <section className={common.modal} onMouseDown={event => event.stopPropagation()}>
             <div className={common.modalHeader}>
               <div><h2>{editing ? 'Edit medicine' : 'Create medicine'}</h2></div>
-              <button onClick={() => setOpen(false)}><X size={20} /></button>
+              <button type="button" onClick={closeEditor}><X size={20} /></button>
             </div>
             <form className={common.form} onSubmit={submit}>
+              <div className={`${common.full} ${common.imageEditor}`}>
+                <div className={common.imagePreview}>
+                  {imagePreview ? <img src={imagePreview} alt="Medicine preview" /> : <ImagePlus size={32} />}
+                </div>
+                <div className={common.imageEditorActions}>
+                  <strong>Medicine image</strong>
+                  <input className={common.fileInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange} />
+                  {imagePreview && (
+                    <button type="button" className={common.danger} onClick={handleRemoveImage}>
+                      <Trash2 size={16} /> Remove image
+                    </button>
+                  )}
+                  <small>JPG, PNG, or WebP. Maximum 5 MB.</small>
+                </div>
+              </div>
               {[
                 ['medicine_name', 'Medicine name', 'text'],
                 ['generic_name', 'Generic name', 'text'],
@@ -205,8 +292,8 @@ export default function AdminMedicines() {
                 </select>
               </label>
               <div className={common.formActions}>
-                <button type="button" className={common.secondary} onClick={() => setOpen(false)}>Cancel</button>
-                <button className={common.primary}>Save medicine</button>
+                <button type="button" className={common.secondary} onClick={closeEditor} disabled={saving}>Cancel</button>
+                <button className={common.primary} disabled={saving}>{saving ? 'Saving...' : 'Save medicine'}</button>
               </div>
             </form>
           </section>

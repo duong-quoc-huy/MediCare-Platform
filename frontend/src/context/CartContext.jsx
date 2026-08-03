@@ -125,17 +125,24 @@ export function CartProvider({ children }) {
     setCartErrorWithTimeout('')
 
     const medicineId = medicine.medicine_id || medicine.medicine
+    const addedQuantity = Number(quantity)
 
     if (!medicineId) {
       setCartErrorWithTimeout('Invalid medicine.')
-      return
+      return false
+    }
+
+    if (!Number.isInteger(addedQuantity) || addedQuantity < 1) {
+      setCartErrorWithTimeout('Invalid quantity.')
+      return false
     }
 
     if (!isAuthenticated) {
       setCartItems(prevItems => {
-        const existingItem = prevItems.find(
-          item => item.medicine_id === medicineId || item.medicine === medicineId
-        )
+        const existingItem = prevItems.find(item => {
+          const itemMedicineId = item.medicine_id || item.medicine
+          return itemMedicineId === medicineId
+        })
 
         let updatedItems
 
@@ -143,26 +150,34 @@ export function CartProvider({ children }) {
           updatedItems = prevItems.map(item => {
             const itemMedicineId = item.medicine_id || item.medicine
 
-            if (itemMedicineId !== medicineId) return item
+            if (itemMedicineId !== medicineId) {
+              return item
+            }
 
-            const stock = medicine.medicine_stock ?? item.medicine_stock ?? 9999
+            const stock =
+              medicine.medicine_stock ??
+              item.medicine_stock ??
+              9999
 
             return {
               ...item,
-              quantity: Math.min(item.quantity + quantity, stock),
+              quantity: Math.min(
+                Number(item.quantity) + addedQuantity,
+                Number(stock)
+              ),
             }
           })
         } else {
           updatedItems = [
             ...prevItems,
             {
-              medicine_id: medicine.medicine_id,
-              medicine: medicine.medicine_id,
+              medicine_id: medicineId,
+              medicine: medicineId,
               medicine_name: medicine.medicine_name,
               medicine_price: medicine.medicine_price,
               medicine_image: medicine.medicine_image,
               medicine_stock: medicine.medicine_stock,
-              quantity,
+              quantity: addedQuantity,
             },
           ]
         }
@@ -171,25 +186,92 @@ export function CartProvider({ children }) {
         return updatedItems
       })
 
-      return
+      return true
     }
 
     if (!isPatient) {
-      setCartErrorWithTimeout('Only patients can add medicines to cart.')
-      return
+      setCartErrorWithTimeout(
+        'Only patients can add medicines to cart.'
+      )
+      return false
     }
 
-    try {
-      const cart = await addCartItem(medicineId, quantity)
+    // Preserve the previous state in case the request fails.
+    const previousItems = cartItems
+    const previousServerCart = serverCart
 
+    // Update the cart immediately.
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => {
+        const itemMedicineId = item.medicine_id || item.medicine
+        return itemMedicineId === medicineId
+      })
+
+      if (existingItem) {
+        return prevItems.map(item => {
+          const itemMedicineId = item.medicine_id || item.medicine
+
+          if (itemMedicineId !== medicineId) {
+            return item
+          }
+
+          const stock =
+            medicine.medicine_stock ??
+            item.medicine_stock ??
+            9999
+
+          return {
+            ...item,
+            quantity: Math.min(
+              Number(item.quantity) + addedQuantity,
+              Number(stock)
+            ),
+          }
+        })
+      }
+
+      return [
+        ...prevItems,
+        {
+          // Temporary ID used only until the server responds.
+          cart_item_id: `temporary-${medicineId}`,
+          medicine_id: medicineId,
+          medicine: medicineId,
+          medicine_name: medicine.medicine_name,
+          medicine_price: medicine.medicine_price,
+          medicine_image: medicine.medicine_image,
+          medicine_stock: medicine.medicine_stock,
+          quantity: addedQuantity,
+        },
+      ]
+    })
+
+    try {
+      const cart = await addCartItem(
+        medicineId,
+        addedQuantity
+      )
+
+      // Replace temporary data with authoritative server data.
       setServerCart(cart)
       setCartItems(normalizeServerCart(cart))
+
+      return true
     } catch (err) {
-      setCartErrorWithTimeout(
+      // Roll back the optimistic update.
+      setCartItems(previousItems)
+      setServerCart(previousServerCart)
+
+      const message =
         err.response?.data?.quantity ||
-          err.response?.data?.detail ||
-          'Could not add item to cart.'
+        err.response?.data?.detail ||
+        'Could not add item to cart.'
+
+      setCartErrorWithTimeout(
+        Array.isArray(message) ? message[0] : message
       )
+
+      return false
     }
   }
 
@@ -321,25 +403,20 @@ export function CartProvider({ children }) {
   }
 
   const totalAmount = useMemo(() => {
-    if (serverCart?.total_amount && isAuthenticated) {
-      return Number(serverCart.total_amount)
-    }
-
     return cartItems.reduce((total, item) => {
       const price = Number(item.medicine_price || 0)
-      return total + price * item.quantity
+      const quantity = Number(item.quantity || 0)
+
+      return total + price * quantity
     }, 0)
-  }, [cartItems, serverCart, isAuthenticated])
+  }, [cartItems])
 
   const totalItems = useMemo(() => {
-    if (serverCart?.total_items && isAuthenticated) {
-      return Number(serverCart.total_items)
-    }
-
-    return cartItems.reduce((total, item) => {
-      return total + item.quantity
-    }, 0)
-  }, [cartItems, serverCart, isAuthenticated])
+    return cartItems.reduce(
+      (total, item) => total + Number(item.quantity || 0),
+      0
+    )
+  }, [cartItems])
 
   const value = {
     cartItems,

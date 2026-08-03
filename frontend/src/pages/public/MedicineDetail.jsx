@@ -188,13 +188,19 @@ export default function MedicineDetail() {
   }
 
   async function handleAddToCart() {
-    await addToCart(medicine, quantity)
-    navigate('/cart')
+    const success = await addToCart(medicine, quantity)
+
+    if (success) {
+      navigate('/cart')
+    }
   }
 
   async function handleBuyNow() {
-    await addToCart(medicine, quantity)
-    navigate('/checkout')
+    const success = await addToCart(medicine, quantity)
+
+    if (success) {
+      navigate('/checkout')
+    }
   }
 
   async function handleSubmitReview(e) {

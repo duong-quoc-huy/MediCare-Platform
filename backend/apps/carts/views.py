@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 from drf_spectacular.utils import extend_schema
-
+from django.db.models import Prefetch
 from .models import Cart, CartItem
 from .serializers import (
 	CartSerializer,
@@ -21,6 +21,19 @@ def check_patient_user(user):
 		raise PermissionDenied('Only patient can use the cart')
 
 
+def get_optimized_cart(cart_id):
+	return (
+		Cart.objects
+		.prefetch_related(
+			Prefetch(
+				'items',
+				queryset=CartItem.objects.select_related('medicine')
+			)
+		)
+		.get(cart_id=cart_id)
+	)
+
+
 class CartDetailView(APIView):
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -28,6 +41,7 @@ class CartDetailView(APIView):
 		check_patient_user(request.user)
 
 		cart = get_or_create_user_cart(request.user)
+		cart = get_optimized_cart(cart.cart_id)
 
 		serializer = CartSerializer(
 			cart,
@@ -73,10 +87,12 @@ class CartAddItemView(APIView):
 				)
 
 			cart_item.quantity = new_quantity
-			cart_item.save()
+			cart_item.save(update_fields=['quantity'])
+
+		optimized_cart = get_optimized_cart(cart.cart_id)
 
 		cart_serializer = CartSerializer(
-			cart,
+			optimized_cart,
 			context={'request': request}
 		)
 
@@ -177,10 +193,12 @@ class CartMergeView(APIView):
 			if not created:
 				new_quantity = cart_item.quantity + quantity
 				cart_item.quantity = min(new_quantity, medicine.medicine_stock)
-				cart_item.save()
+				cart_item.save(update_fields=['quantity'])
+
+		optimized_cart = get_optimized_cart(cart.cart_id)
 
 		cart_serializer = CartSerializer(
-			cart,
+			optimized_cart,
 			context={'request': request}
 		)
 
