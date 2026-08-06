@@ -1,6 +1,11 @@
 from rest_framework import serializers
 
 from .models import Doctor, DoctorSchedule
+from .schedule_rules import (
+	ensure_schedule_update_preserves_appointments,
+	validate_schedule_values,
+)
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 
 class DoctorScheduleSerializer(serializers.ModelSerializer):
@@ -19,6 +24,43 @@ class DoctorScheduleSerializer(serializers.ModelSerializer):
 			'visit_type_display',
 			'slot_duration_minutes',
 		)
+
+	def validate(self, attrs):
+		instance = self.instance
+		doctor = attrs.get('doctor') or getattr(instance, 'doctor', None)
+
+		if doctor is None:
+			request = self.context.get('request')
+			if request and hasattr(request.user, 'doctor_profile'):
+				doctor = request.user.doctor_profile
+
+		day_of_week = attrs.get('day_of_week', getattr(instance, 'day_of_week', None))
+		start_time = attrs.get('start_time', getattr(instance, 'start_time', None))
+		end_time = attrs.get('end_time', getattr(instance, 'end_time', None))
+		visit_type = attrs.get('visit_type', getattr(instance, 'visit_type', DoctorSchedule.VisitType.CLINIC))
+		slot_duration = attrs.get('slot_duration_minutes', getattr(instance, 'slot_duration_minutes', 30))
+
+		try:
+			validate_schedule_values(
+				doctor=doctor,
+				day_of_week=day_of_week,
+				start_time=start_time,
+				end_time=end_time,
+				slot_duration_minutes=slot_duration,
+				instance=instance,
+			)
+			if instance:
+				ensure_schedule_update_preserves_appointments(
+					instance,
+					day_of_week=day_of_week,
+					start_time=start_time,
+					end_time=end_time,
+					visit_type=visit_type,
+				)
+		except DjangoValidationError as exc:
+			raise serializers.ValidationError(exc.message_dict if hasattr(exc, 'message_dict') else exc.messages)
+
+		return attrs
 
 
 class DoctorSerializer(serializers.ModelSerializer):

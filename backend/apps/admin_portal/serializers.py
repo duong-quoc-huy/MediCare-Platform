@@ -13,6 +13,11 @@ from apps.payments.models import Payment
 from apps.users.models import User
 
 from .models import AdminAuditLog
+from apps.doctors.schedule_rules import (
+	ensure_schedule_update_preserves_appointments,
+	validate_schedule_values,
+)
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -66,6 +71,29 @@ class AdminDoctorScheduleSerializer(serializers.ModelSerializer):
 			'start_time', 'end_time', 'visit_type',
 			'visit_type_display', 'slot_duration_minutes',
 		]
+
+
+	def validate(self, attrs):
+		instance = self.instance
+		doctor = attrs.get('doctor') or getattr(instance, 'doctor', None)
+		if doctor is None:
+			view = self.context.get('view')
+			if view and view.kwargs.get('doctor_id'):
+				doctor = Doctor.objects.get(pk=view.kwargs['doctor_id'])
+
+		day = attrs.get('day_of_week', getattr(instance, 'day_of_week', None))
+		start_time = attrs.get('start_time', getattr(instance, 'start_time', None))
+		end_time = attrs.get('end_time', getattr(instance, 'end_time', None))
+		visit_type = attrs.get('visit_type', getattr(instance, 'visit_type', DoctorSchedule.VisitType.CLINIC))
+		duration = attrs.get('slot_duration_minutes', getattr(instance, 'slot_duration_minutes', 30))
+
+		try:
+			validate_schedule_values(doctor=doctor, day_of_week=day, start_time=start_time, end_time=end_time, slot_duration_minutes=duration, instance=instance)
+			if instance:
+				ensure_schedule_update_preserves_appointments(instance, day_of_week=day, start_time=start_time, end_time=end_time, visit_type=visit_type)
+		except DjangoValidationError as exc:
+			raise serializers.ValidationError(exc.message_dict if hasattr(exc, 'message_dict') else exc.messages)
+		return attrs
 
 
 class AdminDoctorSerializer(serializers.ModelSerializer):
@@ -150,7 +178,6 @@ class AdminMedicineManufacturerSerializer(serializers.ModelSerializer):
 class AdminMedicineSerializer(serializers.ModelSerializer):
 	category_name = serializers.CharField(source='medicine_category.category_name', read_only=True)
 	manufacturer_name = serializers.CharField(source='medicine_manufacturer.manufacturer_name', read_only=True)
-	remove_medicine_image = serializers.BooleanField(write_only=True, required=False, default=False)
 
 	class Meta:
 		model = Medicine
@@ -164,28 +191,10 @@ class AdminMedicineSerializer(serializers.ModelSerializer):
 			'side_effects', 'active_ingredients',
 			'medicine_stock', 'shipping_weight_grams',
 			'medicine_price', 'medicine_image',
-			'remove_medicine_image',
 			'medicine_requires_prescription',
 			'medicine_is_active', 'created_at',
 		]
 		read_only_fields = ['medicine_id', 'created_at']
-
-	def create(self, validated_data):
-		validated_data.pop('remove_medicine_image', None)
-		return super().create(validated_data)
-
-	def update(self, instance, validated_data):
-		remove_image = validated_data.pop(
-			'remove_medicine_image',
-			False,
-		)
-
-		if remove_image and instance.medicine_image:
-			instance.medicine_image.delete(save=False)
-			instance.medicine_image = None
-
-		return super().update(instance, validated_data)
-
 
 
 class AdminAppointmentSerializer(serializers.ModelSerializer):

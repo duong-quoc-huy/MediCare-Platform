@@ -200,10 +200,7 @@ class MedicineOrderListCreateView(generics.ListCreateAPIView):
 			)
 
 		if getattr(user, 'role', None) == 'patient':
-			return queryset.filter(
-				patient=user,
-			)
-
+			return queryset.filter(patient=user)
 		return queryset.none()
 
 	def create(self, request, *args, **kwargs):

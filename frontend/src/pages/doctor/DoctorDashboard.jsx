@@ -665,6 +665,14 @@ export default function DoctorDashboard() {
           </Link>
 
           <Link
+            to="/doctor/schedule"
+            className={styles.heroButtonSecondary}
+          >
+            <Clock size={18} />
+            Working schedule
+          </Link>
+
+          <Link
             to="/doctor/appointments/history"
             className={
               styles.heroButtonSecondary

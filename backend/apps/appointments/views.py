@@ -119,9 +119,7 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 		return role_queryset.order_by('appointment_date', 'start_time')
 
 	def list(self, request, *args, **kwargs):
-		queryset = self.filter_queryset(
-			self.get_queryset()
-		)
+		queryset = self.filter_queryset(self.get_queryset())
 
 		current_time = timezone.localtime()
 

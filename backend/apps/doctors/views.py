@@ -2,14 +2,16 @@ from datetime import datetime
 
 from django.db.models import Q
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.appointments.slot_engine import get_available_slots
 
-from .models import Doctor
-from .serializers import DoctorSerializer
+from .models import Doctor, DoctorSchedule
+from .serializers import DoctorSerializer, DoctorScheduleSerializer
+from .schedule_rules import ensure_schedule_can_be_deleted
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 
 class DoctorListView(generics.ListAPIView):
@@ -125,3 +127,43 @@ class DoctorAvailableSlotsView(APIView):
 		)
 
 		return Response(slots, status=status.HTTP_200_OK)
+
+class IsDoctorUser:
+	@staticmethod
+	def check(request):
+		return request.user.is_authenticated and getattr(request.user, 'role', None) == 'doctor'
+
+
+class MyDoctorScheduleListCreateView(generics.ListCreateAPIView):
+	serializer_class = DoctorScheduleSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		if not IsDoctorUser.check(self.request):
+			return DoctorSchedule.objects.none()
+		return DoctorSchedule.objects.filter(doctor__user=self.request.user)
+
+	def perform_create(self, serializer):
+		if not IsDoctorUser.check(self.request):
+			from rest_framework.exceptions import PermissionDenied
+			raise PermissionDenied('Only doctors can manage a working schedule.')
+		serializer.save(doctor=self.request.user.doctor_profile)
+
+
+class MyDoctorScheduleDetailView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = DoctorScheduleSerializer
+	permission_classes = [IsAuthenticated]
+	http_method_names = ['get', 'patch', 'delete']
+
+	def get_queryset(self):
+		if not IsDoctorUser.check(self.request):
+			return DoctorSchedule.objects.none()
+		return DoctorSchedule.objects.filter(doctor__user=self.request.user)
+
+	def perform_destroy(self, instance):
+		try:
+			ensure_schedule_can_be_deleted(instance)
+		except DjangoValidationError as exc:
+			from rest_framework.exceptions import ValidationError
+			raise ValidationError(exc.message_dict if hasattr(exc, 'message_dict') else exc.messages)
+		instance.delete()

@@ -251,3 +251,28 @@
     display: flex;
   }
 }
+.activeNavLink {
+  color: var(--teal-mid);
+  font-weight: 700;
+}
+
+.cartLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 1100px) and (min-width: 769px) {
+  .links {
+    gap: 0.9rem;
+  }
+
+  .navLink,
+  .cartLink {
+    font-size: 13px;
+  }
+
+  .userName {
+    display: none;
+  }
+}

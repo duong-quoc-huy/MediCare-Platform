@@ -4,6 +4,7 @@ import {
   useState,
 } from 'react'
 import {
+  CalendarClock,
   Camera,
   FileSignature,
   Plus,
@@ -17,6 +18,7 @@ import {
   updateAdminDoctor,
 } from '../../services/adminService'
 import common from './adminCommon.module.css'
+import DoctorScheduleManager from './DoctorScheduleManager'
 
 const normalize = data =>
   Array.isArray(data) ? data : data?.results || []
@@ -134,6 +136,7 @@ export default function AdminDoctors() {
   const [form, setForm] = useState(EMPTY)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [scheduleDoctor, setScheduleDoctor] = useState(null)
 
   const [profilePreview, setProfilePreview] =
     useState('')
@@ -483,10 +486,24 @@ export default function AdminDoctors() {
               >
                 Edit profile
               </button>
+              <button
+                className={common.secondary}
+                onClick={() => setScheduleDoctor(row)}
+              >
+                <CalendarClock size={17} />
+                Manage schedule
+              </button>
             </div>
           </article>
         ))}
       </section>
+
+      {scheduleDoctor && (
+        <DoctorScheduleManager
+          doctor={scheduleDoctor}
+          onClose={() => setScheduleDoctor(null)}
+        />
+      )}
 
       {open && (
         <div

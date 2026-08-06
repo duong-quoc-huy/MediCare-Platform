@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Appointment
 from apps.doctors.serializers import DoctorSerializer
-from .slot_engine import get_available_slots
+from .slot_engine import get_available_slots, find_schedule_for_slot
 from datetime import datetime, timedelta
 from apps.doctors.models import DoctorSchedule
 from django.utils import timezone
@@ -83,32 +83,21 @@ class AppointmentListSerializer(serializers.ModelSerializer):
 		return getattr(obj, cache_name)
 
 	def get_can_start_checkup(self, obj):
-		return self.get_start_availability(obj)[
-			'can_start'
-		]
+		return self.get_start_availability(obj)['can_start']
 
 	def get_start_block_reason(self, obj):
-		return self.get_start_availability(obj)[
-			'reason'
-		]
+		return self.get_start_availability(obj)['reason']
 
 	def get_start_block_message(self, obj):
-		return self.get_start_availability(obj)[
-			'message'
-		]
+		return self.get_start_availability(obj)['message']
 
 	def get_earliest_start_at(self, obj):
-		value = self.get_start_availability(obj).get(
-			'earliest_start'
-		)
+		value = self.get_start_availability(obj).get('earliest_start')
 
 		return value.isoformat() if value else None
 
 	def get_latest_start_at(self, obj):
-		value = self.get_start_availability(obj).get(
-			'latest_start'
-		)
-
+		value = self.get_start_availability(obj).get('latest_start')
 		return value.isoformat() if value else None
 
 	def get_server_time(self, obj):
@@ -227,20 +216,19 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 		request = self.context['request']
 		validated_data['patient'] = request.user
 
-		day_of_week = appointment_date.weekday()
-
-		schedule = DoctorSchedule.objects.get(
-			doctor=doctor,
-			day_of_week=day_of_week,
-			visit_type=visit_type
+		schedule, end_time = find_schedule_for_slot(
+			doctor.id,
+			appointment_date,
+			start_time,
+			visit_type,
 		)
 
-		start_dt = datetime.combine(appointment_date, start_time)
-		end_dt = start_dt + timedelta(
-			minutes=schedule.slot_duration_minutes
-		)
+		if schedule is None:
+			raise serializers.ValidationError({
+				'start_time': 'The selected time does not belong to an active working period.'
+			})
 
-		validated_data['end_time'] = end_dt.time()
+		validated_data['end_time'] = end_time
 		validated_data['total_fee'] = doctor.consultation_fee
 
 		return Appointment.objects.create(**validated_data)

@@ -33,6 +33,10 @@ from .serializers import (
 	AdminUserSerializer,
 	AdminVitalsSerializer,
 )
+from apps.doctors.schedule_rules import ensure_schedule_can_be_deleted
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
+
 from .services import (
 	dashboard_summary,
 	distributions,
@@ -282,6 +286,15 @@ class AdminDoctorScheduleDetailView(
 		return DoctorSchedule.objects.filter(
 			doctor_id=self.kwargs['doctor_id']
 		)
+
+	def perform_destroy(self, instance):
+		try:
+			ensure_schedule_can_be_deleted(instance)
+		except DjangoValidationError as exc:
+			raise DRFValidationError(
+				exc.message_dict if hasattr(exc, 'message_dict') else exc.messages
+			)
+		instance.delete()
 
 
 class AdminMedicineListCreateView(generics.ListCreateAPIView):

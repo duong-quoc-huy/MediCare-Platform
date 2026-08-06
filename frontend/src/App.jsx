@@ -42,6 +42,7 @@ import AppointmentFinalPaymentResult from './pages/payment/AppointmentFinalPayme
 import AppointmentFinalPayPalReturn from './pages/payment/AppointmentFinalPayPalReturn'
 import DoctorAppointmentRecord from './pages/doctor/DoctorAppointmentRecord'
 import DoctorAppointmentsPage from './pages/doctor/DoctorAppointmentsPage'
+import DoctorSchedulePage from './pages/doctor/DoctorSchedulePage'
 import NurseDashboard from './pages/nurse/NurseDashboard' 
 import NursePharmacyQueue from './pages/nurse/NursePharmacyQueue' 
 import NursePharmacyDetail from './pages/nurse/NursePharmacyDetail'
@@ -276,6 +277,15 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['doctor']}>
                 <DoctorDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/doctor/schedule"
+            element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorSchedulePage />
               </ProtectedRoute>
             }
           />
