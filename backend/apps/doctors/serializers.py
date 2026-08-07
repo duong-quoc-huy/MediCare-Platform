@@ -46,6 +46,7 @@ class DoctorScheduleSerializer(serializers.ModelSerializer):
 				day_of_week=day_of_week,
 				start_time=start_time,
 				end_time=end_time,
+				visit_type=visit_type,
 				slot_duration_minutes=slot_duration,
 				instance=instance,
 			)

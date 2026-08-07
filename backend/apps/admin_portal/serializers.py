@@ -88,9 +88,23 @@ class AdminDoctorScheduleSerializer(serializers.ModelSerializer):
 		duration = attrs.get('slot_duration_minutes', getattr(instance, 'slot_duration_minutes', 30))
 
 		try:
-			validate_schedule_values(doctor=doctor, day_of_week=day, start_time=start_time, end_time=end_time, slot_duration_minutes=duration, instance=instance)
+			validate_schedule_values(
+				doctor=doctor, 
+				day_of_week=day, 
+				start_time=start_time, 
+				end_time=end_time,
+				visit_type=visit_type, 
+				slot_duration_minutes=duration, 
+				instance=instance
+			)
 			if instance:
-				ensure_schedule_update_preserves_appointments(instance, day_of_week=day, start_time=start_time, end_time=end_time, visit_type=visit_type)
+				ensure_schedule_update_preserves_appointments(
+					instance, 
+					day_of_week=day, 
+					start_time=start_time, 
+					end_time=end_time,
+					isit_type=visit_type
+				)
 		except DjangoValidationError as exc:
 			raise serializers.ValidationError(exc.message_dict if hasattr(exc, 'message_dict') else exc.messages)
 		return attrs
