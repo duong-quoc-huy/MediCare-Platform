@@ -5,47 +5,21 @@ from apps.users.models import User
 
 
 class AppointmentVitals(models.Model):
-	appointment = models.OneToOneField(
-		Appointment,
-		on_delete=models.CASCADE,
-		related_name='vitals'
+	appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='vitals'
 	)
 
 	blood_pressure_systolic = models.PositiveIntegerField(null=True, blank=True)
 	blood_pressure_diastolic = models.PositiveIntegerField(null=True, blank=True)
+
 	heart_rate = models.PositiveIntegerField(null=True, blank=True)
-
-	temperature = models.DecimalField(
-		max_digits=4,
-		decimal_places=1,
-		null=True,
-		blank=True
-	)
-
-	weight = models.DecimalField(
-		max_digits=5,
-		decimal_places=1,
-		null=True,
-		blank=True
-	)
-
-	height = models.DecimalField(
-		max_digits=5,
-		decimal_places=1,
-		null=True,
-		blank=True
-	)
+	temperature = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+	weight = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+	height = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
 
 	spo2 = models.PositiveIntegerField(null=True, blank=True)
 	diagnosis = models.TextField(blank=True)
 
-	recorded_by = models.ForeignKey(
-		User,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name='recorded_vitals'
-	)
+	recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='recorded_vitals')
 
 	recorded_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -87,18 +61,8 @@ class MasterSymptom(models.Model):
 class AppointmentComorbidity(models.Model):
 	appointment_comorbidity_id = models.BigAutoField(primary_key=True)
 
-	appointment = models.ForeignKey(
-		Appointment,
-		on_delete=models.CASCADE,
-		related_name='comorbidities'
-	)
-
-	comorbidity = models.ForeignKey(
-		MasterComorbidity,
-		on_delete=models.PROTECT,
-		related_name='appointment_comorbidities'
-	)
-
+	appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='comorbidities')
+	comorbidity = models.ForeignKey(MasterComorbidity, on_delete=models.PROTECT, related_name='appointment_comorbidities')
 	comorbidity_code = models.CharField(max_length=50)
 	comorbidity_name = models.CharField(max_length=200)
 	notes = models.TextField(blank=True)
@@ -120,17 +84,9 @@ class AppointmentComorbidity(models.Model):
 class AppointmentSymptom(models.Model):
 	appointment_symptom_id = models.BigAutoField(primary_key=True)
 
-	appointment = models.ForeignKey(
-		Appointment,
-		on_delete=models.CASCADE,
-		related_name='symptoms'
-	)
+	appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='symptoms')
 
-	symptom = models.ForeignKey(
-		MasterSymptom,
-		on_delete=models.PROTECT,
-		related_name='appointment_symptoms'
-	)
+	symptom = models.ForeignKey(MasterSymptom, on_delete=models.PROTECT, related_name='appointment_symptoms')
 
 	symptom_code = models.CharField(max_length=50)
 	symptom_name = models.CharField(max_length=200)
